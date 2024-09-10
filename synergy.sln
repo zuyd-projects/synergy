@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExotischNederland", "ExotischNederland\ExotischNederland.csproj", "{8AC3C931-F28F-434E-AB52-776D9A9E73E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{8AC3C931-F28F-434E-AB52-776D9A9E73E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AC3C931-F28F-434E-AB52-776D9A9E73E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AC3C931-F28F-434E-AB52-776D9A9E73E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,1 +1,6 @@
 .vs
+ExotischNederland/bin
+ExotischNederland/obj
+Tests/bin
+Tests/obj
+packages
