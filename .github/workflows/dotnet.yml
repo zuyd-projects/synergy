@@ -17,15 +17,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up .NET Framework
+      - name: Set up MSBuild
         uses: microsoft/setup-msbuild@v1
 
       - name: Restore NuGet packages
-        run: nuget restore
+        run: nuget restore synergy.sln
 
       - name: Build solution
         run: msbuild synergy.sln /p:Configuration=Release
 
-      - name: Run tests
+      - name: Locate VSTest.Console
+        id: locate-vstest
         run: |
-          vstest.console.exe Tests/bin/Release/Tests.dll
+          echo "::set-output name=vstest-path::$(vswhere -latest -requires Microsoft.Component.MSBuild -find **/vstest.console.exe)"
+
+      - name: Run unit tests
+        run: |
+          ${{ steps.locate-vstest.outputs.vstest-path }} Tests/bin/Release/Tests.dll
