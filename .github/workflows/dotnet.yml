@@ -28,4 +28,4 @@ jobs:
 
       - name: Run tests
         run: |
-          vstest.console.exe MyApp.Tests/bin/Release/MyApp.Tests.dll
+          vstest.console.exe Tests/bin/Release/Tests.dll
