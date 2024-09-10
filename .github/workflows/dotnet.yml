@@ -28,4 +28,4 @@ jobs:
 
       - name: Run unit tests
         run: |
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" Tests/bin/Release/Tests.dll
+          & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" Tests/bin/Release/Tests.dll
