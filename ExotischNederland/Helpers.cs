@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace ExotischNederland
 {
     internal class Helpers
     {
-        static string MenuSelect(Dictionary<string, string> items, bool indexes = false)
+        public static string MenuSelect(Dictionary<string, string> items, bool indexes = false)
         {
             int selected = 0;
             while (true)
@@ -47,6 +48,25 @@ namespace ExotischNederland
                 {
                     return items.Keys.ToList()[selected];
                 }
+            }
+        }
+
+        /// <summary>
+        /// Returns a SHA256 hash of the input password
+        /// </summary>
+        /// <param name="_password">Input password</param>
+        /// <returns></returns>
+        public static string HashPassword(string _password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(_password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
     }
