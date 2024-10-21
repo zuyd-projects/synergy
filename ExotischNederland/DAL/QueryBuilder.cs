@@ -29,7 +29,7 @@ namespace ExotischNederland.DAL
             var columns = string.Join(", ", _values.Keys);
             var parameters = string.Join(", ", _values.Keys.Select(k => "@" + k));
             // Set the base SQL query to the INSERT statement and return the QueryBuilder instance
-            this.baseSQL = $"INSERT INTO {this.table} ({columns}) VALUES ({parameters})";
+            this.baseSQL = $"INSERT INTO [{this.table}] ({columns}) VALUES ({parameters})";
             return this;
         }
 
@@ -37,7 +37,7 @@ namespace ExotischNederland.DAL
         public QueryBuilder Select()
         {
             // Set the base SQL query to the SELECT statement and return the QueryBuilder instance
-            this.baseSQL = $"SELECT * FROM {this.table}";
+            this.baseSQL = $"SELECT * FROM [{this.table}]";
             return this;
         }
 
@@ -47,7 +47,7 @@ namespace ExotischNederland.DAL
             // Get the set values from the values and join them into a comma separated string
             var setValues = string.Join(", ", _values.Select(kvp => $"{kvp.Key} = @{kvp.Key}"));
             // Set the base SQL query to the UPDATE statement and return the QueryBuilder instance
-            this.baseSQL = $"UPDATE {this.table} SET {setValues}";
+            this.baseSQL = $"UPDATE [{this.table}] SET {setValues}";
             return this;
         }
 
@@ -55,7 +55,7 @@ namespace ExotischNederland.DAL
         public QueryBuilder Delete()
         {
             // Set the base SQL query to the DELETE statement and return the QueryBuilder instance
-            this.baseSQL = $"DELETE FROM {this.table}";
+            this.baseSQL = $"DELETE FROM [{this.table}]";
             return this;
         }
 
@@ -64,7 +64,7 @@ namespace ExotischNederland.DAL
         public QueryBuilder Where(string _column, string _operator, string _value)
         {
             // Add the WHERE clause to the list of WHERE clauses and return the QueryBuilder instance
-            this.whereClauses.Add(_column + " " + _operator + " " + _value);
+            this.whereClauses.Add($"[{_column}]" + " " + _operator + " " + $"'{_value}'");
             return this;
         }
 
