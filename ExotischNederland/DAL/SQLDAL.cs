@@ -9,7 +9,7 @@ namespace ExotischNederland.DAL
 {
     internal class SQLDAL
     {
-        private readonly string connectionString = "Server=db.rickokkersen.nl;Database=synergy;User Name=synergy;Password=!1q@2w#3e";
+        private readonly string connectionString = "Server=db.rickokkersen.nl;Database=synergy;User ID=synergy;Password=!1q@2w#3e";
 
 
         private SqlConnection connection;
@@ -17,6 +17,31 @@ namespace ExotischNederland.DAL
         public SQLDAL()
         {
             this.connection = new SqlConnection(this.connectionString);
+        }
+
+        public T Find<T>(string _field, string _value)
+        {
+            string table = typeof(T).Name;
+            var query = new QueryBuilder(table).Select().Where(_field, "=", _value).Build();
+            using (SqlConnection connection = new SqlConnection(this.connectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Use the fillable array to only fill the properties that are allowed
+                            var values = new Dictionary<string, object>();
+                            for (int i = 0; i < reader.FieldCount; i++)
+                                values.Add(reader.GetName(i), reader.GetValue(i));
+                            return (T)Activator.CreateInstance(typeof(T), values);
+                        }
+                        return default(T);
+                    }
+                }
+            }
         }
 
         public int Insert(string _table, Dictionary<string, object> _values)
