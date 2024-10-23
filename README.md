@@ -70,13 +70,14 @@ We follow a branching structure that ensures code stability and organized develo
 
 - **Main Branch**: Production-ready code.
 - **Staging Branch**: Pre-production, used for testing.
-- **Working Branch**: Feature or task-specific branches, named after the Linear ticket (e.g., `BEN-1`).
+- **Working Branch**: Feature or task-specific branches, named after the Linear ticket (e.g., `feature/ben-83`).
 
 ### Pull Requests (PRs)
 
 All pull requests must meet the following criteria:
-1. **At least one reviewer** is required to review and approve the PR before merging into the main branch.
-2. Ensure that PRs are well-documented and follow our [commenting standards](https://conventionalcomments.org/).
+1. **At least one reviewer** is required to review and approve the PR before merging into the staging branch.
+2. **At least 3 reviewers** are required to review and approve the PR before merging into the main branch.
+3Ensure that PRs are well-documented and follow our [commenting standards](https://conventionalcomments.org/).
 
 ### Commit Messages
 
