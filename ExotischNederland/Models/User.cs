@@ -1,4 +1,5 @@
 ﻿using ExotischNederland.DAL;
+using ExotischNederland.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace ExotischNederland.Models
 {
     internal class User
     {
+        private int id;  // Add the User ID property
         private string tablename = "User";
         private string name;
         private string email;
@@ -19,6 +21,7 @@ namespace ExotischNederland.Models
 
         public User(Dictionary<string, object> values)
         {
+            this.id = (int)values["Id"];  // Initialize the User ID
             this.name = (string)values["Name"];
             this.email = (string)values["Email"];
             this.passwordHash = (string)values["PasswordHash"];
@@ -27,44 +30,28 @@ namespace ExotischNederland.Models
             roles = new List<Role>();
         }
 
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
+        public int Id => id;  // Add the User ID property
+        public string Name => name;
+        public string Email => email;
+        public string PasswordHash => passwordHash;
+        public List<Observation> Observations => observations;
+        public List<Route> Routes => routes;
+        public List<Role> Roles => roles;
 
-        public string Email
+        public static User Authenticate(string _email, string _password)
         {
-            get { return email; }
-            set { email = value; }
-        }
-
-        public List<Observation> GetObservations()
-        {
-            return observations;
-        }
-
-        public List<Route> GetRoutes()
-        {
-            return routes;
-        }
-
-        public List<Role> GetRoles()
-        {
-            return roles;
-        }
-
-        public static bool Authenticate(string _email, string _password)
-        {
-            // Hash the password and compare it to the stored hash
-            if (_email == null || _password == null) return false;
+            if (_email == null || _password == null) return null;
 
             SQLDAL sql = new SQLDAL();
             User user = sql.Find<User>("email", _email);
 
-            if (user == null) return false;
-            Console.WriteLine(user.passwordHash + " " + Helpers.HashPassword(_password));
-            return user.passwordHash == Helpers.HashPassword(_password);
+            if (user == null) return null;
+            if (user.passwordHash == Helpers.HashPassword(_password))
+            {
+                return user;  // Return the authenticated User object
+            }
+
+            return null;  // Return null if authentication fails
         }
 
         public static void Create(string _name, string _email, string _password)
@@ -78,16 +65,18 @@ namespace ExotischNederland.Models
             };
 
             int id = sql.Insert("User", values);
-
         }
 
-            // TODO: Implement the following methods
-            // + Create(string name, string email, string passwordHash)
-            // + Update(int id, string name, string email, string
-            // passwordHash)
-            // + Delete(int id)
-            // + AssignRole(int userId, int roleId)
-            // + RemoveRole(int userId, int roleId)
+        public List<Observation> GetObservations()
+        {
+            SQLDAL sql = new SQLDAL();
+            return sql.Select<Observation>("Observation").Where(o => o.User.id == this.Id).ToList();
+        }
 
+        // TODO: Implement the following methods
+        // + Update(int id, string name, string email, string passwordHash)
+        // + Delete(int id)
+        // + AssignRole(int userId, int roleId)
+        // + RemoveRole(int userId, int roleId)
     }
 }
