@@ -6,36 +6,28 @@ namespace ExotischNederland.Models
 {
     internal class Specie
     {
-        private readonly int id;
-        private string name;
-        private string category;
-        private List<Observation> observations;
-
-        private string tablename = "Specie";
+        public int Id { get; private set; }
+        public string Name { get; set; }
+        public string Category { get; set; }
+        public List<Observation> Observations { get; set; }
 
         // Constructor to initialize Specie with id, name, and category
         public Specie(int id, string name, string category)
         {
-            this.id = id;
-            this.name = name;
-            this.category = category;
-            this.observations = new List<Observation>();  // Initialize the observations list
+            this.Id = id;
+            this.Name = name;
+            this.Category = category;
+            this.Observations = new List<Observation>();
         }
 
         // Constructor that takes a dictionary to initialize the Specie fields
         public Specie(Dictionary<string, object> values)
         {
-            this.id = (int)values["Id"];
-            this.name = (string)values["Name"];
-            this.category = (string)values["Category"];
-            this.observations = new List<Observation>();  // Initialize the observations list
+            this.Id = (int)values["Id"];
+            this.Name = (string)values["Name"];
+            this.Category = (string)values["Category"];
+            this.Observations = new List<Observation>();
         }
-
-        // Properties to access the fields
-        public int Id => id;
-        public string Name => name;
-        public string Category => category;
-        public List<Observation> Observations => observations;
 
         // Static method to find or create a new Specie
         public static Specie FindOrCreate(string name, string category)
@@ -43,13 +35,13 @@ namespace ExotischNederland.Models
             SQLDAL sql = new SQLDAL();
             
             // Try to find the specie first
-            Specie specie = sql.Find<Specie>("name", name);
+            Specie specie = sql.Find<Specie>("Name", name);
             
             if (specie == null)
             {
                 // If the specie doesn't exist, create it
                 Create(name, category);
-                specie = sql.Find<Specie>("name", name);  // Fetch the newly created specie
+                specie = sql.Find<Specie>("Name", name);  // Fetch the newly created specie
             }
 
             return specie;  // Return the found or created specie
@@ -61,8 +53,8 @@ namespace ExotischNederland.Models
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "name", name },
-                { "category", category }
+                { "Name", name },
+                { "Category", category }
             };
 
             int id = sql.Insert("Specie", values);
@@ -75,8 +67,8 @@ namespace ExotischNederland.Models
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "name", name },
-                { "category", category }
+                { "Name", name },
+                { "Category", category }
             };
 
             sql.Update("Specie", id, values);
