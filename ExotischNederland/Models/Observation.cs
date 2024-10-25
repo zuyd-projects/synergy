@@ -29,7 +29,7 @@ namespace ExotischNederland.Models
             else if (values.ContainsKey("UserId"))
             {
                 // Load User object by UserId
-                this.user = new User(new Dictionary<string, object> { { "Id", Convert.ToInt32(values["UserId"]) } });
+                this.user = User.Find(Convert.ToInt32(values["UserId"]));
             }
             else
             {
@@ -44,7 +44,7 @@ namespace ExotischNederland.Models
             else if (values.ContainsKey("SpecieId"))
             {
                 // Load Specie object by SpecieId
-                this.specie = new Specie(new Dictionary<string, object> { { "Id", Convert.ToInt32(values["SpecieId"]) } });
+                this.specie = Specie.Find(Convert.ToInt32(values["SpecieId"]));
             }
             else
             {

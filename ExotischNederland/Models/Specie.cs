@@ -90,5 +90,11 @@ namespace ExotischNederland.Models
             sql.Delete("Specie", id);
             Console.WriteLine($"Specie with ID: {id} deleted.");
         }
+
+        public static Specie Find(int id)
+        {
+            SQLDAL sql = new SQLDAL();
+            return sql.Find<Specie>("Id", id.ToString());
+        }
     }
 }

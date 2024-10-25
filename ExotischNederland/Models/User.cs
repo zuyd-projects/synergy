@@ -71,6 +71,11 @@ namespace ExotischNederland.Models
         {
             SQLDAL sql = new SQLDAL();
             return sql.Select<Observation>("Observation").Where(o => o.User.id == this.Id).ToList();
+
+        public static User Find(int id)
+        {
+            SQLDAL sql = new SQLDAL();
+            return sql.Find<User>("Id", id.ToString());
         }
 
         // TODO: Implement the following methods
