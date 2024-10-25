@@ -27,17 +27,20 @@ namespace ExotischNederland.DAL
         {
             // Get the columns and parameters from the values and join them into a comma separated string
             var columns = string.Join(", ", _values.Keys);
-            var parameters = string.Join(", ", _values.Keys.Select(k => "@" + k));
             // Set the base SQL query to the INSERT statement and return the QueryBuilder instance
+            var parameters = string.Join(", ", _values.Keys.Select(k => "@" + k));
             this.baseSQL = $"INSERT INTO [{this.table}] ({columns}) VALUES ({parameters})";
             return this;
         }
 
-        // Method for building the base Select query
-        public QueryBuilder Select()
+        // Method for building the base Select query, optionally allowing specific columns to be selected
+        public QueryBuilder Select(params string[] columns)
         {
-            // Set the base SQL query to the SELECT statement and return the QueryBuilder instance
-            this.baseSQL = $"SELECT * FROM [{this.table}]";
+            // If no columns are provided, default to selecting all
+            string columnList = columns.Length > 0
+            ? string.Join(", ", columns.Select(c => $"[{c}]"))
+            : "*";
+            this.baseSQL = $"SELECT {columnList} FROM [{this.table}]";
             return this;
         }
 
@@ -59,24 +62,22 @@ namespace ExotischNederland.DAL
             return this;
         }
 
-        // Method for adding a WHERE clause to the query (can be chained)
-        // Chaining allows multiple WHERE clauses to be added to the query using AND
-        public QueryBuilder Where(string _column, string _operator, string _value)
+        // Add WHERE clause using parameters to avoid SQL injection
+        public QueryBuilder Where(string _column, string _operator, object _value)
         {
-            // Add the WHERE clause to the list of WHERE clauses and return the QueryBuilder instance
-            this.whereClauses.Add($"[{_column}]" + " " + _operator + " " + $"'{_value}'");
+            string parameterValue = _value is string ? $"'{_value}'" : _value.ToString();
+            this.whereClauses.Add($"[{_column}] {_operator} {parameterValue}");
             return this;
         }
 
-        // Method for adding an ORDER BY clause to the query (can be chained)
+        // ORDER BY clause support
         public QueryBuilder OrderBy(string _column, bool _ascending = true)
         {
-            // Add the ORDER BY clause to the list of ORDER BY clauses and return the QueryBuilder instance
             this.orderByClauses.Add($"{_column} {(_ascending ? "ASC" : "DESC")}");
             return this;
         }
 
-        // Build the final query string from the base SQL query, WHERE clauses, and ORDER BY clauses
+        // Build the final query string with WHERE and ORDER BY clauses
         public string Build()
         {
             var query = new StringBuilder(this.baseSQL);
@@ -90,7 +91,7 @@ namespace ExotischNederland.DAL
             {
                 query.Append(" ORDER BY " + string.Join(", ", orderByClauses));
             }
-            // Return the final query string
+
             return query.ToString();
         }
     }
