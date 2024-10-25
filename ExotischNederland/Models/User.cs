@@ -70,7 +70,8 @@ namespace ExotischNederland.Models
         public List<Observation> GetObservations()
         {
             SQLDAL sql = new SQLDAL();
-            return sql.Select<Observation>("Observation").Where(o => o.User.id == this.Id).ToList();
+            return sql.Select<Observation>("Observation", qb => qb.Where("UserId", "=", this.id));
+        }
 
         public static User Find(int id)
         {

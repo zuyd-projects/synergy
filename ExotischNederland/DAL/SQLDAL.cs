@@ -97,9 +97,10 @@ namespace ExotischNederland.DAL
         }
 
         // Method to select all rows from a table
-        public List<T> Select<T>(string _table)
+        public List<T> Select<T>(string _table, Func<QueryBuilder, QueryBuilder> _queryBuilder = null)
         {
-            var query = new QueryBuilder(_table).Select().Build();
+            var queryBuilder = new QueryBuilder(_table).Select();
+            var query = _queryBuilder != null ? _queryBuilder(queryBuilder).Build() : queryBuilder.Build();
             List<T> results = new List<T>();
 
             using (SqlConnection connection = new SqlConnection(this.connectionString))
