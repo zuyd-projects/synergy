@@ -9,7 +9,7 @@ namespace ExotischNederland.Models
 {
     internal class Observation
     {
-        private int id;
+        private readonly int id;
         private User user;  // Foreign key to the User table
         private Specie specie; // Foreign key to the Specie table
         private float longitude;
@@ -20,13 +20,9 @@ namespace ExotischNederland.Models
         public Observation(Dictionary<string, object> values)
         {
             this.id = Convert.ToInt32(values["Id"]);
-
-            // Handle User as an ID or full object
-            if (values.ContainsKey("User") && values["User"] is Dictionary<string, object> userDict)
-            {
-                this.user = new User(userDict);
-            }
-            else if (values.ContainsKey("UserId"))
+            
+            // Handle User as an ID
+            if (values.ContainsKey("UserId"))
             {
                 // Load User object by UserId
                 this.user = User.Find(Convert.ToInt32(values["UserId"]));
@@ -36,12 +32,8 @@ namespace ExotischNederland.Models
                 this.user = null;
             }
 
-            // Handle Specie as an ID or full object
-            if (values.ContainsKey("Specie") && values["Specie"] is Dictionary<string, object> specieDict)
-            {
-                this.specie = new Specie(specieDict);
-            }
-            else if (values.ContainsKey("SpecieId"))
+            // Handle Specie as an ID
+            if (values.ContainsKey("SpecieId"))
             {
                 // Load Specie object by SpecieId
                 this.specie = Specie.Find(Convert.ToInt32(values["SpecieId"]));
@@ -57,14 +49,38 @@ namespace ExotischNederland.Models
             this.photoUrl = values["PhotoUrl"]?.ToString();
         }
 
-        // Properties to access the fields
+        // Properties to access the fields or set them
         public int Id => id;
-        public User User => user;  
-        public Specie Specie => specie;  
-        public float Longitude => longitude;
-        public float Latitude => latitude;
-        public string Description => description;
-        public string PhotoUrl => photoUrl;
+        public User User
+        {
+            get => user;
+            set => user = value;
+        }
+        public Specie Specie
+        {
+            get => specie;
+            set => specie = value;
+        }
+        public float Longitude
+        {
+            get => longitude;
+            set => longitude = value;
+        }
+        public float Latitude
+        {
+            get => latitude;
+            set => latitude = value;
+        }
+        public string Description
+        {
+            get => description;
+            set => description = value;
+        }
+        public string PhotoUrl
+        {
+            get => photoUrl;
+            set => photoUrl = value;
+        }
 
         // Method to create a new observation
         public static void Create(Specie specie, float longitude, float latitude, string description, string photoUrl, User user)
@@ -84,40 +100,30 @@ namespace ExotischNederland.Models
             Console.WriteLine($"Observation created with ID: {id}");
         }
 
-        //FIXME: Method to update an observation
-        public static void Update(int id, Specie specie, float longitude, float latitude, string description, string photoUrl, User user)
+        // Method to update an observation
+        public void Update()
         {
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "SpecieId", specie.Id },  // Store the Specie's ID
-                { "Longitude", longitude },
-                { "Latitude", latitude },
-                { "Description", description },
-                { "PhotoUrl", photoUrl },
-                { "UserId", user.Id }  // Store the User's ID
+            { "SpecieId", this.specie.Id },  // Store the Specie's ID
+            { "Longitude", this.longitude },
+            { "Latitude", this.latitude },
+            { "Description", this.description },
+            { "PhotoUrl", this.photoUrl },
+            { "UserId", this.user.Id }  // Store the User's ID
             };
 
-            sql.Update("Observation", id, values);
-            Console.WriteLine($"Observation with ID: {id} updated.");
+            sql.Update("Observation", this.id, values);
+            Console.WriteLine($"Observation with ID: {this.id} updated.");
         }
 
-        //FIXME: Method to delete an observation *SHOULD ONLY BE FOR BEHEERDERS
-        public static void Delete(int id)
+        // Method to delete an observation
+        public void Delete()
         {
             SQLDAL sql = new SQLDAL();
-            sql.Delete("Observation", id);
-            Console.WriteLine($"Observation with ID: {id} deleted.");
-        }
-
-        //FIXME Retrieve all observations for a particular user or specie
-        public List<Observation> GetObservations(User user)
-        {
-            SQLDAL sql = new SQLDAL();
-            var observations = sql.Select<Observation>("Observation")
-                .Where(o => o.User != null && o.User.Id == user.Id)  // Filter by the user's ID
-                .ToList();
-            return observations;
+            sql.Delete("Observation", this.id);
+            Console.WriteLine($"Observation with ID: {this.id} deleted.");
         }
     }
 }

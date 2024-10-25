@@ -30,7 +30,7 @@ namespace ExotischNederland.Models
             roles = new List<Role>();
         }
 
-        public int Id => id;  // Add the User ID property
+        public int Id { get; private set; }  // Add the User ID property with a private setter
         public string Name => name;
         public string Email => email;
         public string PasswordHash => passwordHash;

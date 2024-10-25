@@ -176,7 +176,7 @@ namespace ExotischNederland
                 string specieName = Console.ReadLine();
                 Console.WriteLine("Enter new Specie category:");
                 string specieCategory = Console.ReadLine();
-                Specie specie = new Specie(0, specieName, specieCategory);  // Fetch or create specie as needed
+                Specie specie = Specie.FindOrCreate(specieName, specieCategory);
 
                 Console.WriteLine("Enter new Longitude:");
                 float longitude = float.Parse(Console.ReadLine());
@@ -187,7 +187,15 @@ namespace ExotischNederland
                 Console.WriteLine("Enter new Photo URL:");
                 string photoUrl = Console.ReadLine();
 
-                Observation.Update(observationToUpdate.Id, specie, longitude, latitude, description, photoUrl, user);
+                // Update the properties of the observation
+                observationToUpdate.Specie = specie;
+                observationToUpdate.Longitude = longitude;
+                observationToUpdate.Latitude = latitude;
+                observationToUpdate.Description = description;
+                observationToUpdate.PhotoUrl = photoUrl;
+
+                // Call the Update method on the instance
+                observationToUpdate.Update();
                 Console.WriteLine("Observation updated!");
             }
             else
@@ -210,7 +218,8 @@ namespace ExotischNederland
 
             if (observationToDelete != null)
             {
-                Observation.Delete(observationId);
+                // Call the Delete method on the instance
+                observationToDelete.Delete();
                 Console.WriteLine("Observation deleted!");
             }
             else

@@ -6,7 +6,7 @@ namespace ExotischNederland.Models
 {
     internal class Specie
     {
-        private int id;
+        private readonly int id;
         private string name;
         private string category;
         private List<Observation> observations;

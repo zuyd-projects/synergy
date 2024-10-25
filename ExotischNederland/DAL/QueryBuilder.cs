@@ -37,7 +37,9 @@ namespace ExotischNederland.DAL
         public QueryBuilder Select(params string[] columns)
         {
             // If no columns are provided, default to selecting all
-            string columnList = columns.Length > 0 ? string.Join(", ", columns) : "*";
+            string columnList = columns.Length > 0
+            ? string.Join(", ", columns.Select(c => $"[{c}]"))
+            : "*";
             this.baseSQL = $"SELECT {columnList} FROM [{this.table}]";
             return this;
         }
@@ -57,14 +59,6 @@ namespace ExotischNederland.DAL
         {
             // Set the base SQL query to the DELETE statement and return the QueryBuilder instance
             this.baseSQL = $"DELETE FROM [{this.table}]";
-            return this;
-        }
-
-        // WHERE clause support for chaining conditions
-        public QueryBuilder Where(string _column, string _operator, string _value)
-        {
-            // Add the WHERE clause to the list of WHERE clauses and return the QueryBuilder instance
-            this.whereClauses.Add($"[{_column}] {_operator} '{_value}'");
             return this;
         }
 
