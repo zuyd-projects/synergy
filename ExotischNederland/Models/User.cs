@@ -2,6 +2,7 @@
 using ExotischNederland.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace ExotischNederland.Models
             this.PasswordHash = (string)values["PasswordHash"];
             this.Observations = new List<Observation>();
             this.Routes = new List<Route>();
-            this.Roles = new List<Role>();
+            this.Roles = this.GetRoles();
         }
 
         public static User Authenticate(string _email, string _password)
@@ -64,7 +65,7 @@ namespace ExotischNederland.Models
         public List<Observation> GetObservations()
         {
             SQLDAL sql = new SQLDAL();
-            return sql.Select<Observation>("Observation", qb => qb.Where("UserId", "=", this.Id));
+            return sql.Select<Observation>(qb => qb.Where("UserId", "=", this.Id));
         }
 
         public static User Find(int id)
@@ -73,10 +74,48 @@ namespace ExotischNederland.Models
             return sql.Find<User>("Id", id.ToString());
         }
 
+        public void AssignRole(Role role)
+        {
+            // Check if Roles contains a Role with the same ID
+            if (this.Roles.Any(r => r.Id == role.Id)) return;
+
+            SQLDAL sql = new SQLDAL();
+            Dictionary<string, object> values = new Dictionary<string, object>
+            {
+                { "UserId", this.Id },
+                { "RoleId", role.Id }
+            };
+
+            sql.Insert("UserRole", values);
+            this.Roles.Add(role);
+        }
+
+        public void RemoveRole(Role role)
+        {
+            // Check if Roles contains a Role with the same ID
+            if (!this.Roles.Any(r => r.Id == role.Id)) return;
+
+            SQLDAL sql = new SQLDAL();
+            sql.Delete("UserRole", qb => qb
+                .Where("UserId", "=", this.Id)
+                .Where("RoleId", "=", role.Id)
+            );
+
+            this.Roles = this.Roles.Where(r => r.Id != role.Id).ToList();
+        }
+
+        private List<Role> GetRoles()
+        {
+            SQLDAL sql = new SQLDAL();
+            return sql.Select<Role>(qb => qb
+                .Columns("Role.*")
+                .Join("UserRole", "Role.Id", "UserRole.RoleId")
+                .Where("UserRole.UserId", "=", this.Id)
+            );
+        }
+
         // TODO: Implement the following methods
         // + Update(int id, string name, string email, string passwordHash)
         // + Delete(int id)
-        // + AssignRole(int userId, int roleId)
-        // + RemoveRole(int userId, int roleId)
     }
 }
