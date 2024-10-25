@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ExotischNederland.DAL
 {
@@ -16,6 +18,8 @@ namespace ExotischNederland.DAL
         private List<string> whereClauses = new List<string>();
         // Define the ORDER BY clauses to use in the query as a List
         private List<string> orderByClauses = new List<string>();
+        // Define the columns to use in the query as a List
+        private List<string> columns = new List<string>();
 
         public QueryBuilder(string table)
         {
@@ -34,13 +38,15 @@ namespace ExotischNederland.DAL
         }
 
         // Method for building the base Select query, optionally allowing specific columns to be selected
-        public QueryBuilder Select(params string[] columns)
+        public QueryBuilder Select()
         {
-            // If no columns are provided, default to selecting all
-            string columnList = columns.Length > 0
-            ? string.Join(", ", columns.Select(c => $"[{c}]"))
-            : "*";
-            this.baseSQL = $"SELECT {columnList} FROM [{this.table}]";
+            this.baseSQL = $"SELECT $columns$ FROM [{this.table}]";
+            return this;
+        }
+
+        public QueryBuilder Columns(params string[] _columns)
+        {
+            this.columns.AddRange(_columns);
             return this;
         }
 
@@ -66,14 +72,21 @@ namespace ExotischNederland.DAL
         public QueryBuilder Where(string _column, string _operator, object _value)
         {
             string parameterValue = _value is string ? $"'{_value}'" : _value.ToString();
-            this.whereClauses.Add($"[{_column}] {_operator} {parameterValue}");
+            this.whereClauses.Add($"[{string.Join("].[", _column.Split('.'))}] {_operator} {parameterValue}");
             return this;
         }
 
         // ORDER BY clause support
         public QueryBuilder OrderBy(string _column, bool _ascending = true)
         {
-            this.orderByClauses.Add($"{_column} {(_ascending ? "ASC" : "DESC")}");
+            this.orderByClauses.Add($"{string.Join("].[", _column.Split('.'))} {(_ascending ? "ASC" : "DESC")}");
+            return this;
+        }
+
+        // JOIN clause support
+        public QueryBuilder Join(string _table, string _column1, string _column2)
+        {
+            this.baseSQL += $" JOIN [{_table}] ON [{string.Join("].[", _column1.Split('.'))}] = [{string.Join("].[", _column2.Split('.'))}]";
             return this;
         }
 
@@ -81,6 +94,11 @@ namespace ExotischNederland.DAL
         public string Build()
         {
             var query = new StringBuilder(this.baseSQL);
+
+            string columnList = this.columns.Count > 0
+            ? string.Join(", ", columns.Select(c => $"[{string.Join("].[", c.Split('.'))}]"))
+            : "*";
+            query.Replace("$columns$", columnList);
 
             if (whereClauses.Any())
             {
@@ -91,6 +109,9 @@ namespace ExotischNederland.DAL
             {
                 query.Append(" ORDER BY " + string.Join(", ", orderByClauses));
             }
+
+            // Replace [*] with * in the query string
+            query.Replace("[*]", "*");
 
             return query.ToString();
         }
