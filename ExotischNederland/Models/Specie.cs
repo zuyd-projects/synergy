@@ -12,81 +12,76 @@ namespace ExotischNederland.Models
         public List<Observation> Observations { get; set; }
 
         // Constructor to initialize Specie with id, name, and category
-        public Specie(int id, string name, string category)
+        public Specie(int _id, string _name, string _category)
         {
-            this.Id = id;
-            this.Name = name;
-            this.Category = category;
+            this.Id = _id;
+            this.Name = _name;
+            this.Category = _category;
             this.Observations = new List<Observation>();
         }
 
         // Constructor that takes a dictionary to initialize the Specie fields
-        public Specie(Dictionary<string, object> values)
+        public Specie(Dictionary<string, object> _values)
         {
-            this.Id = (int)values["Id"];
-            this.Name = (string)values["Name"];
-            this.Category = (string)values["Category"];
+            this.Id = (int)_values["Id"];
+            this.Name = (string)_values["Name"];
+            this.Category = (string)_values["Category"];
             this.Observations = new List<Observation>();
         }
 
         // Static method to find or create a new Specie
-        public static Specie FindOrCreate(string name, string category)
+        public static Specie FindOrCreate(string _name, string _category)
         {
             SQLDAL sql = new SQLDAL();
             
             // Try to find the specie first
-            Specie specie = sql.Find<Specie>("Name", name);
-            
-            if (specie == null)
-            {
-                // If the specie doesn't exist, create it
-                Create(name, category);
-                specie = sql.Find<Specie>("Name", name);  // Fetch the newly created specie
-            }
-
+            Specie specie = sql.Find<Specie>("Name", _name) ?? Create(_name, _category);
             return specie;  // Return the found or created specie
         }
 
         // Static method to create a new Specie
-        public static void Create(string name, string category)
+        public static Specie Create(string _name, string _category)
         {
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "Name", name },
-                { "Category", category }
+                { "Name", _name },
+                { "Category", _category }
             };
 
             int id = sql.Insert("Specie", values);
             Console.WriteLine($"Specie created with ID: {id}");
+            return Find(id);
         }
 
         // Static method to update a Specie
-        public static void Update(int id, string name, string category)
+        public void Update()
         {
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "Name", name },
-                { "Category", category }
+                { "Name", this.Name },
+                { "Category", this.Category }
             };
 
-            sql.Update("Specie", id, values);
-            Console.WriteLine($"Specie with ID: {id} updated.");
+            sql.Update("Specie", this.Id, values);
+            // TODO: Remove this line from the final code
+            Console.WriteLine($"Specie with ID: {this.Id} updated.");
         }
 
         // Static method to delete a Specie
-        public static void Delete(int id)
+        public void Delete()
         {
             SQLDAL sql = new SQLDAL();
-            sql.Delete("Specie", id);
-            Console.WriteLine($"Specie with ID: {id} deleted.");
+            sql.Delete("Specie", this.Id);
+            // TODO: Remove this line from the final code
+            Console.WriteLine($"Specie with ID: {this.Id} deleted.");
         }
 
-        public static Specie Find(int id)
+        public static Specie Find(int _id)
         {
             SQLDAL sql = new SQLDAL();
-            return sql.Find<Specie>("Id", id.ToString());
+            return sql.Find<Specie>("Id", _id.ToString());
         }
     }
 }
