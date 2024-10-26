@@ -17,8 +17,8 @@ namespace ExotischNederland.Models
         public Role(Dictionary<string, object> _values)
         {
             this.Id = (int)_values["Id"];
-            this.Name = (string)_values["RoleName"];
-            this.Description = (string)CastNullable(_values["Description"]);
+            this.Name = _values["RoleName"].ToString();
+            this.Description = _values["Description"]?.ToString();
             this.Users = new List<User>();
         }
 
