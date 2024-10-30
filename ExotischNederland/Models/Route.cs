@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace ExotischNederland.Models
 {
-    internal class Route
+    public class Route
     {
-        private string tablename = "Route";
+        public int Id { get; set; }
+        // other properties related to Route can go here
     }
+
 }
