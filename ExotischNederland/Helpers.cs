@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,20 +10,26 @@ namespace ExotischNederland
 {
     internal class Helpers
     {
-        static string MenuSelect(Dictionary<string, string> items, bool indexes = false)
+        /// <summary>
+        /// Create a menu with a list of items to select from
+        /// </summary>
+        /// <param name="items"></param>
+        /// <param name="indexes"></param>
+        /// <returns>The key of the selected item</returns>
+        public static string MenuSelect(Dictionary<string, string> _items, bool _indexes = false)
         {
             int selected = 0;
             while (true)
             {
                 Console.Clear();
-                foreach (var item in items)
+                foreach (var item in _items)
                 {
-                    if (items.Keys.ToList().IndexOf(item.Key) == selected)
+                    if (_items.Keys.ToList().IndexOf(item.Key) == selected)
                     {
                         Console.BackgroundColor = ConsoleColor.Gray;
                         Console.ForegroundColor = ConsoleColor.Black;
                     }
-                    if (indexes) Console.Write(items.Keys.ToList().IndexOf(item.Key) + 1 + ". ");
+                    if (_indexes) Console.Write(_items.Keys.ToList().IndexOf(item.Key) + 1 + ". ");
                     Console.WriteLine(item.Value);
                     Console.BackgroundColor = ConsoleColor.Black;
                     Console.ForegroundColor = ConsoleColor.Gray;
@@ -32,22 +40,66 @@ namespace ExotischNederland
                     selected--;
                     if (selected < 0)
                     {
-                        selected = items.Count - 1;
+                        selected = _items.Count - 1;
                     }
                 }
                 else if (input == ConsoleKey.DownArrow)
                 {
                     selected++;
-                    if (selected > items.Count - 1)
+                    if (selected > _items.Count - 1)
                     {
                         selected = 0;
                     }
                 }
                 else if (input == ConsoleKey.Enter)
                 {
-                    return items.Keys.ToList()[selected];
+                    return _items.Keys.ToList()[selected];
                 }
             }
+        }
+
+        /// <summary>
+        /// Method to hash a password using SHA256
+        /// </summary>
+        /// <param name="_password">Input password</param>
+        /// <returns>SHA256 hash of the input password</returns>
+        public static string HashPassword(string _password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(_password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Load settings from a .env file
+        /// </summary>
+        /// <param name="filePath"></param>
+        public static Dictionary<string, string> LoadSettings()
+        {
+            Dictionary<string, string> settings = new Dictionary<string, string>();
+            var file = Path.Combine(Directory.GetCurrentDirectory(), "../../.env");
+            if (!File.Exists(file))
+                return settings;
+
+            foreach (var line in File.ReadAllLines(file))
+            {
+                var parts = line.Split(
+                    '=',
+                    (char)StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length != 2)
+                    continue;
+
+                settings.Add(parts[0], parts[1]);
+            }
+            return settings;
         }
     }
 }
