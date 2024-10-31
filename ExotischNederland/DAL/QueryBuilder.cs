@@ -40,12 +40,16 @@ namespace ExotischNederland.DAL
         // Method for building the base Select query, optionally allowing specific columns to be selected
         public QueryBuilder Select()
         {
+            // Use a placeholder for the columns to select to be replaced in the Build method
             this.baseSQL = $"SELECT $columns$ FROM [{this.table}]";
             return this;
         }
 
+        // Method for specifying the columns to select in the query
+        // if no columns are specified, all columns will be selected in the Build method
         public QueryBuilder Columns(params string[] _columns)
         {
+            // Add the columns to the list of columns and return the QueryBuilder instance
             this.columns.AddRange(_columns);
             return this;
         }
@@ -72,6 +76,7 @@ namespace ExotischNederland.DAL
         public QueryBuilder Where(string _column, string _operator, object _value)
         {
             string parameterValue = _value is string ? $"'{_value}'" : _value.ToString();
+            // If the value contains a . it contains the table name, so we need to split it (e.g. "User.Id" -> [User].[Id])
             this.whereClauses.Add($"[{string.Join("].[", _column.Split('.'))}] {_operator} {parameterValue}");
             return this;
         }
@@ -79,6 +84,7 @@ namespace ExotischNederland.DAL
         // ORDER BY clause support
         public QueryBuilder OrderBy(string _column, bool _ascending = true)
         {
+            // If the value contains a . it contains the table name, so we need to split it (e.g. "User.Id" -> [User].[Id])
             this.orderByClauses.Add($"{string.Join("].[", _column.Split('.'))} {(_ascending ? "ASC" : "DESC")}");
             return this;
         }
@@ -86,6 +92,7 @@ namespace ExotischNederland.DAL
         // JOIN clause support
         public QueryBuilder Join(string _table, string _column1, string _column2)
         {
+            // If the value contains a . it contains the table name, so we need to split it (e.g. "User.Id" -> [User].[Id])
             this.baseSQL += $" JOIN [{_table}] ON [{string.Join("].[", _column1.Split('.'))}] = [{string.Join("].[", _column2.Split('.'))}]";
             return this;
         }
@@ -93,8 +100,10 @@ namespace ExotischNederland.DAL
         // Build the final query string with WHERE and ORDER BY clauses
         public string Build()
         {
+            // Start with the base SQL query
             var query = new StringBuilder(this.baseSQL);
 
+            // If columns are specified, replace $columns$ with the columns list, otherwise use *
             string columnList = this.columns.Count > 0
             ? string.Join(", ", columns.Select(c => $"[{string.Join("].[", c.Split('.'))}]"))
             : "*";
@@ -111,8 +120,10 @@ namespace ExotischNederland.DAL
             }
 
             // Replace [*] with * in the query string
+            // this is done to allow for example User.* which would be turned into [User].[*] by the other methods
             query.Replace("[*]", "*");
 
+            // Return the complete query string
             return query.ToString();
         }
     }

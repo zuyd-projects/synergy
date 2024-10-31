@@ -21,12 +21,12 @@ namespace ExotischNederland.Models
         public List<Route> Routes { get; set; }
         public List<Role> Roles { get; set; }
 
-        public User(Dictionary<string, object> values)
+        public User(Dictionary<string, object> _values)
         {
-            this.Id = (int)values["Id"];  // Initialize the User ID
-            this.Name = (string)values["Name"];
-            this.Email = (string)values["Email"];
-            this.PasswordHash = (string)values["PasswordHash"];
+            this.Id = (int)_values["Id"];  // Initialize the User ID
+            this.Name = (string)_values["Name"];
+            this.Email = (string)_values["Email"];
+            this.PasswordHash = (string)_values["PasswordHash"];
             this.Observations = new List<Observation>();
             this.Routes = new List<Route>();
             this.Roles = this.GetRoles();
@@ -74,34 +74,34 @@ namespace ExotischNederland.Models
             return sql.Find<User>("Id", id.ToString());
         }
 
-        public void AssignRole(Role role)
+        public void AssignRole(Role _role)
         {
             // Check if Roles contains a Role with the same ID
-            if (this.Roles.Any(r => r.Id == role.Id)) return;
+            if (this.Roles.Any(r => r.Id == _role.Id)) return;
 
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "UserId", this.Id },
-                { "RoleId", role.Id }
+                { "RoleId", _role.Id }
             };
 
             sql.Insert("UserRole", values);
-            this.Roles.Add(role);
+            this.Roles.Add(_role);
         }
 
-        public void RemoveRole(Role role)
+        public void RemoveRole(Role _role)
         {
             // Check if Roles contains a Role with the same ID
-            if (!this.Roles.Any(r => r.Id == role.Id)) return;
+            if (!this.Roles.Any(r => r.Id == _role.Id)) return;
 
             SQLDAL sql = new SQLDAL();
             sql.Delete("UserRole", qb => qb
                 .Where("UserId", "=", this.Id)
-                .Where("RoleId", "=", role.Id)
+                .Where("RoleId", "=", _role.Id)
             );
 
-            this.Roles = this.Roles.Where(r => r.Id != role.Id).ToList();
+            this.Roles = this.Roles.Where(r => r.Id != _role.Id).ToList();
         }
 
         private List<Role> GetRoles()
