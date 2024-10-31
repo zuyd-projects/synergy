@@ -99,5 +99,13 @@ namespace ExotischNederland.Models
             SQLDAL sql = new SQLDAL();
             return sql.Find<Observation>("Id", _id.ToString());
         }
+        // Method to get all observations
+        public static List<Observation> GetAll()
+        {
+            SQLDAL sql = new SQLDAL();
+            List<Observation> observations = sql.Select<Observation>();
+
+            return observations;
+        }
     }
 }
