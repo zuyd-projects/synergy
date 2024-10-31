@@ -1,6 +1,7 @@
 ﻿using ExotischNederland.DAL;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ExotischNederland.Models
 {
@@ -10,7 +11,16 @@ namespace ExotischNederland.Models
         public int Id { get; private set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string PolygonPoints { get; set; }
+
+        private string PolygonPoints { get; set; }  // Database field for the polygon string
+
+        // Property to handle coordinates in the application
+        public List<(double lat, double lng)> PolygonCoordinates
+        {
+            get => ParsePolygonPoints(PolygonPoints);
+            set => PolygonPoints = SerializePolygonPoints(value);
+        }
+
         public List<Route> Routes { get; set; }
 
         public Area(Dictionary<string, object> _values)
@@ -22,14 +32,15 @@ namespace ExotischNederland.Models
             this.Routes = this.GetRoutes();
         }
 
-        public static Area Create(string name, string description, string polygonPoints)
+        // Static method for creating an area
+        public static Area Create(string name, string description, List<(double lat, double lng)> polygonCoordinates)
         {
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", name },
                 { "Description", description },
-                { "PolygonPoints", polygonPoints }
+                { "PolygonPoints", SerializePolygonPoints(polygonCoordinates) }
             };
 
             int id = sql.Insert("Area", values);
@@ -42,14 +53,14 @@ namespace ExotischNederland.Models
             return sql.Find<Area>("Id", id.ToString());
         }
 
-        public static void Update(int id, string name, string description, string polygonPoints)
+        public static void Update(int id, string name, string description, List<(double lat, double lng)> polygonCoordinates)
         {
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", name },
                 { "Description", description },
-                { "PolygonPoints", polygonPoints }
+                { "PolygonPoints", SerializePolygonPoints(polygonCoordinates) }
             };
 
             sql.Update("Area", id, values);
@@ -80,6 +91,29 @@ namespace ExotischNederland.Models
         {
             SQLDAL sql = new SQLDAL();
             return sql.Select<Area>();
+        }
+
+        // Helper methods for parsing and serializing polygon points
+        public static List<(double lat, double lng)> ParsePolygonPoints(string polygonPoints)
+        {
+            try
+            {
+                return polygonPoints
+                    .Split(',')
+                    .Select(point => point.Trim().Replace("POINT(", "").Replace(")", "").Split(' '))
+                    .Select(coords => (lat: double.Parse(coords[0]), lng: double.Parse(coords[1])))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing PolygonPoints: {ex.Message}");
+                return new List<(double lat, double lng)>();
+            }
+        }
+        
+        public static string SerializePolygonPoints(List<(double lat, double lng)> polygonCoordinates)
+        {
+            return string.Join(", ", polygonCoordinates.Select(coord => $"POINT({coord.lat} {coord.lng})"));
         }
     }
 }

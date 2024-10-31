@@ -267,7 +267,6 @@ namespace ExotischNederland
                 }
             }
         }
-
         static void CreateArea()
         {
             Console.Clear();
@@ -277,10 +276,20 @@ namespace ExotischNederland
             string name = Console.ReadLine();
             Console.WriteLine("Enter Area description:");
             string description = Console.ReadLine();
-            Console.WriteLine("Enter Polygon Points:");
-            string polygonPoints = Console.ReadLine();
 
-            Area area = Area.Create(name, description, polygonPoints);
+            var polygonCoordinates = new List<(double lat, double lng)>();
+            Console.WriteLine("Enter Polygon Points (type 'done' to finish):");
+            while (true)
+            {
+                Console.Write("Enter latitude: ");
+                string latInput = Console.ReadLine();
+                if (latInput.ToLower() == "done") break;
+                Console.Write("Enter longitude: ");
+                string lngInput = Console.ReadLine();
+                polygonCoordinates.Add((double.Parse(latInput), double.Parse(lngInput)));
+            }
+
+            Area area = Area.Create(name, description, polygonCoordinates);
             Console.WriteLine("Area created with ID: " + area.Id);
             Console.ReadKey();
         }
@@ -319,10 +328,20 @@ namespace ExotischNederland
                 string name = Console.ReadLine();
                 Console.WriteLine("Enter new Area description:");
                 string description = Console.ReadLine();
-                Console.WriteLine("Enter new Polygon Points:");
-                string polygonPoints = Console.ReadLine();
 
-                Area.Update(areaId, name, description, polygonPoints);
+                var polygonCoordinates = new List<(double lat, double lng)>();
+                Console.WriteLine("Enter new Polygon Points (type 'done' to finish):");
+                while (true)
+                {
+                    Console.Write("Enter latitude: ");
+                    string latInput = Console.ReadLine();
+                    if (latInput.ToLower() == "done") break;
+                    Console.Write("Enter longitude: ");
+                    string lngInput = Console.ReadLine();
+                    polygonCoordinates.Add((double.Parse(latInput), double.Parse(lngInput)));
+                }
+
+                Area.Update(areaId, name, description, polygonCoordinates);
                 Console.WriteLine("Area updated successfully!");
             }
             else

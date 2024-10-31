@@ -14,14 +14,19 @@ namespace Tests
         {
             string name = "Test Area";
             string description = "A beautiful natural area for testing.";
-            string polygonPoints = "POINT(1 1), POINT(2 2), POINT(3 3)";
+            var polygonCoordinates = new List<(double lat, double lng)>
+    {
+        (1.0, 1.0),
+        (2.0, 2.0),
+        (3.0, 3.0)
+    };
 
-            Area area = Area.Create(name, description, polygonPoints);
+            Area area = Area.Create(name, description, polygonCoordinates);
 
             Assert.IsInstanceOfType(area, typeof(Area));
             Assert.AreEqual(name, area.Name);
             Assert.AreEqual(description, area.Description);
-            Assert.AreEqual(polygonPoints, area.PolygonPoints);
+            CollectionAssert.AreEqual(polygonCoordinates, area.PolygonCoordinates);
         }
 
         [TestMethod]
@@ -29,19 +34,56 @@ namespace Tests
         {
             string name = "Original Area";
             string description = "Original description.";
-            string polygonPoints = "POINT(1 1), POINT(2 2)";
-            
-            Area area = Area.Create(name, description, polygonPoints);
+            var originalPolygonCoordinates = new List<(double lat, double lng)>
+    {
+        (1.0, 1.0),
+        (2.0, 2.0)
+    };
+
+            // Create the area with original values
+            Area area = Area.Create(name, description, originalPolygonCoordinates);
+
+            // New values for update
             string newName = "Updated Area";
             string newDescription = "Updated description.";
-            string newPolygonPoints = "POINT(4 4), POINT(5 5)";
+            var newPolygonCoordinates = new List<(double lat, double lng)>
+    {
+        (4.0, 4.0),
+        (5.0, 5.0)
+    };
 
-            Area.Update(area.Id, newName, newDescription, newPolygonPoints);
+            // Update the area
+            Area.Update(area.Id, newName, newDescription, newPolygonCoordinates);
             Area updatedArea = Area.Find(area.Id);
 
+            // Assertions to check the update was successful
             Assert.AreEqual(newName, updatedArea.Name);
             Assert.AreEqual(newDescription, updatedArea.Description);
-            Assert.AreEqual(newPolygonPoints, updatedArea.PolygonPoints);
+            CollectionAssert.AreEqual(newPolygonCoordinates, updatedArea.PolygonCoordinates);
+        }
+
+        [TestMethod]
+        public void TestPolygonPointsParsingAndSerialization()
+        {
+            var polygonCoordinates = new List<(double lat, double lng)>
+    {
+        (1.0, 1.0),
+        (2.0, 2.0),
+        (3.0, 3.0)
+    };
+            string serializedPoints = Area.SerializePolygonPoints(polygonCoordinates);
+            var parsedCoordinates = Area.ParsePolygonPoints(serializedPoints);
+
+            CollectionAssert.AreEqual(polygonCoordinates, parsedCoordinates);
+        }
+
+        [TestMethod]
+        public void TestPolygonPointsParsingInvalidString()
+        {
+            string invalidPoints = "INVALID_DATA";
+            var parsedCoordinates = Area.ParsePolygonPoints(invalidPoints);
+
+            Assert.AreEqual(0, parsedCoordinates.Count, "Parsed coordinates should be empty for invalid input.");
         }
 
         [TestMethod]
@@ -49,20 +91,26 @@ namespace Tests
         {
             string name = "Area to Delete";
             string description = "This area will be deleted.";
-            string polygonPoints = "POINT(1 1), POINT(2 2)";
-            
+            var polygonPoints = new List<(double lat, double lng)>
+            {
+                (1.0, 1.0),
+                (2.0, 2.0)
+            };
+
+            // Create the area with the list of coordinates
             Area area = Area.Create(name, description, polygonPoints);
             int areaId = area.Id;
 
+            // Delete the area and verify deletion
             Area.Delete(areaId);
             Area deletedArea = Area.Find(areaId);
 
             Assert.IsNull(deletedArea);
         }
-        
+
         // The tests below are examples for how area's can be tested when connected to routes,
         // so the routes class should first be made before we can add those
-        
+
         // [TestMethod]
         // public void TestGetRoutesForArea()
         // {
