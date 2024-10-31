@@ -84,7 +84,7 @@ namespace ExotischNederland
         public static Dictionary<string, string> LoadSettings()
         {
             Dictionary<string, string> settings = new Dictionary<string, string>();
-            var file = Path.Combine(Directory.GetCurrentDirectory(), "../../.env");
+            var file = Path.Combine(Directory.GetCurrentDirectory(), "../../../ExotischNederland/.env");
             if (!File.Exists(file))
                 return settings;
 
