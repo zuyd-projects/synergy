@@ -9,12 +9,14 @@ namespace ExotischNederland.DAL
 {
     internal class SQLDAL
     {
-        private readonly string connectionString = "Server=db.rickokkersen.nl;Database=synergy;User ID=synergy;Password=!1q@2w#3e";
+        private readonly string connectionString;
 
         private SqlConnection connection;
 
         public SQLDAL()
         {
+            Dictionary<string, string> settings = Helpers.LoadSettings();
+            this.connectionString = $"Server={settings["DB_HOST"]},{settings["DB_PORT"]};Database={settings["DB_DATABASE"]};User ID={settings["DB_USERNAME"]};Password={settings["DB_PASSWORD"]}";
             this.connection = new SqlConnection(this.connectionString);
         }
 

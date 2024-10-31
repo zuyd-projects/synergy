@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -74,6 +75,31 @@ namespace ExotischNederland
                 }
                 return builder.ToString();
             }
+        }
+
+        /// <summary>
+        /// Load settings from a .env file
+        /// </summary>
+        /// <param name="filePath"></param>
+        public static Dictionary<string, string> LoadSettings()
+        {
+            Dictionary<string, string> settings = new Dictionary<string, string>();
+            var file = Path.Combine(Directory.GetCurrentDirectory(), "../../.env");
+            if (!File.Exists(file))
+                return settings;
+
+            foreach (var line in File.ReadAllLines(file))
+            {
+                var parts = line.Split(
+                    '=',
+                    (char)StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length != 2)
+                    continue;
+
+                settings.Add(parts[0], parts[1]);
+            }
+            return settings;
         }
     }
 }
