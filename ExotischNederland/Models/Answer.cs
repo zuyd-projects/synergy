@@ -14,18 +14,15 @@ namespace ExotischNederland.Models
         public string Text { get; set; }
         public bool Correct { get; set; }
 
-        private Answer(int id, Question question, string text, bool correct)
-        {
-            Id = id;
-            Question = question;
-            Text = text;
-            Correct = correct;
-        }
-
         // Static factory method to create a new Answer and save it to the database
         public static Answer CreateAnswer(Question question, string text, bool correct)
         {
-            Answer newAnswer = new Answer(0, question, text, correct);
+            Answer newAnswer = new Answer
+            {
+                Question = question,
+                Text = text,
+                Correct = correct
+            };
 
             // Save to database
             SQLDAL db = new SQLDAL();
@@ -35,7 +32,7 @@ namespace ExotischNederland.Models
             { "Text", text },
             { "Correct", correct }
         };
-            newAnswer.Id = db.Insert("Answer", values);  
+            newAnswer.Id = db.Insert("Answer", values);
 
             return newAnswer;
         }

@@ -6,10 +6,21 @@ using System.Threading.Tasks;
 
 namespace ExotischNederland.Models
 {
-    public class Route
+    internal class Route
     {
-        public int Id { get; set; }
-        // other properties related to Route can go here
+        // Alleen-lezen eigenschap voor Id
+        public int Id { get; private set; }
+
+        // Andere eigenschappen van Route kunnen hier worden toegevoegd
+        // Bijvoorbeeld:
+        // public string Name { get; set; }
+        // public List<RoutePoint> Points { get; set; }
+
+        // Constructor om Id in te stellen bij het aanmaken van een nieuw Route-object
+        public Route(int id)
+        {
+            Id = id;
+        }
     }
 
 }

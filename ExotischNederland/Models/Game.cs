@@ -15,20 +15,17 @@ namespace ExotischNederland.Models
         public string Description { get; set; }
         public List<Question> Questions { get; set; }
 
-        private Game(int id, Route route, string title, string description)
-        {
-            Id = id;
-            Route = route;
-            Title = title;
-            Description = description;
-            Questions = new List<Question>();
-        }
-
         // Static factory method to create a new Game and save it to the database
         public static Game CreateGame(int routeId, string title, string description)
         {
             Route route = new Route { Id = routeId };
-            Game newGame = new Game(0, route, title, description);
+            Game newGame = new Game
+            {
+                Route = route,
+                Title = title,
+                Description = description,
+                Questions = new List<Question>()
+            };
 
             // Save to database
             SQLDAL db = new SQLDAL();
@@ -38,7 +35,8 @@ namespace ExotischNederland.Models
             { "Title", title },
             { "Description", description }
         };
-            newGame.Id = db.Insert("Game", values);  
+            newGame.Id = db.Insert("Game", values);
+
             return newGame;
         }
 
