@@ -16,33 +16,45 @@ namespace ExotischNederland
             User = _user;
         }
 
+        public bool CanViewAllObservations()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
+                return true;
+
+            return false;
+        }
+
         public bool CanCreateObservation()
         {
             if (this.User.Roles.Any(role =>
                 role.Name == "Beheerder" || role.Name == "Vrijwilliger" || role.Name == "Wandelaar"))
-            {
-                return true;
-            }
+                    return true;
+
             return false;
         }
 
         public bool CanEditObservation(Observation observation)
         {
-            if (this.User.Roles.Any(role => 
-                role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
-            {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
                 return true;
-            }
+
             return observation.User.Id == this.User.Id;
         }
 
         public bool CanDeleteObservation(Observation observation)
         {
             if (this.User.Roles.Any(role => role.Name == "Beheerder"))
-            {
                 return true;
-            }
+
             return observation.User.Id == this.User.Id;
+        }
+
+        public bool CanExportObservations()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return false;
         }
     }
 }

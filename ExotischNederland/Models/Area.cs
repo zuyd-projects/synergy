@@ -35,7 +35,7 @@ namespace ExotischNederland.Models
         // Static method for creating an area
         public static Area Create(string name, string description, List<(double lat, double lng)> polygonCoordinates)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", name },
@@ -49,13 +49,13 @@ namespace ExotischNederland.Models
 
         public static Area Find(int id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Find<Area>("Id", id.ToString());
         }
 
         public static void Update(int id, string name, string description, List<(double lat, double lng)> polygonCoordinates)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", name },
@@ -68,20 +68,20 @@ namespace ExotischNederland.Models
 
         public static void Delete(int id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             sql.Delete("Area", id);
         }
 
         public List<Route> GetRoutes()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Route>(qb => qb
                 .Where("AreaId", "=", this.Id));
         }
 
         public List<Observation> GetObservations()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Observation>(qb => qb
                 .Join("Route", "Observation.RouteId", "Route.Id")
                 .Where("Route.AreaId", "=", this.Id));
@@ -89,7 +89,7 @@ namespace ExotischNederland.Models
 
         public static List<Area> ListAreas()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Area>();
         }
 

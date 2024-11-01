@@ -30,7 +30,7 @@ namespace ExotischNederland.Models
         // Static method for creating a route
         public static Route Create(string name, string description, int userId, int areaId)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", name },
@@ -44,13 +44,13 @@ namespace ExotischNederland.Models
         }
         public static Route Find(int id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Find<Route>("Id", id.ToString());
         }
 
         public static void Update(int id, string name, string description, int userId, int areaId)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", name },
@@ -63,37 +63,37 @@ namespace ExotischNederland.Models
         }
         public static void Delete(int id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             sql.Delete("Route", id);
         }
 
         public List<RoutePoint> GetRoutePoints()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<RoutePoint>(qb => qb
                 .Where("RouteId", "=", this.Id));
         }
         //method to add route points
-        public void AddRoutePoint(RoutePoint point)
-        {
-            point.RouteId = this.Id;
-            point.Save();
-            this.Points.Add(point);
-        }
+        //public void AddRoutePoint(RoutePoint point)
+        //{
+        //    point.RouteId = this.Id;
+        //    point.Save();
+        //    this.Points.Add(point);
+        //}
         //method to remove route points
-        public void RemoveRoutePoint(int pointId)
-        {
-            RoutePoint point = this.Points.FirstOrDefault(p => p.Id == pointId);
-            if (point != null)
-            {
-                point.Delete();
-                this.Points.Remove(point);
-            }
-        }
+        //public void RemoveRoutePoint(int pointId)
+        //{
+        //    RoutePoint point = this.Points.FirstOrDefault(p => p.Id == pointId);
+        //    if (point != null)
+        //    {
+        //        point.Delete();
+        //        this.Points.Remove(point);
+        //    }
+        //}
 
         public static List<Route> ListRoutes()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Route>();
         }
 
