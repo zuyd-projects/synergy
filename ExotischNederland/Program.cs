@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ExotischNederland.Models;
 using System.Linq;
+using ExotischNederland.DAL;
 
 namespace ExotischNederland
 {
@@ -59,6 +60,26 @@ namespace ExotischNederland
                 else if (selected == "3")
                 {
                     break;
+                }
+            }
+
+            // Radius instellen voor notificaties (bijvoorbeeld 100 meter)
+            double radius = 100;
+
+            // Maak een SQLDAL instantie aan en haal de Points of Interest op
+            SQLDAL dal = new SQLDAL();
+            List<PointOfInterest> pointsOfInterest = dal.GetAllPointsOfInterest();
+
+            // Maak een gebruiker aan en stel zijn huidige locatie in
+            User user = new User(1, "John Doe", "john@example.com", 52.3786f, 4.899f);
+
+            // Controleer voor elk Point of Interest of de gebruiker binnen de straal is
+            foreach (var poi in pointsOfInterest)
+            {
+                string notification = poi.CheckProximity(user.CurrentLatitude, user.CurrentLongitude, radius, user.Name);
+                if (notification != null)
+                {
+                    Console.WriteLine(notification);
                 }
             }
         }
