@@ -3,6 +3,10 @@ ExotischNederland/bin
 ExotischNederland/obj
 Tests/bin
 Tests/obj
+/ExotischNederland/bin
+/ExotischNederland/obj
+/Tests/bin
+/Tests/obj
 packages
 ExotischNederland/.env
 /ExotischNederland/obj

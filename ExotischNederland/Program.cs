@@ -5,6 +5,7 @@ using System.Linq;
 using ExotischNederland.DAL;
 using System.IO;
 
+
 namespace ExotischNederland
 {
     internal class Program
@@ -34,7 +35,23 @@ namespace ExotischNederland
                     if (authenticatedUser != null)
                     {
                         Console.WriteLine("Login successful!");
-                        ObservationMenu(authenticatedUser);  // Enter observation menu after login
+                        Console.WriteLine("Choose an option:");
+                        Console.WriteLine("1. Manage Observations");
+                        Console.WriteLine("2. Manage Areas");
+
+                        string choice = Console.ReadLine();
+                        if (choice == "1")
+                        {
+                            ObservationMenu(authenticatedUser);  // Enter observation menu after login
+                        }
+                        else if (choice == "2")
+                        {
+                            AreaMenu(authenticatedUser);  // Enter area management menu after login
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid choice. Returning to main menu.");
+                        }
                     }
                     else
                     {
@@ -65,8 +82,6 @@ namespace ExotischNederland
             }
         }
 
-        // Observation Menu for CRUD actions (Create, Read, Update, Delete) 
-        // TODO: @RICK limit the actions based on the user's role when roles are implemented
         static void ObservationMenu(User user)
         {
             Dictionary<string, string> observationMenuItems = new Dictionary<string, string>
@@ -83,27 +98,22 @@ namespace ExotischNederland
                 string selected = Helpers.MenuSelect(observationMenuItems, true);
                 if (selected == "1")
                 {
-                    // Create a new observation
                     CreateObservation(user);
                 }
                 else if (selected == "2")
                 {
-                    // View all observations for the user
                     ViewObservations(user);
                 }
                 else if (selected == "3")
                 {
-                    // Update an observation
                     UpdateObservation(user);
                 }
                 else if (selected == "4")
                 {
-                    // Delete an observation
                     DeleteObservation(user);
                 }
                 else if (selected == "5")
                 {
-                    // Log out
                     Console.Clear();
                     break;
                 }
@@ -115,16 +125,13 @@ namespace ExotischNederland
             Console.Clear();
             Console.WriteLine("Creating a new observation...");
 
-            // Ask for specie details
             Console.WriteLine("Enter Specie name:");
             string specieName = Console.ReadLine();
             Console.WriteLine("Enter Specie category:");
             string specieCategory = Console.ReadLine();
 
-            // Call the Specie class to find or create the specie
             Specie specie = Specie.FindOrCreate(specieName, specieCategory);
 
-            // Ask for observation details
             Console.WriteLine("Enter Longitude:");
             float longitude = float.Parse(Console.ReadLine());
             Console.WriteLine("Enter Latitude:");
@@ -134,13 +141,11 @@ namespace ExotischNederland
             Console.WriteLine("Enter Photo URL:");
             string photoUrl = Console.ReadLine();
 
-            // Create the observation using the found or created specie
             Observation.Create(specie, longitude, latitude, description, photoUrl, user);
             Console.WriteLine("Observation created!");
             Console.ReadKey();
         }
 
-        // Method to view observations for the authenticated user
         static void ViewObservations(User user)
         {
             Console.Clear();
@@ -162,7 +167,6 @@ namespace ExotischNederland
             Console.ReadKey();
         }
 
-        // Method to update an observation
         static void UpdateObservation(User user)
         {
             Console.Clear();
@@ -189,14 +193,12 @@ namespace ExotischNederland
                 Console.WriteLine("Enter new Photo URL:");
                 string photoUrl = Console.ReadLine();
 
-                // Update the properties of the observation
                 observationToUpdate.Specie = specie;
                 observationToUpdate.Longitude = longitude;
                 observationToUpdate.Latitude = latitude;
                 observationToUpdate.Description = description;
                 observationToUpdate.PhotoUrl = photoUrl;
 
-                // Call the Update method on the instance
                 observationToUpdate.Update();
                 Console.WriteLine("Observation updated!");
             }
@@ -208,7 +210,6 @@ namespace ExotischNederland
             Console.ReadKey();
         }
 
-        // Method to delete an observation
         static void DeleteObservation(User user)
         {
             Console.Clear();
@@ -220,7 +221,6 @@ namespace ExotischNederland
 
             if (observationToDelete != null)
             {
-                // Call the Delete method on the instance
                 observationToDelete.Delete();
                 Console.WriteLine("Observation deleted!");
             }
@@ -231,8 +231,7 @@ namespace ExotischNederland
 
             Console.ReadKey();
         }
-        //export observations to csv
-        
+        //export observations to cs
 
         public static void ExportObservationsToCsv(string filePath)
         {
@@ -257,6 +256,147 @@ namespace ExotischNederland
         {
             SQLDAL sql = new SQLDAL();
             return sql.Select<Observation>();
+
+        static void AreaMenu(User user)
+        {
+            Dictionary<string, string> areaMenuItems = new Dictionary<string, string>
+            {
+                { "1", "Create Area" },
+                { "2", "View Areas" },
+                { "3", "Update Area" },
+                { "4", "Delete Area" },
+                { "5", "Logout" }
+            };
+
+            while (true)
+            {
+                string selected = Helpers.MenuSelect(areaMenuItems, true);
+                if (selected == "1")
+                {
+                    CreateArea();
+                }
+                else if (selected == "2")
+                {
+                    ViewAreas();
+                }
+                else if (selected == "3")
+                {
+                    UpdateArea();
+                }
+                else if (selected == "4")
+                {
+                    DeleteArea();
+                }
+                else if (selected == "5")
+                {
+                    Console.Clear();
+                    break;
+                }
+            }
+        }
+        static void CreateArea()
+        {
+            Console.Clear();
+            Console.WriteLine("Creating a new area...");
+
+            Console.WriteLine("Enter Area name:");
+            string name = Console.ReadLine();
+            Console.WriteLine("Enter Area description:");
+            string description = Console.ReadLine();
+
+            var polygonCoordinates = new List<(double lat, double lng)>();
+            Console.WriteLine("Enter Polygon Points (type 'done' to finish):");
+            while (true)
+            {
+                Console.Write("Enter latitude: ");
+                string latInput = Console.ReadLine();
+                if (latInput.ToLower() == "done") break;
+                Console.Write("Enter longitude: ");
+                string lngInput = Console.ReadLine();
+                polygonCoordinates.Add((double.Parse(latInput), double.Parse(lngInput)));
+            }
+
+            Area area = Area.Create(name, description, polygonCoordinates);
+            Console.WriteLine("Area created with ID: " + area.Id);
+            Console.ReadKey();
+        }
+
+        static void ViewAreas()
+        {
+            Console.Clear();
+            Console.WriteLine("List of Areas:");
+
+            List<Area> areas = Area.ListAreas();
+            if (areas.Count > 0)
+            {
+                foreach (var area in areas)
+                {
+                    Console.WriteLine($"ID: {area.Id}, Name: {area.Name}, Description: {area.Description}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No areas found.");
+            }
+
+            Console.ReadKey();
+        }
+
+        static void UpdateArea()
+        {
+            Console.Clear();
+            Console.WriteLine("Enter the ID of the area to update:");
+            int areaId = int.Parse(Console.ReadLine());
+
+            Area areaToUpdate = Area.Find(areaId);
+            if (areaToUpdate != null)
+            {
+                Console.WriteLine("Enter new Area name:");
+                string name = Console.ReadLine();
+                Console.WriteLine("Enter new Area description:");
+                string description = Console.ReadLine();
+
+                var polygonCoordinates = new List<(double lat, double lng)>();
+                Console.WriteLine("Enter new Polygon Points (type 'done' to finish):");
+                while (true)
+                {
+                    Console.Write("Enter latitude: ");
+                    string latInput = Console.ReadLine();
+                    if (latInput.ToLower() == "done") break;
+                    Console.Write("Enter longitude: ");
+                    string lngInput = Console.ReadLine();
+                    polygonCoordinates.Add((double.Parse(latInput), double.Parse(lngInput)));
+                }
+
+                Area.Update(areaId, name, description, polygonCoordinates);
+                Console.WriteLine("Area updated successfully!");
+            }
+            else
+            {
+                Console.WriteLine("Area not found.");
+            }
+
+            Console.ReadKey();
+        }
+
+        static void DeleteArea()
+        {
+            Console.Clear();
+            Console.WriteLine("Enter the ID of the area to delete:");
+            int areaId = int.Parse(Console.ReadLine());
+
+            Area areaToDelete = Area.Find(areaId);
+            if (areaToDelete != null)
+            {
+                Area.Delete(areaId);
+                Console.WriteLine("Area deleted successfully!");
+            }
+            else
+            {
+                Console.WriteLine("Area not found.");
+            }
+
+            Console.ReadKey();
         }
     }
 }

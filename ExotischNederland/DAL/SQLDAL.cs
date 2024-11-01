@@ -9,16 +9,24 @@ namespace ExotischNederland.DAL
 {
     internal class SQLDAL
     {
-        private readonly string connectionString = "Server=db.rickokkersen.nl;Database=synergy;User ID=synergy;Password=!1q@2w#3e";
+        private readonly string connectionString;
 
         private SqlConnection connection;
 
         public SQLDAL()
         {
+            Dictionary<string, string> settings = Helpers.LoadSettings();
+            this.connectionString = $"Server={settings["DB_HOST"]},{settings["DB_PORT"]};Database={settings["DB_DATABASE"]};User ID={settings["DB_USERNAME"]};Password={settings["DB_PASSWORD"]}";
             this.connection = new SqlConnection(this.connectionString);
         }
 
-        // Method to find a specific row in a table
+        /// <summary>
+        /// Method to find a specific row in a table by a field and value
+        /// </summary>
+        /// <typeparam name="T">Class to return (also used as the tablename)</typeparam>
+        /// <param name="_field">Column name</param>
+        /// <param name="_value">Value (should be unique)</param>
+        /// <returns>Object of specified type containing the values from the database</returns>
         public T Find<T>(string _field, string _value)
         {
             string table = typeof(T).Name;
@@ -38,6 +46,7 @@ namespace ExotischNederland.DAL
 
                             reader.Close();
                             connection.Close();
+                            // Create a new instance of the specified class and return it
                             return (T)Activator.CreateInstance(typeof(T), values);
                         }
                         return default(T);
@@ -46,7 +55,12 @@ namespace ExotischNederland.DAL
             }
         }
 
-        // Method to insert a new row into the table
+        /// <summary>
+        /// Method to insert a new row into the table
+        /// </summary>
+        /// <param name="_table"></param>
+        /// <param name="_values">Dictionary with key (column name) and value</param>
+        /// <returns>The value of the identity column of the newly created row. 0 if no identity column was found</returns>
         public int Insert(string _table, Dictionary<string, object> _values)
         {
             using (SqlConnection connection = new SqlConnection(this.connectionString))
@@ -75,7 +89,12 @@ namespace ExotischNederland.DAL
             }
         }
 
-        // Method to update a row in the table
+        /// <summary>
+        /// Method to update a row in the table
+        /// </summary>
+        /// <param name="_table"></param>
+        /// <param name="_id"></param>
+        /// <param name="_values"></param>
         public void Update(string _table, int _id, Dictionary<string, object> _values)
         {
             var query = new QueryBuilder(_table).Update(_values).Where("Id", "=", _id.ToString()).Build();
@@ -93,7 +112,11 @@ namespace ExotischNederland.DAL
             }
         }
 
-        // Method to delete a row in the table by Id
+        /// <summary>
+        /// Method to delete a row in the table by ID
+        /// </summary>
+        /// <param name="_table"></param>
+        /// <param name="_id"></param>
         public void Delete(string _table, int _id)
         {
             var query = new QueryBuilder(_table).Delete().Where("Id", "=", _id.ToString()).Build();
@@ -107,7 +130,12 @@ namespace ExotischNederland.DAL
             }
         }
 
-        // Method to delete a row in the table by WHERE clause
+        /// <summary>
+        /// Method to delete rows in the table by WHERE clause
+        /// </summary>
+        /// <param name="_table"></param>
+        /// <param name="_queryBuilder"></param>
+        /// <exception cref="ArgumentNullException">If no QueryBuilder is supplied an error is thrown. Without QueryBuilder all rows in the database would be deleted</exception>
         public void Delete(string _table, Func<QueryBuilder, QueryBuilder> _queryBuilder = null)
         {
             if (_queryBuilder == null) throw new ArgumentNullException("QueryBuilder cannot be null when deleting rows by WHERE clause.");
@@ -123,7 +151,12 @@ namespace ExotischNederland.DAL
             }
         }
 
-        // Method to select all rows from a table
+        /// <summary>
+        /// Select rows from the database
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="_queryBuilder"></param>
+        /// <returns>List with objects of the specified type</returns>
         public List<T> Select<T>(Func<QueryBuilder, QueryBuilder> _queryBuilder = null)
         {
             string table = typeof(T).Name;
