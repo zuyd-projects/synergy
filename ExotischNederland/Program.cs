@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ExotischNederland.Models;
 using System.Linq;
 using ExotischNederland.DAL;
+using System.IO;
+
 
 namespace ExotischNederland
 {
@@ -197,7 +199,7 @@ namespace ExotischNederland
                 observationToUpdate.Description = description;
                 observationToUpdate.PhotoUrl = photoUrl;
 
-                observationToUpdate.Update();
+                observationToUpdate.Update(user);
                 Console.WriteLine("Observation updated!");
             }
             else
@@ -219,7 +221,7 @@ namespace ExotischNederland
 
             if (observationToDelete != null)
             {
-                observationToDelete.Delete();
+                observationToDelete.Delete(user);
                 Console.WriteLine("Observation deleted!");
             }
             else
@@ -228,6 +230,32 @@ namespace ExotischNederland
             }
 
             Console.ReadKey();
+        }
+        //export observations to cs
+
+        public static void ExportObservationsToCsv(string filePath)
+        {
+            List<Observation> observations = GetAllObservations();
+
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                // Schrijf de header
+                writer.WriteLine("Id,Specie,Longitude,Latitude,Description,PhotoUrl,UserId");
+
+                // Schrijf elke observatie
+                foreach (var observation in observations)
+                {
+                    writer.WriteLine($"{observation.Id},{observation.Specie.Name},{observation.Longitude},{observation.Latitude},{observation.Description},{observation.PhotoUrl},{observation.User.Id}");
+                }
+            }
+
+            Console.WriteLine($"Observations have been exported to {filePath}");
+        }
+
+        public static List<Observation> GetAllObservations()
+        {
+            SQLDAL sql = new SQLDAL();
+            return sql.Select<Observation>();
         }
 
         static void AreaMenu(User user)
@@ -531,4 +559,5 @@ namespace ExotischNederland
                 Console.WriteLine("Route not found.");
             }
         }
+    }
 }

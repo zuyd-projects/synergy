@@ -52,6 +52,8 @@ namespace ExotischNederland.Models
         // Method to create a new observation
         public static Observation Create(Specie _specie, double _longitude, double _latitude, string _description, string _photoUrl, User _user)
         {
+            if (!_user.Permission.CanCreateObservation()) return null;
+
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
@@ -69,8 +71,10 @@ namespace ExotischNederland.Models
         }
 
         // Method to update an observation
-        public void Update()
+        public void Update(User _authenticatedUser)
         {
+            if (!_authenticatedUser.Permission.CanEditObservation(this)) return;
+
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
@@ -87,13 +91,14 @@ namespace ExotischNederland.Models
         }
 
         // Method to delete an observation
-        public void Delete()
+        public void Delete(User _authenticatedUser)
         {
+            if (!_authenticatedUser.Permission.CanDeleteObservation(this)) return;
+
             SQLDAL sql = new SQLDAL();
             sql.Delete("Observation", this.Id);
             Console.WriteLine($"Observation with ID: {this.Id} deleted.");
         }
-
         public static Observation Find(int _id)
         {
             SQLDAL sql = new SQLDAL();
