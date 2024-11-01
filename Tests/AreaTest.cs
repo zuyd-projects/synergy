@@ -10,50 +10,62 @@ namespace Tests
     public class AreaTest : TransactionTest
     {
         [TestMethod]
-        public void TestAreaCanBeCreated()
+        public void TestAreaCanBeCreatedByBeheerder()
         {
+            User user = User.Create("TestUser", "test@test.com", "password");
+            user.AssignRole(Role.Create("Beheerder"));
             string name = "Test Area";
             string description = "A beautiful natural area for testing.";
-            var polygonCoordinates = new List<(double lat, double lng)>
-    {
-        (1.0, 1.0),
-        (2.0, 2.0),
-        (3.0, 3.0)
-    };
+            var polygonPoints = "POINT(50.93197114526339 5.968108426221363), POINT(50.936514832961535 5.990767727979716), POINT(50.92169211871979 6.00278402436561), POINT(50.90967901024405 5.974459897169027), POINT(50.91833741853662 5.931544552930347), POINT(50.93197114526339 5.968108426221363)";
 
-            Area area = Area.Create(name, description, polygonCoordinates);
+            Area area = Area.Create(name, description, polygonPoints, user);
 
             Assert.IsInstanceOfType(area, typeof(Area));
             Assert.AreEqual(name, area.Name);
             Assert.AreEqual(description, area.Description);
-            CollectionAssert.AreEqual(polygonCoordinates, area.PolygonCoordinates);
+            Assert.AreEqual(polygonPoints, area.PolygonPoints);
+            Assert.IsNotNull(area.PolygonCoordinates);
+        }
+
+        [TestMethod]
+        public void TestAreaCannotBeCreatedByNonBeheerder()
+        {
+            User user = User.Create("TestUser", "test@test.com", "password");
+            string name = "Test Area";
+            string description = "A beautiful natural area for testing.";
+            var polygonPoints = "POINT(50.93197114526339 5.968108426221363), POINT(50.936514832961535 5.990767727979716), POINT(50.92169211871979 6.00278402436561), POINT(50.90967901024405 5.974459897169027), POINT(50.91833741853662 5.931544552930347), POINT(50.93197114526339 5.968108426221363)";
+
+            Area area = Area.Create(name, description, polygonPoints, user);
+
+            Assert.IsNull(area);
         }
 
         [TestMethod]
         public void TestAreaCanBeUpdated()
         {
+            User user = User.Create("TestUser", "test@test.com", "password");
+            user.AssignRole(Role.Create("Beheerder"));
             string name = "Original Area";
             string description = "Original description.";
-            var originalPolygonCoordinates = new List<(double lat, double lng)>
-    {
-        (1.0, 1.0),
-        (2.0, 2.0)
-    };
+            var originalPolygonCoordinates = "POINT(50.93197114526339 5.968108426221363), POINT(50.936514832961535 5.990767727979716), POINT(50.92169211871979 6.00278402436561), POINT(50.90967901024405 5.974459897169027), POINT(50.91833741853662 5.931544552930347), POINT(50.93197114526339 5.968108426221363)";
 
             // Create the area with original values
-            Area area = Area.Create(name, description, originalPolygonCoordinates);
+            Area area = Area.Create(name, description, originalPolygonCoordinates, user);
 
             // New values for update
             string newName = "Updated Area";
             string newDescription = "Updated description.";
             var newPolygonCoordinates = new List<(double lat, double lng)>
-    {
-        (4.0, 4.0),
-        (5.0, 5.0)
-    };
+            {
+                (4.0, 4.0),
+                (5.0, 5.0)
+            };
+            area.Name = newName;
+            area.Description = newDescription;
+            area.PolygonCoordinates = newPolygonCoordinates;
 
             // Update the area
-            Area.Update(area.Id, newName, newDescription, newPolygonCoordinates);
+            area.Update(user);
             Area updatedArea = Area.Find(area.Id);
 
             // Assertions to check the update was successful
@@ -63,47 +75,20 @@ namespace Tests
         }
 
         [TestMethod]
-        public void TestPolygonPointsParsingAndSerialization()
+        public void TestAreaCanBeDeletedByBeheerder()
         {
-            var polygonCoordinates = new List<(double lat, double lng)>
-    {
-        (1.0, 1.0),
-        (2.0, 2.0),
-        (3.0, 3.0)
-    };
-            string serializedPoints = Area.SerializePolygonPoints(polygonCoordinates);
-            var parsedCoordinates = Area.ParsePolygonPoints(serializedPoints);
-
-            CollectionAssert.AreEqual(polygonCoordinates, parsedCoordinates);
-        }
-
-        [TestMethod]
-        public void TestPolygonPointsParsingInvalidString()
-        {
-            string invalidPoints = "INVALID_DATA";
-            var parsedCoordinates = Area.ParsePolygonPoints(invalidPoints);
-
-            Assert.AreEqual(0, parsedCoordinates.Count, "Parsed coordinates should be empty for invalid input.");
-        }
-
-        [TestMethod]
-        public void TestAreaCanBeDeleted()
-        {
+            User user = User.Create("TestUser", "test@test.com", "password");
+            user.AssignRole(Role.Create("Beheerder"));
             string name = "Area to Delete";
             string description = "This area will be deleted.";
-            var polygonPoints = new List<(double lat, double lng)>
-            {
-                (1.0, 1.0),
-                (2.0, 2.0)
-            };
+            var polygonPoints = "POINT(50.93197114526339 5.968108426221363), POINT(50.936514832961535 5.990767727979716), POINT(50.92169211871979 6.00278402436561), POINT(50.90967901024405 5.974459897169027), POINT(50.91833741853662 5.931544552930347), POINT(50.93197114526339 5.968108426221363)";
 
             // Create the area with the list of coordinates
-            Area area = Area.Create(name, description, polygonPoints);
-            int areaId = area.Id;
+            Area area = Area.Create(name, description, polygonPoints, user);
 
             // Delete the area and verify deletion
-            Area.Delete(areaId);
-            Area deletedArea = Area.Find(areaId);
+            area.Delete(user);
+            Area deletedArea = Area.Find(area.Id);
 
             Assert.IsNull(deletedArea);
         }
