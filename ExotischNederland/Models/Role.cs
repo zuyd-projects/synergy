@@ -24,7 +24,7 @@ namespace ExotischNederland.Models
 
         public static Role Create(string _name, string _description = null)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "RoleName", _name }
@@ -38,7 +38,7 @@ namespace ExotischNederland.Models
 
         public static Role Find(string _name)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Role>(qb => qb.Where("RoleName", "=", _name)).First();
         }
     }

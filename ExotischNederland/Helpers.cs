@@ -16,12 +16,17 @@ namespace ExotischNederland
         /// <param name="items"></param>
         /// <param name="indexes"></param>
         /// <returns>The key of the selected item</returns>
-        public static string MenuSelect(Dictionary<string, string> _items, bool _indexes = false)
+        public static string MenuSelect(Dictionary<string, string> _items, bool _indexes = false, List<string> _text = null)
         {
+            if (_text is null) _text = new List<string>();
             int selected = 0;
             while (true)
             {
                 Console.Clear();
+                foreach (var item in _text)
+                {
+                    Console.WriteLine(item);
+                }
                 foreach (var item in _items)
                 {
                     if (_items.Keys.ToList().IndexOf(item.Key) == selected)
@@ -100,6 +105,41 @@ namespace ExotischNederland
                 settings.Add(parts[0], parts[1]);
             }
             return settings;
+        }
+
+        /// <summary>
+        /// Read a password from the console
+        /// </summary>
+        /// <returns></returns>
+        public static string ReadPassword()
+        {
+            StringBuilder password = new StringBuilder();
+            ConsoleKeyInfo keyInfo;
+
+            while (true)
+            {
+                keyInfo = Console.ReadKey(true);
+                if (keyInfo.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    break;
+                }
+                else if (keyInfo.Key == ConsoleKey.Backspace)
+                {
+                    if (password.Length > 0)
+                    {
+                        password.Remove(password.Length - 1, 1);
+                        Console.Write("\b \b");
+                    }
+                }
+                else
+                {
+                    password.Append(keyInfo.KeyChar);
+                    Console.Write("*");
+                }
+            }
+
+            return password.ToString();
         }
     }
 }

@@ -26,7 +26,7 @@ namespace ExotischNederland.Models
 
         public static PointOfInterest Create(string _name, string _type, float _longitude, float _latitude)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", _name },
@@ -41,7 +41,7 @@ namespace ExotischNederland.Models
 
         public static PointOfInterest Find(int _id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Find<PointOfInterest>("Id", _id.ToString());
         }
 
@@ -65,7 +65,7 @@ namespace ExotischNederland.Models
         // Methode om alle Points of Interest op te halen uit de database
         public static List<PointOfInterest> GetAll()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<PointOfInterest>();
         }
 

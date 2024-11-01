@@ -54,7 +54,7 @@ namespace ExotischNederland.Models
         {
             if (!_user.Permission.CanCreateObservation()) return null;
 
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "SpecieId", _specie.Id },  // Store the Specie's ID in the database
@@ -75,7 +75,7 @@ namespace ExotischNederland.Models
         {
             if (!_authenticatedUser.Permission.CanEditObservation(this)) return;
 
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
             { "SpecieId", this.Specie.Id },  // Store the Specie's ID
@@ -95,19 +95,18 @@ namespace ExotischNederland.Models
         {
             if (!_authenticatedUser.Permission.CanDeleteObservation(this)) return;
 
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             sql.Delete("Observation", this.Id);
-            Console.WriteLine($"Observation with ID: {this.Id} deleted.");
         }
         public static Observation Find(int _id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Find<Observation>("Id", _id.ToString());
         }
         // Method to get all observations
         public static List<Observation> GetAll()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             List<Observation> observations = sql.Select<Observation>();
 
             return observations;
