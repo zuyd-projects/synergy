@@ -26,7 +26,9 @@ namespace ExotischNederland.Menus
         {
             while (true)
             {
-                string selected = Helpers.MenuSelect(this.menuItems, true);
+                List<string> text = new List<string>();
+                text.Add("Database is online");
+                string selected = Helpers.MenuSelect(this.menuItems, true, text);
 
                 if (selected == "observations")
                 {
