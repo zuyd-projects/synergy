@@ -22,14 +22,15 @@ namespace ExotischNederland.Models
             this.Users = new List<User>();
         }
 
-        public static Role Create(string _name, string _description)
+        public static Role Create(string _name, string _description = null)
         {
             SQLDAL sql = new SQLDAL();
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "RoleName", _name },
-                { "Description", _description }
+                { "RoleName", _name }
             };
+            if (_description != null) values.Add("Description", _description);
+            // NOTE: The insert cannot take null values, so the description is only added if it is not null
 
             sql.Insert("Role", values);
             return Find(_name);

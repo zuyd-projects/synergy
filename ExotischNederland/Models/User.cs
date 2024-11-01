@@ -20,6 +20,7 @@ namespace ExotischNederland.Models
         public List<Observation> Observations { get; set; }
         public List<Route> Routes { get; set; }
         public List<Role> Roles { get; set; }
+        public Permission Permission { get; private set; }
 
         public User(Dictionary<string, object> _values)
         {
@@ -30,6 +31,7 @@ namespace ExotischNederland.Models
             this.Observations = new List<Observation>();
             this.Routes = new List<Route>();
             this.Roles = this.GetRoles();
+            this.Permission = new Permission(this);
         }
 
         public static User Authenticate(string _email, string _password)

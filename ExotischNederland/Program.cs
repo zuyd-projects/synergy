@@ -197,7 +197,7 @@ namespace ExotischNederland
                 observationToUpdate.Description = description;
                 observationToUpdate.PhotoUrl = photoUrl;
 
-                observationToUpdate.Update();
+                observationToUpdate.Update(user);
                 Console.WriteLine("Observation updated!");
             }
             else
@@ -219,7 +219,7 @@ namespace ExotischNederland
 
             if (observationToDelete != null)
             {
-                observationToDelete.Delete();
+                observationToDelete.Delete(user);
                 Console.WriteLine("Observation deleted!");
             }
             else
