@@ -256,6 +256,7 @@ namespace ExotischNederland
         {
             SQLDAL sql = new SQLDAL();
             return sql.Select<Observation>();
+        }
 
         static void AreaMenu(User user)
         {
