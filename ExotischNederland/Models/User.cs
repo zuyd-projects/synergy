@@ -20,6 +20,7 @@ namespace ExotischNederland.Models
         public List<Observation> Observations { get; set; }
         public List<Route> Routes { get; set; }
         public List<Role> Roles { get; set; }
+        public Permission Permission { get; private set; }
         public float CurrentLatitude { get; set; } = 0.0f;
         public float CurrentLongitude { get; set; } = 0.0f;
 
@@ -33,8 +34,9 @@ namespace ExotischNederland.Models
             this.Observations = new List<Observation>();
             this.Routes = new List<Route>();
             this.Roles = this.GetRoles();
+            this.Permission = new Permission(this);
 
-            // Hardcode eventueel de coördinaten als tijdelijke oplossing, totdat GPS is geïmplementeerd
+            // Hardcode eventueel de coÃ¶rdinaten als tijdelijke oplossing, totdat GPS is geÃ¯mplementeerd
             this.CurrentLatitude = 52.0f;
             this.CurrentLongitude = 4.0f;
         }
