@@ -17,6 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Clean up build artifacts
+        run: |
+          rm -rf D:/a/synergy/synergy/ExotischNederland/bin
+          rm -rf D:/a/synergy/synergy/ExotischNederland/obj
+
       - name: Set up MSBuild
         uses: microsoft/setup-msbuild@v1
 
