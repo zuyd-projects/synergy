@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AreaTest.cs" />
+    <Compile Include="RouteTest.cs" />
     <Compile Include="TransactionTest.cs" />
     <Compile Include="DefaultTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
