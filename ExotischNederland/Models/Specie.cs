@@ -11,15 +11,6 @@ namespace ExotischNederland.Models
         public string Category { get; set; }
         public List<Observation> Observations { get; set; }
 
-        // Constructor to initialize Specie with id, name, and category
-        public Specie(int _id, string _name, string _category)
-        {
-            this.Id = _id;
-            this.Name = _name;
-            this.Category = _category;
-            this.Observations = new List<Observation>();
-        }
-
         // Constructor that takes a dictionary to initialize the Specie fields
         public Specie(Dictionary<string, object> _values)
         {

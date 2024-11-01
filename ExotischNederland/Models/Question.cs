@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ExotischNederland.Models
 {
-    public class Question
+    internal class Question
     {
         public int Id { get; set; }
         public Game Game { get; set; }
@@ -15,31 +16,35 @@ namespace ExotischNederland.Models
         public string Type { get; set; } // "multiple choice" or "open"
         public List<Answer> Answers { get; set; }
 
-        private Question(int id, Game game, string text, string type)
+        private Question(Dictionary<string, object> _values)
         {
-            Id = id;
-            Game = game;
-            Text = text;
-            Type = type;
-            Answers = new List<Answer>();
+            Id = (int)_values["Id"];
+            Game = Game.Find((int)_values["GameId"]);
+            Text = (string)_values["Text"];
+            Type = (string)_values["Type"];
+            Answers = new List<Answer>(); //TODO get answers from database
         }
 
         // Static factory method to create a new Question and save it to the database
-        public static Question CreateQuestion(Game game, string text, string type)
+        public static Question Create(Game _game, string _text, string _type)
         {
-            Question newQuestion = new Question(0, game, text, type);
-
             // Save to database
             SQLDAL db = new SQLDAL();
             var values = new Dictionary<string, object>
-        {
-            { "GameId", game.Id },
-            { "Text", text },
-            { "Type", type }
-        };
-            newQuestion.Id = db.Insert("Question", values);  
+            {
+                { "GameId", _game.Id },
+                { "Text", _text },
+                { "Type", _type }
+            };
+            int id = db.Insert("Question", values);  
 
-            return newQuestion;
+            return Find(id);
+        }
+
+        public static Question Find(int _questionId)
+        {
+            SQLDAL db = new SQLDAL();
+            return db.Find<Question>("Id", _questionId.ToString());
         }
 
         public void AddAnswer(Answer answer)

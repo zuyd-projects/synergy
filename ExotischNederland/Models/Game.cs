@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ExotischNederland.Models
 {
-    public class Game
+    internal class Game
     {
         public int Id { get; set; }
         public Route Route { get; set; }
@@ -16,28 +16,25 @@ namespace ExotischNederland.Models
         public List<Question> Questions { get; set; }
 
         // Static factory method to create a new Game and save it to the database
-        public static Game CreateGame(int routeId, string title, string description)
+        public static Game Create(Route _route, string _title, string _description)
         {
-            Route route = new Route { Id = routeId };
-            Game newGame = new Game
-            {
-                Route = route,
-                Title = title,
-                Description = description,
-                Questions = new List<Question>()
-            };
-
             // Save to database
             SQLDAL db = new SQLDAL();
             var values = new Dictionary<string, object>
-        {
-            { "RouteId", routeId },
-            { "Title", title },
-            { "Description", description }
-        };
-            newGame.Id = db.Insert("Game", values);
+            {
+                { "RouteId", _route.Id },
+                { "Title", _title },
+                { "Description", _description }
+            };
+            int id = db.Insert("Game", values);
 
-            return newGame;
+            return Find(id);
+        }
+
+        public static Game Find(int _gameId)
+        {
+            SQLDAL db = new SQLDAL();
+            return db.Find<Game>("Id", _gameId.ToString());
         }
 
         public void AddQuestion(Question question)
