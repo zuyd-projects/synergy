@@ -114,34 +114,29 @@ namespace ExotischNederland.Menus
         private void EditObservation(Observation _observation)
         {
             Console.Clear();
-            
-            Console.WriteLine($"Enter new Specie name: [{_observation.Specie.Name}]");
-            string specieName = Console.ReadLine();
-            if (string.IsNullOrEmpty(specieName)) specieName = _observation.Specie.Name;
-            Console.WriteLine($"Enter new Specie category: [{_observation.Specie.Category}]");
-            string specieCategory = Console.ReadLine();
-            if (string.IsNullOrEmpty(specieCategory)) specieCategory = _observation.Specie.Category;
-            Specie specie = Specie.FindOrCreate(specieName, specieCategory);
-            Console.WriteLine($"Enter new Longitude: [{_observation.Longitude}]");
-            string inputLongitude = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputLongitude)) inputLongitude = _observation.Latitude.ToString();
-            float longitude = float.Parse(inputLongitude);
-            Console.WriteLine($"Enter new Latitude: [{_observation.Latitude}]");
-            string inputLatitude = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputLatitude)) inputLatitude = _observation.Latitude.ToString();
-            float latitude = float.Parse(inputLatitude);
-            Console.WriteLine($"Enter new Description: [{_observation.Description}]");
-            string description = Console.ReadLine();
-            if (string.IsNullOrEmpty(description)) description = _observation.Description;
-            Console.WriteLine($"Enter new Photo URL: [{_observation.PhotoUrl}]");
-            string photoUrl = Console.ReadLine();
-            if (string.IsNullOrEmpty(photoUrl)) photoUrl = _observation.PhotoUrl;
+            List<FormField> fields = new List<FormField>();
+            fields.Add(new FormField("specieName", "Enter new specie name", "string", true, _observation.Specie.Name));
+            fields.Add(new FormField("specieCategory", "Enter new specie category", "string", true, _observation.Specie.Category));
+            fields.Add(new FormField("longitude", "Enter new longitude", "float", true, _observation.Longitude.ToString()));
+            fields.Add(new FormField("latitude", "Enter new latitude", "float", true, _observation.Latitude.ToString()));
+            fields.Add(new FormField("description", "Enter new description", "string", true, _observation.Description));
+            fields.Add(new FormField("photoUrl", "Enter new photo URL", "string", true, _observation.PhotoUrl));
 
-            _observation.Specie = specie;
-            _observation.Longitude = longitude;
-            _observation.Latitude = latitude;
-            _observation.Description = description;
-            _observation.PhotoUrl = photoUrl;
+            Dictionary<string, object> values = new Form(fields).Prompt();
+            if (values == null)
+            {
+                ViewObservation(_observation);
+                return;
+            }
+
+            _observation.Specie = Specie.FindOrCreate((string)values["specieName"], (string)values["specieCategory"]);
+            _observation.Longitude = (float)values["longitude"];
+            _observation.Latitude = (float)values["latitude"];
+            _observation.Description = (string)values["description"];
+            _observation.PhotoUrl = (string)values["photoUrl"];
+
+            _observation.Update(this.authenticatedUser);
+
             _observation.Update(this.authenticatedUser);
 
             Console.WriteLine("Observation updated!");
@@ -168,25 +163,18 @@ namespace ExotischNederland.Menus
         private void CreateObservation()
         {
             Console.Clear();
-            Console.WriteLine("Creating a new observation...");
+            List<FormField> fields = new List<FormField>();
+            fields.Add(new FormField("specieName", "Enter specie name", "string", true));
+            fields.Add(new FormField("specieCategory", "Enter specie category", "string", true));
+            fields.Add(new FormField("longitude", "Enter longitude", "float", true));
+            fields.Add(new FormField("latitude", "Enter latitude", "float", true));
+            fields.Add(new FormField("description", "Enter description", "string", true));
+            fields.Add(new FormField("photoUrl", "Enter photo URL", "string", true));
 
-            Console.WriteLine("Enter Specie name:");
-            string specieName = Console.ReadLine();
-            Console.WriteLine("Enter Specie category:");
-            string specieCategory = Console.ReadLine();
+            Dictionary<string, object> values = new Form(fields).Prompt();
+            Specie specie = Specie.FindOrCreate((string)values["specieName"], (string)values["specieCategory"]);
 
-            Specie specie = Specie.FindOrCreate(specieName, specieCategory);
-
-            Console.WriteLine("Enter Longitude:");
-            float longitude = float.Parse(Console.ReadLine());
-            Console.WriteLine("Enter Latitude:");
-            float latitude = float.Parse(Console.ReadLine());
-            Console.WriteLine("Enter Description:");
-            string description = Console.ReadLine();
-            Console.WriteLine("Enter Photo URL:");
-            string photoUrl = Console.ReadLine();
-
-            Observation.Create(specie, longitude, latitude, description, photoUrl, this.authenticatedUser);
+            Observation.Create(specie, (float)values["longitude"], (float)values["latitude"], (string)values["description"], (string)values["photoUrl"], this.authenticatedUser);
             Console.WriteLine("Observation created!");
             Console.ReadKey();
         }
