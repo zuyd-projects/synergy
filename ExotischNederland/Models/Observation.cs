@@ -92,5 +92,11 @@ namespace ExotischNederland.Models
             sql.Delete("Observation", this.Id);
             Console.WriteLine($"Observation with ID: {this.Id} deleted.");
         }
+
+        public List<Observation> GetAllObservations()
+        {
+            SQLDAL sql = new SQLDAL();
+            return sql.Select<Observation>();
+        }
     }
 }
