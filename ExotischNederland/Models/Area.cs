@@ -33,8 +33,9 @@ namespace ExotischNederland.Models
         }
 
         // Static method for creating an area
-        public static Area Create(string _name, string _description, string _polygonCoordinates)
+        public static Area Create(string _name, string _description, string _polygonCoordinates, User _authenticatedUser)
         {
+            if (!_authenticatedUser.Permission.CanCreateArea()) return null;
             SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
