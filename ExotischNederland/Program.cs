@@ -78,21 +78,6 @@ namespace ExotischNederland
                     break;
                 }
             }
-
-            // Radius instellen voor notificaties (bijvoorbeeld 100 meter)
-            double radius = 100;
-
-            // Maak een gebruiker aan en stel zijn huidige locatie in
-            User user = new User(1, "John Doe", "john@example.com", 52.3786f, 4.899f);
-
-            // Controleer nabijheid van de gebruiker voor alle Points of Interest
-            List<string> notifications = PointOfInterest.CheckProximityForUser(user, radius);
-
-            // Print alle notificaties
-            foreach (var notification in notifications)
-            {
-                Console.WriteLine(notification);
-            }
         }
 
         static void ObservationMenu(User user)
