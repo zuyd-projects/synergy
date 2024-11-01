@@ -21,7 +21,7 @@ namespace ExotischNederland.Models
         public List<Route> Routes { get; set; }
         public List<Role> Roles { get; set; }
         public float CurrentLatitude { get; set; } = 0.0f;
-        public float CurrentLongitude { get; set; } 0.0f;
+        public float CurrentLongitude { get; set; } = 0.0f;
 
         // Constructor om User objecten te initialiseren vanuit een Dictionary<string, object>
         public User(Dictionary<string, object> _values)
