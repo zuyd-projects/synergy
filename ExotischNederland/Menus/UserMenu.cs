@@ -17,8 +17,8 @@ namespace ExotischNederland.Menus
         {
             this.authenticatedUser = _authenticatedUser;
             // Logic to add menu items
-            if (_authenticatedUser.Permission.CanCreateObservation()) menuItems.Add("observations", "Observaties");
-            
+            if (_authenticatedUser.Permission.CanViewAllObservations() || _authenticatedUser.Permission.CanCreateObservation()) menuItems.Add("observations", "Observaties");
+            if (_authenticatedUser.Permission.CanViewAllAreas()) menuItems.Add("areas", "Gebieden");
             menuItems.Add("logout", "Uitloggen");
         }
 
@@ -32,6 +32,12 @@ namespace ExotischNederland.Menus
                 {
                     ObservationMenu observarionMenu = new ObservationMenu(this.authenticatedUser);
                     observarionMenu.Show();
+                }
+
+                if (selected == "areas")
+                {
+                    AreaMenu areaMenu = new AreaMenu(this.authenticatedUser);
+                    areaMenu.Show();
                 }
 
                 if (selected == "logout")
