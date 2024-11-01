@@ -53,6 +53,7 @@
 
     <Compile Include="ExportTest.cs" />
     <Compile Include="AreaTest.cs" />
+    <Compile Include="RouteTest.cs" />
     <Compile Include="SorterTest.cs" />
 
     <Compile Include="TransactionTest.cs" />
