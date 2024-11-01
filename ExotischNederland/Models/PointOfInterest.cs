@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExotischNederland.DAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,16 +41,29 @@ namespace ExotischNederland.Models
             return R * c; // Afstand in meters
         }
 
-        // Methode om te controleren of de gebruiker binnen de straal is en een notificatie te tonen
-        public string CheckProximity(float userLatitude, float userLongitude, double radius, string userName)
+        // Methode om alle Points of Interest op te halen uit de database
+        public static List<PointOfInterest> GetAllPointsOfInterest()
         {
-            double distance = CalculateDistance(userLatitude, userLongitude);
-            if (distance <= radius)
-            {
-                return $"Notificatie: {userName}, je bent binnen {radius} meter van {Name}!";
-            }
-            return null; // Geeft null terug als de gebruiker buiten de radius is
+            SQLDAL sql = new SQLDAL();
+            return sql.Select<PointOfInterest>();
         }
 
+        // Methode om nabijheid van gebruiker te controleren en notificatie te genereren
+        internal static List<string> CheckProximityForUser(User user, double radius)
+        {
+            List<string> notifications = new List<string>();
+            List<PointOfInterest> pointsOfInterest = GetAllPointsOfInterest();
+
+            foreach (var poi in pointsOfInterest)
+            {
+                double distance = poi.CalculateDistance(user.CurrentLatitude, user.CurrentLongitude);
+                if (distance <= radius)
+                {
+                    notifications.Add($"Notificatie: {user.Name}, je bent binnen {radius} meter van {poi.Name}!");
+                }
+            }
+
+            return notifications;
+        }
     }
 }

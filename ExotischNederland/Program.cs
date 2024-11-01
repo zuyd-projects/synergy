@@ -82,21 +82,16 @@ namespace ExotischNederland
             // Radius instellen voor notificaties (bijvoorbeeld 100 meter)
             double radius = 100;
 
-            // Maak een SQLDAL instantie aan en haal de Points of Interest op
-            SQLDAL dal = new SQLDAL();
-            List<PointOfInterest> pointsOfInterest = dal.GetAllPointsOfInterest();
-
             // Maak een gebruiker aan en stel zijn huidige locatie in
             User user = new User(1, "John Doe", "john@example.com", 52.3786f, 4.899f);
 
-            // Controleer voor elk Point of Interest of de gebruiker binnen de straal is
-            foreach (var poi in pointsOfInterest)
+            // Controleer nabijheid van de gebruiker voor alle Points of Interest
+            List<string> notifications = PointOfInterest.CheckProximityForUser(user, radius);
+
+            // Print alle notificaties
+            foreach (var notification in notifications)
             {
-                string notification = poi.CheckProximity(user.CurrentLatitude, user.CurrentLongitude, radius, user.Name);
-                if (notification != null)
-                {
-                    Console.WriteLine(notification);
-                }
+                Console.WriteLine(notification);
             }
         }
 

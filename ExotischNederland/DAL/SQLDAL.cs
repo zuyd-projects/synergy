@@ -186,32 +186,6 @@ namespace ExotischNederland.DAL
             return results;
         }
 
-        public List<PointOfInterest> GetAllPointsOfInterest()
-        {
-            List<PointOfInterest> pointsOfInterest = new List<PointOfInterest>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                string query = "SELECT Id, Name, Type, Longitude, Latitude FROM PointOfInterest";
-                SqlCommand command = new SqlCommand(query, connection);
-                connection.Open();
-
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        PointOfInterest poi = new PointOfInterest(
-                            reader.GetInt32(0),
-                            reader.GetString(1),
-                            reader.GetString(2),
-                            (float)reader.GetDouble(3),
-                            (float)reader.GetDouble(4)
-                        );
-                        pointsOfInterest.Add(poi);
-                    }
-                }
-            }
-            return pointsOfInterest;
-        }
+ 
     }
 }

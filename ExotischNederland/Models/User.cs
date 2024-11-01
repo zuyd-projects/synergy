@@ -20,26 +20,23 @@ namespace ExotischNederland.Models
         public List<Observation> Observations { get; set; }
         public List<Route> Routes { get; set; }
         public List<Role> Roles { get; set; }
-        public float CurrentLatitude { get; set; }
-        public float CurrentLongitude { get; set; }
+        public float CurrentLatitude { get; set; } = 0.0f;
+        public float CurrentLongitude { get; set; } 0.0f;
 
+        // Constructor om User objecten te initialiseren vanuit een Dictionary<string, object>
         public User(Dictionary<string, object> _values)
         {
-            this.Id = (int)_values["Id"];  // Initialize the User ID
+            this.Id = (int)_values["Id"];
             this.Name = (string)_values["Name"];
             this.Email = (string)_values["Email"];
             this.PasswordHash = (string)_values["PasswordHash"];
             this.Observations = new List<Observation>();
             this.Routes = new List<Route>();
             this.Roles = this.GetRoles();
-        }
-        public User(int id, string name, string email, float latitude, float longitude)
-        {
-            Id = id;
-            Name = name;
-            Email = email;
-            CurrentLatitude = latitude;
-            CurrentLongitude = longitude;
+
+            // Hardcode eventueel de coördinaten als tijdelijke oplossing, totdat GPS is geïmplementeerd
+            this.CurrentLatitude = 52.0f;
+            this.CurrentLongitude = 4.0f;
         }
 
         public static User Authenticate(string _email, string _password)
