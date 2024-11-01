@@ -103,7 +103,7 @@ namespace ExotischNederland.Menus
             Dictionary<string, object> values = new Form(fields).Prompt();
             if (values == null) return;
 
-            Area.Create((string)values["name"], (string)values["description"], (string)values["polygonPoints"]);
+            Area.Create((string)values["name"], (string)values["description"], (string)values["polygonPoints"], this.authenticatedUser);
             
             Console.WriteLine("Area created!");
             Console.WriteLine("Press a key to return to the menu");
