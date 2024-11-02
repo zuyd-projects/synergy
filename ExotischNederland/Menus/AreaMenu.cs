@@ -7,27 +7,28 @@ using System.Threading.Tasks;
 
 namespace ExotischNederland.Menus
 {
-    internal class AreaMenu
+    internal class AreaMenu: IMenu
     {
         private readonly User authenticatedUser;
-        Dictionary<string, string> menuItems = new Dictionary<string, string>();
+        private Dictionary<string, string> menuItems = new Dictionary<string, string>();
 
         public AreaMenu(User _authenticatedUser)
         {
             this.authenticatedUser = _authenticatedUser;
         }
 
-        private void GetMenuItems()
+        public Dictionary<string, string> GetMenuItems()
         {
-            menuItems.Clear();
+            Dictionary<string, string> menuItems = new Dictionary<string, string>();
             if (this.authenticatedUser.Permission.CanViewAllAreas()) menuItems.Add("viewAll", "Bekijk alle gebieden");
             if (this.authenticatedUser.Permission.CanCreateArea()) menuItems.Add("create", "Nieuw gebied");
             menuItems.Add("back", "Return to main menu");
+            return menuItems;
         }
 
         public void Show()
         {
-            this.GetMenuItems();
+            this.menuItems = this.GetMenuItems();
             string selected = Helpers.MenuSelect(this.menuItems, true);
 
             if (selected == "viewAll")

@@ -8,29 +8,30 @@ using System.IO;
 
 namespace ExotischNederland.Menus
 {
-    internal class ObservationMenu
+    internal class ObservationMenu: IMenu
     {
-        private User authenticatedUser;
-        Dictionary<string, string> menuItems = new Dictionary<string, string>();
+        private readonly User authenticatedUser;
+        private Dictionary<string, string> menuItems = new Dictionary<string, string>();
 
         public ObservationMenu(User _authenticatedUser)
         {
             this.authenticatedUser = _authenticatedUser;
         }
 
-        private void GetMenuItems()
+        public Dictionary<string, string> GetMenuItems()
         {
-            menuItems.Clear();
+            Dictionary<string, string> menuItems = new Dictionary<string, string>();
             if (this.authenticatedUser.Permission.CanViewAllObservations()) menuItems.Add("viewAll", "View all observations");
             if (this.authenticatedUser.Observations.Count > 0) menuItems.Add("viewOwn", "View own observations");
             if (this.authenticatedUser.Permission.CanCreateObservation()) menuItems.Add("create", "Create observation");
             if (this.authenticatedUser.Permission.CanExportObservations()) menuItems.Add("export", "Observaties exporteren");
             menuItems.Add("back", "Return to main menu");
+            return menuItems;
         }
 
         public void Show()
         {
-            this.GetMenuItems();
+            menuItems = this.GetMenuItems();
             string selected = Helpers.MenuSelect(this.menuItems, true);
 
             if (selected == "viewAll")
