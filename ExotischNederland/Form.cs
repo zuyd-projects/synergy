@@ -12,11 +12,19 @@ namespace ExotischNederland
         private Dictionary<string, object> values;
         private bool cancelled = false;
 
+        /// <summary>
+        /// Create a new form
+        /// </summary>
+        /// <param name="_fields"></param>
         public Form(List<FormField> _fields)
         {
             this.fields = _fields;
         }
 
+        /// <summary>
+        /// Prompt the user to fill in the form, returns null on ESC
+        /// </summary>
+        /// <returns>Dictionary with key/value or null if cancelled</returns>
         public Dictionary<string, object> Prompt()
         {
             Console.Clear();
@@ -33,26 +41,36 @@ namespace ExotischNederland
             return values;
         }
 
+        /// <summary>
+        /// Ask the user for input and allow to be cancelled with ESC
+        /// </summary>
+        /// <param name="field"></param>
         private void InputField(FormField field)
         {
             Console.WriteLine(field.Text);
             if (field.Value != null) Console.Write($" [{field.Value}]");
             Console.WriteLine();
             string input = Helpers.ReadInputWithEsc();
+            // If ESC is pressed, set cancelled to true to return null from the main loop
             if (input == null)
             {
                 this.cancelled = true;
                 return;
             }
-            if (field.Required && input == "")
+            // NOTE: this logic means that if a field is not required and there is an existing
+            // value, there is no way to clear this value. A possible improvement could be made
+            if (input == "")
             {
-                if (field.Value != null) values.Add(field.Name, field.Value);
-                else
+                // If the field already has a value (from an update form), use the existing value
+                if (field.Value != null) input = field.Value;
+                // Otherwise, if the field is required, print an error and ask for input again
+                else if (field.Required)
                 {
                     Console.WriteLine("  >This field is required!");
                     InputField(field);
                 }
             }
+            // Parse the input based on the field type
             switch (field.Type)
             {
                 case "string":
@@ -74,11 +92,6 @@ namespace ExotischNederland
                     ParsePolygonString(field, input);
                     break;
             }
-        }
-
-        private void InputString(FormField field)
-        {
-            
         }
 
         private void ParseNumber(FormField _field, string _value)
