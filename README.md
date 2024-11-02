@@ -72,15 +72,14 @@ We follow a branching structure that ensures code stability and organized develo
 
 - **Main Branch**: Production-ready code.
 - **Staging Branch**: Pre-production, used for testing.
-- **Working Branch**: Feature or task-specific branches, named after the Linear ticket (e.g., `feature/ben-83`).
+- **Working Branch**: Feature or task-specific branches, named after the Linear ticket (e.g., `BEN-1`).
 
 ### Pull Requests (PRs)
 
 All pull requests must meet the following criteria:
 
-1. **At least one reviewer** is required to review and approve the PR before merging into the staging branch.
-2. **At least 3 reviewers** are required to review and approve the PR before merging into the main branch.
-3Ensure that PRs are well-documented and follow our [commenting standards](https://conventionalcomments.org/).
+1. **At least one reviewer** is required to review and approve the PR before merging into the main branch.
+2. Ensure that PRs are well-documented and follow our [commenting standards](https://conventionalcomments.org/).
 
 ### Commit Messages
 
@@ -88,10 +87,79 @@ We adhere to **conventional commit** guidelines for all commit messages. This en
 
 - [Conventional Commit](https://www.google.com/search?client=safari&rls=en&q=conventional+commit&ie=UTF-8&oe=UTF-8)
 
-### Tests
+## Development documentation
 
-All features should have a dedicated Unit test
+### Helper functions
 
-### Code conventions
+Helpers.cs contains:
 
-- **Function parameters**: Function parameters should start with an underscore
+```cs
+public static string MenuSelect(Dictionary<string, string> _items, bool _indexes = false, List<string> _text = null)
+```
+
+Create a selection menu
+
+- _items is a dictionary of key/value items for the menu, the key will be returned after selection
+- _indexes = true will add numbers to the start of the line
+- _text is a List of strings that will be printed above the menu (because on every key press the screen is cleared first)
+
+```cs
+public static string HashPassword(string _password)
+```
+
+Take in a password and return the SHA256 hash
+
+```cs
+public static Dictionary<string, string> LoadSettings()
+```
+
+Loads the settings in the .env file located in the ExotischNederland folder. This function is needed for the DB connection string.
+
+```cs
+public static string ReadPassword()
+```
+
+Create an input field to enter a password
+
+```cs
+public static string ReadInputWithEsc()
+```
+
+Read an input from the user or return null if ESC is pressed (used primarily in the Form class)
+
+### Tools
+
+The tools are available in the Tools folder.
+
+#### Sorter.cs
+
+Sorter class takes in a List of a model and can chain multiple Sort() methods to order this list based on a property.
+
+```cs
+public Sorter<T> Sort(string _property, bool _ascending = true)
+```
+
+- _property is a string equal to the name of the property on the model
+- _ascending is a boolean to switch between ascending and descending
+
+```cs
+public List<T> ToList()
+```
+
+Returns the sorted list
+
+### Menus
+
+Menus should be created in the Menus folder and inherit from the IMenu interface. They should have a constructor taking in the User object of the currently authenticated user and store this in a private variable. They should implement:
+
+```cs
+public Dictionary<string, string> GetMenuItems()
+```
+
+To dynamically create a list of menu items based on conditions (e.g. user roles). This method is public so that unit tests are possible.
+
+```cs
+public void Show()
+```
+
+To render the menu on the screen
