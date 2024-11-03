@@ -8,7 +8,7 @@ using System.IO;
 
 namespace ExotischNederland.Menus
 {
-    internal class ObservationMenu: IMenu
+    internal class ObservationMenu
     {
         private readonly User authenticatedUser;
         private Dictionary<string, string> menuItems = new Dictionary<string, string>();
