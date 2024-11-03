@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace ExotischNederland.Models
 {
@@ -11,14 +12,13 @@ namespace ExotischNederland.Models
         public int Id { get; private set; }
         public string Name { get; set; }
         public string Description { get; set; }
-
-        private string PolygonPoints { get; set; }  // Database field for the polygon string
+        public string PolygonPoints { get; set; }
 
         // Property to handle coordinates in the application
         public List<(double lat, double lng)> PolygonCoordinates
         {
             get => ParsePolygonPoints(PolygonPoints);
-            set => PolygonPoints = SerializePolygonPoints(value);
+            set { PolygonPoints = SerializePolygonPoints(value); }
         }
 
         public List<Route> Routes { get; set; }
@@ -33,55 +33,66 @@ namespace ExotischNederland.Models
         }
 
         // Static method for creating an area
-        public static Area Create(string name, string description, List<(double lat, double lng)> polygonCoordinates)
+        public static Area Create(string _name, string _description, string _polygonCoordinates, User _authenticatedUser)
         {
-            SQLDAL sql = new SQLDAL();
+            if (!_authenticatedUser.Permission.CanCreateArea()) return null;
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "Name", name },
-                { "Description", description },
-                { "PolygonPoints", SerializePolygonPoints(polygonCoordinates) }
+                { "Name", _name },
+                { "Description", _description },
+                { "PolygonPoints", _polygonCoordinates }
             };
 
             int id = sql.Insert("Area", values);
             return Find(id);
         }
 
-        public static Area Find(int id)
+        public static Area Find(int _id)
         {
-            SQLDAL sql = new SQLDAL();
-            return sql.Find<Area>("Id", id.ToString());
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Find<Area>("Id", _id.ToString());
         }
 
-        public static void Update(int id, string name, string description, List<(double lat, double lng)> polygonCoordinates)
+        public static List<Area> GetAll()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<Area>();
+        }
+
+        public void Update(User _authenticatedUser)
+        {
+            if(!_authenticatedUser.Permission.CanEditArea()) return;
+
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "Name", name },
-                { "Description", description },
-                { "PolygonPoints", SerializePolygonPoints(polygonCoordinates) }
+                { "Name", this.Name },
+                { "Description", this.Description },
+                { "PolygonPoints", SerializePolygonPoints(this.PolygonCoordinates) }
             };
 
-            sql.Update("Area", id, values);
+            sql.Update("Area", this.Id, values);
         }
 
-        public static void Delete(int id)
+        public void Delete(User _authenticatedUser)
         {
-            SQLDAL sql = new SQLDAL();
-            sql.Delete("Area", id);
+            if(!_authenticatedUser.Permission.CanDeleteArea()) return;
+
+            SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("Area", this.Id);
         }
 
         public List<Route> GetRoutes()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Route>(qb => qb
                 .Where("AreaId", "=", this.Id));
         }
 
         public List<Observation> GetObservations()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Observation>(qb => qb
                 .Join("Route", "Observation.RouteId", "Route.Id")
                 .Where("Route.AreaId", "=", this.Id));
@@ -89,7 +100,7 @@ namespace ExotischNederland.Models
 
         public static List<Area> ListAreas()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Area>();
         }
 
@@ -106,7 +117,7 @@ namespace ExotischNederland.Models
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error parsing PolygonPoints: {ex.Message}");
+                Console.WriteLine("Error parsing PolygonPoints");
                 return new List<(double lat, double lng)>();
             }
         }

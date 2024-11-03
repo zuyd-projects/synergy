@@ -52,7 +52,9 @@ namespace ExotischNederland.Models
         // Method to create a new observation
         public static Observation Create(Specie _specie, double _longitude, double _latitude, string _description, string _photoUrl, User _user)
         {
-            SQLDAL sql = new SQLDAL();
+            if (!_user.Permission.CanCreateObservation()) return null;
+
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "SpecieId", _specie.Id },  // Store the Specie's ID in the database
@@ -69,9 +71,11 @@ namespace ExotischNederland.Models
         }
 
         // Method to update an observation
-        public void Update()
+        public void Update(User _authenticatedUser)
         {
-            SQLDAL sql = new SQLDAL();
+            if (!_authenticatedUser.Permission.CanEditObservation(this)) return;
+
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
             { "SpecieId", this.Specie.Id },  // Store the Specie's ID
@@ -87,22 +91,22 @@ namespace ExotischNederland.Models
         }
 
         // Method to delete an observation
-        public void Delete()
+        public void Delete(User _authenticatedUser)
         {
-            SQLDAL sql = new SQLDAL();
-            sql.Delete("Observation", this.Id);
-            Console.WriteLine($"Observation with ID: {this.Id} deleted.");
-        }
+            if (!_authenticatedUser.Permission.CanDeleteObservation(this)) return;
 
+            SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("Observation", this.Id);
+        }
         public static Observation Find(int _id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Find<Observation>("Id", _id.ToString());
         }
         // Method to get all observations
         public static List<Observation> GetAll()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             List<Observation> observations = sql.Select<Observation>();
 
             return observations;

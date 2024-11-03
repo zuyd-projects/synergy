@@ -9,39 +9,95 @@ namespace ExotischNederland.Models
 {
     public class Route
     {
-        public int Id { get; internal set; }
+        readonly string tablename = "Route";
+        public int Id { get; private set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        //public List<RoutePoint> Points { get; set; }
+        public int UserId { get; set; }
+        public int AreaId { get; set; }
 
-        public Route() { }
+        public List<RoutePoint> Points { get; set; }
 
         public Route(Dictionary<string, object> _values)
         {
-            Id = (int)_values["Id"];
-            Name = (string)_values["Name"];
-            Description = (string)_values["Description"];
+            this.Id = (int)_values["Id"];
+            this.Name = (string)_values["Name"];
+            this.Description = (string)_values["Description"];
+            this.UserId = (int)_values["UserId"];
+            this.AreaId = (int)_values["AreaId"];
+            this.Points = this.GetRoutePoints();
         }
-
-        public static Route Create(string _name, string _description)
+        // Static method for creating a route
+        public static Route Create(string name, string description, int userId, int areaId)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "Name", _name },
-                { "Description", _description }
+                { "Name", name },
+                { "Description", description },
+                { "UserId", userId },
+                { "AreaId", areaId }
             };
 
             int id = sql.Insert("Route", values);
-
             return Find(id);
         }
-
-        public static Route Find(int _routeId)
+        public static Route Find(int id)
         {
-            SQLDAL db = new SQLDAL();
-            return db.Find<Route>("Id", _routeId.ToString());
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Find<Route>("Id", id.ToString());
         }
+
+        public static void Update(int id, string name, string description, int userId, int areaId)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            Dictionary<string, object> values = new Dictionary<string, object>
+            {
+                { "Name", name },
+                { "Description", description },
+                { "UserId", userId },
+                { "AreaId", areaId }
+            };
+
+            sql.Update("Route", id, values);
+        }
+        public static void Delete(int id)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("Route", id);
+        }
+
+        public List<RoutePoint> GetRoutePoints()
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<RoutePoint>(qb => qb
+                .Where("RouteId", "=", this.Id));
+        }
+        //method to add route points
+        //public void AddRoutePoint(RoutePoint point)
+        //{
+        //    point.RouteId = this.Id;
+        //    point.Save();
+        //    this.Points.Add(point);
+        //}
+        //method to remove route points
+        //public void RemoveRoutePoint(int pointId)
+        //{
+        //    RoutePoint point = this.Points.FirstOrDefault(p => p.Id == pointId);
+        //    if (point != null)
+        //    {
+        //        point.Delete();
+        //        this.Points.Remove(point);
+        //    }
+        //}
+
+        public static List<Route> ListRoutes()
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<Route>();
+        }
+
+        //method to generate shortest route
     }
 
 }

@@ -23,7 +23,7 @@ namespace ExotischNederland.Models
         // Static method to find or create a new Specie
         public static Specie FindOrCreate(string _name, string _category)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             
             // Try to find the specie first
             Specie specie = sql.Find<Specie>("Name", _name) ?? Create(_name, _category);
@@ -33,7 +33,7 @@ namespace ExotischNederland.Models
         // Static method to create a new Specie
         public static Specie Create(string _name, string _category)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", _name },
@@ -48,7 +48,7 @@ namespace ExotischNederland.Models
         // Static method to update a Specie
         public void Update()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "Name", this.Name },
@@ -63,7 +63,7 @@ namespace ExotischNederland.Models
         // Static method to delete a Specie
         public void Delete()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             sql.Delete("Specie", this.Id);
             // TODO: Remove this line from the final code
             Console.WriteLine($"Specie with ID: {this.Id} deleted.");
@@ -71,7 +71,7 @@ namespace ExotischNederland.Models
 
         public static Specie Find(int _id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Find<Specie>("Id", _id.ToString());
         }
     }
