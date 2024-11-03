@@ -5,50 +5,65 @@ namespace ExotischNederland.Models
 {
     internal class Answer
     {
-        public int Id { get; set; }
-        public Question Question { get; set; }
-        public int QuestionId => Question?.Id ?? 0; //  Question niet null is
-        public string Text { get; set; }
-        public bool Correct { get; set; }
+        public int Id { get; private set; }
+        public Question Question { get; private set; }
+        public string Text { get; private set; }
+        public bool Correct { get; private set; }
 
-       
-        private Answer() { }
-
-        public Answer(Dictionary<string, object> values)
+        private Answer(int id, Question question, string text, bool correct)
         {
-            Id = (int)values["Id"];
-            Text = (string)values["Text"];
-            Correct = (bool)values["Correct"];
-            Question = Question.Find((int)values["QuestionId"]); // Vindt de bijbehorende vraag
+            Id = id;
+            Question = question;
+            Text = text;
+            Correct = correct;
         }
 
-        // Static factory method to create a new Answer and save it to the database
-        public static Answer CreateAnswer(Question _question, string _text, bool _correct)
+        public static Answer Create(Question question, string text, bool correct)
         {
-            SQLDAL db = new SQLDAL();
+            SQLDAL db = SQLDAL.Instance;
             var values = new Dictionary<string, object>
             {
-                { "QuestionId", _question.Id },
-                { "Text", _text },
-                { "Correct", _correct }
+                { "QuestionId", question.Id },
+                { "Text", text },
+                { "Correct", correct }
             };
             int id = db.Insert("Answer", values);
-
             return Find(id);
         }
 
-        //  op te halen uit de database
-        public static Answer Find(int _answerId)
+        public static Answer Find(int answerId)
         {
-            SQLDAL db = new SQLDAL();
-            var values = db.Find<Dictionary<string, object>>("Answer", _answerId.ToString());
+            SQLDAL db = SQLDAL.Instance;
+            var values = db.Find<Dictionary<string, object>>("Answer", answerId.ToString());
 
-            if (values != null)
+            return values != null
+                ? new Answer(
+                    (int)values["Id"],
+                    Question.Find((int)values["QuestionId"]),
+                    (string)values["Text"],
+                    (bool)values["Correct"]
+                )
+                : null;
+        }
+
+        public void Update(string newText, bool isCorrect)
+        {
+            Text = newText;
+            Correct = isCorrect;
+
+            SQLDAL db = SQLDAL.Instance;
+            var values = new Dictionary<string, object>
             {
-                return new Answer(values);
-            }
+                { "Text", newText },
+                { "Correct", isCorrect }
+            };
+            db.Update("Answer", this.Id, values);
+        }
 
-            return null;
+        public static void Delete(int answerId)
+        {
+            SQLDAL db = SQLDAL.Instance;
+            db.Delete("Answer", answerId);
         }
     }
 }

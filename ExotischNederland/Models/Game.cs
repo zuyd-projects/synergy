@@ -1,76 +1,84 @@
 ﻿using ExotischNederland.DAL;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ExotischNederland.Models;
 
 namespace ExotischNederland.Models
 {
     internal class Game
     {
-        public int Id { get; set; }
-        public Route Route { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public List<Question> Questions { get; set; }
+        public int Id { get; private set; }
+        public Route Route { get; private set; }
+        public string Title { get; private set; }
+        public string Description { get; private set; }
+        public List<Question> Questions { get; private set; }
 
-        // Static factory method to create a new Game and save it to the database
-        public static Game Create(Route _route, string _title, string _description)
+        private Game(int id, Route route, string title, string description)
         {
-            // Save to database
-            SQLDAL db = new SQLDAL();
+            Id = id;
+            Route = route;
+            Title = title;
+            Description = description;
+            Questions = LoadQuestions(); // Lazy loading of questions
+        }
+
+        public static Game Create(Route route, string title, string description)
+        {
+            SQLDAL db = SQLDAL.Instance;
             var values = new Dictionary<string, object>
             {
-                { "RouteId", _route.Id },
-                { "Title", _title },
-                { "Description", _description }
+                { "RouteId", route.Id },
+                { "Title", title },
+                { "Description", description }
             };
             int id = db.Insert("Game", values);
-
-            return Find(id);
+            return Find(id); // Return the created game by finding it with its new ID
         }
 
-        //public static Game Find(int _gameId)
-        //{
-        //    SQLDAL db = new SQLDAL();
-        //    return db.Find<Game>("Id", _gameId.ToString());
-        //}
-        // Private method to find and initialize a Game by Id
         public static Game Find(int gameId)
         {
-            SQLDAL db = new SQLDAL();
+            SQLDAL db = SQLDAL.Instance;
             var values = db.Find<Dictionary<string, object>>("Game", gameId.ToString());
 
-            if (values != null)
+            return values != null
+                ? new Game(
+                    (int)values["Id"],
+                    Route.Find((int)values["RouteId"]),
+                    (string)values["Title"],
+                    (string)values["Description"]
+                )
+                : null;
+        }
+
+        public void Update(string newTitle, string newDescription)
+        {
+            Title = newTitle;
+            Description = newDescription;
+
+            SQLDAL db = SQLDAL.Instance;
+            var values = new Dictionary<string, object>
             {
-                // Gebruik de privé constructor om een nieuw Game object te initialiseren
-                Game game = new Game
-                {
-                    Id = (int)values["Id"],
-                    Route = new Route { Id = (int)values["RouteId"] }, // Route initialisatie
-                    Title = (string)values["Title"],
-                    Description = (string)values["Description"],
-                    Questions = new List<Question>() // Kan later worden geladen als dat nodig is
-                };
-
-                return game;
-            }
-
-            return null; // Return null als de game niet gevonden wordt
+                { "Title", newTitle },
+                { "Description", newDescription }
+            };
+            db.Update("Game", this.Id, values);
         }
 
-        // Maak de default constructor private om directe instanties te voorkomen
-        private Game() { }
-
-        public void AddQuestion(Question question)
+        public static void Delete(int gameId)
         {
-            Questions.Add(question);
+            SQLDAL db = SQLDAL.Instance;
+            db.Delete("Game", gameId);
         }
 
-        public void RemoveQuestion(int questionId)
+        public static List<Game> GetAllPlayableGames()
         {
-            Questions.RemoveAll(q => q.Id == questionId);
+            SQLDAL db = SQLDAL.Instance;
+            return db.Select<Game>(qb => qb); // Fetch all games or add criteria for playable games
+        }
+
+        private List<Question> LoadQuestions()
+        {
+            SQLDAL db = SQLDAL.Instance;
+            return db.Select<Question>(qb => qb.Where("GameId", "=", this.Id));
         }
     }
 }

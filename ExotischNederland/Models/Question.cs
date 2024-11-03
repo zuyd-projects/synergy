@@ -1,80 +1,81 @@
 ﻿using ExotischNederland.DAL;
-using System;
 using System.Collections.Generic;
 
 namespace ExotischNederland.Models
 {
     internal class Question
     {
-        public int Id { get; set; }
-        public Game Game { get; set; }
-        public string Text { get; set; }
-        public string Type { get; set; } // "multiple choice" or "open"
-        public List<Answer> Answers { get; set; }
+        public int Id { get; private set; }
+        public Game Game { get; private set; }
+        public string Text { get; private set; }
+        public string Type { get; private set; } // "multiple choice" or "open"
+        public List<Answer> Answers { get; private set; }
 
-        private Question(Dictionary<string, object> _values)
+        private Question(int id, Game game, string text, string type)
         {
-            Id = (int)_values["Id"];
-            Game = Game.Find((int)_values["GameId"]);
-            Text = (string)_values["Text"];
-            Type = (string)_values["Type"];
-            Answers = GetAnswersFromDatabase(); 
+            Id = id;
+            Game = game;
+            Text = text;
+            Type = type;
+            Answers = LoadAnswers(); // Load answers from the database
         }
 
-        // Static factory method to create a new Question and save it to the database
-        public static Question Create(Game _game, string _text, string _type)
+        public static Question Create(Game game, string text, string type)
         {
-            
-            SQLDAL db = new SQLDAL();
+            SQLDAL db = SQLDAL.Instance;
             var values = new Dictionary<string, object>
             {
-                { "GameId", _game.Id },
-                { "Text", _text },
-                { "Type", _type }
+                { "GameId", game.Id },
+                { "Text", text },
+                { "Type", type }
             };
             int id = db.Insert("Question", values);
-
             return Find(id);
         }
 
-        public static Question Find(int _questionId)
+        public static Question Find(int questionId)
         {
-            SQLDAL db = new SQLDAL();
-            var values = db.Find<Dictionary<string, object>>("Question", _questionId.ToString());
+            SQLDAL db = SQLDAL.Instance;
+            var values = db.Find<Dictionary<string, object>>("Question", questionId.ToString());
 
-            if (values != null)
-            {
-                return new Question(values);
-            }
-
-            return null;
+            return values != null
+                ? new Question(
+                    (int)values["Id"],
+                    Game.Find((int)values["GameId"]),
+                    (string)values["Text"],
+                    (string)values["Type"]
+                )
+                : null;
         }
-
-        
-        private List<Answer> GetAnswersFromDatabase()
-        {
-            SQLDAL db = new SQLDAL();
-            var answerValuesList = db.Select<Dictionary<string, object>>(qb => qb.Where("QuestionId", "=", Id.ToString()));
-
-            List<Answer> answerList = new List<Answer>();
-            foreach (var answerValues in answerValuesList)
-            {
-                answerList.Add(new Answer(answerValues));
-            }
-
-            return answerList;
-        }
-
-
 
         public void AddAnswer(Answer answer)
         {
-            Answers.Add(answer);
+            if (!Answers.Exists(a => a.Id == answer.Id))
+            {
+                Answers.Add(answer);
+                SQLDAL db = SQLDAL.Instance;
+                var values = new Dictionary<string, object>
+                {
+                    { "QuestionId", this.Id },
+                    { "AnswerId", answer.Id }
+                };
+                db.Insert("QuestionAnswer", values);
+            }
         }
 
         public void RemoveAnswer(int answerId)
         {
             Answers.RemoveAll(a => a.Id == answerId);
+            SQLDAL db = SQLDAL.Instance;
+            db.Delete("QuestionAnswer", qb => qb
+                .Where("QuestionId", "=", this.Id)
+                .Where("AnswerId", "=", answerId));
+        }
+
+        private List<Answer> LoadAnswers()
+        {
+            SQLDAL db = SQLDAL.Instance;
+            return db.Select<Answer>(qb => qb.Where("QuestionId", "=", this.Id));
         }
     }
 }
