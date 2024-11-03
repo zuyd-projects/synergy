@@ -4,7 +4,7 @@ using ExotischNederland.Models;
 
 namespace ExotischNederland.Menus
 {
-    internal class UserMenu
+    internal class UserMenu: IMenu
     {
         private readonly User authenticatedUser;
         private Dictionary<string, string> menuItems = new Dictionary<string, string>();

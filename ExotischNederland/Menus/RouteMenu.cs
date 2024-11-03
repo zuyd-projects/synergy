@@ -4,20 +4,19 @@ using ExotischNederland.Models;
 
 namespace ExotischNederland.Menus
 {
-    internal class RouteMenu
+    internal class RouteMenu : IMenu
     {
         private readonly User authenticatedUser;
         private Dictionary<string, string> menuItems = new Dictionary<string, string>();
 
         public RouteMenu(User _authenticatedUser)
         {
-            this.authenticatedUser = _authenticatedUser;
+            authenticatedUser = _authenticatedUser;
         }
 
         public Dictionary<string, string> GetMenuItems()
         {
-            Dictionary<string, string> menuItems = new Dictionary<string, string>();
-            
+            var menuItems = new Dictionary<string, string>();
             var permission = authenticatedUser.Permission;
 
             if (permission.CanViewRoutes())
@@ -37,35 +36,17 @@ namespace ExotischNederland.Menus
 
         public void Show()
         {
-            menuItems = this.GetMenuItems();
+            menuItems = GetMenuItems();
             while (true)
             {
-                string selected = Helpers.MenuSelect(this.menuItems, true);
+                string selected = Helpers.MenuSelect(menuItems, true);
 
-                if (selected == "viewAllRoutes")
-                {
-                    ViewAllRoutes();
-                }
-                else if (selected == "createRoute" && authenticatedUser.Permission.CanCreateRoute())
-                {
-                    CreateRoute();
-                }
-                else if (selected == "editRoute" && authenticatedUser.Permission.CanEditRoute(null))
-                {
-                    EditRoute();
-                }
-                else if (selected == "deleteRoute" && authenticatedUser.Permission.CanDeleteRoute(null))
-                {
-                    DeleteRoute();
-                }
-                else if (selected == "manageRoutePoints" && authenticatedUser.Permission.CanEditRoute(null))
-                {
-                    ManageRoutePoints();
-                }
-                else if (selected == "back")
-                {
-                    break;
-                }
+                if (selected == "viewAllRoutes") ViewAllRoutes();
+                else if (selected == "createRoute") CreateRoute();
+                else if (selected == "editRoute") EditRoute();
+                else if (selected == "deleteRoute") DeleteRoute();
+                else if (selected == "manageRoutePoints") ManageRoutePoints();
+                else if (selected == "back") break;
             }
         }
 
@@ -79,74 +60,56 @@ namespace ExotischNederland.Menus
             {
                 Console.WriteLine($"ID: {route.Id}, Name: {route.Name}, Description: {route.Description}");
             }
-
             Console.WriteLine("Press any key to return to the menu.");
             Console.ReadKey();
         }
 
         private void CreateRoute()
         {
-            if (!authenticatedUser.Permission.CanCreateRoute())
+            var fields = new List<FormField>
             {
-                Console.WriteLine("You do not have permission to create routes.");
-                Console.ReadKey();
-                return;
-            }
+                new FormField("name", "Enter route name", "string", true),
+                new FormField("description", "Enter route description", "string", true)
+            };
+            var values = new Form(fields).Prompt();
+            if (values == null) return;
 
-            Console.Clear();
-            Console.WriteLine("Create New Route");
-
-            Console.Write("Enter route name: ");
-            string name = Console.ReadLine();
-
-            Console.Write("Enter route description: ");
-            string description = Console.ReadLine();
-
-            Route route = Route.Create(name, description, authenticatedUser);
-            Console.WriteLine($"Route '{name}' created successfully with ID: {route.Id}");
-
-            Console.WriteLine("Press any key to return to the menu.");
+            Route route = Route.Create((string)values["name"], (string)values["description"], authenticatedUser);
+            Console.WriteLine($"Route '{values["name"]}' created successfully with ID: {route.Id}");
             Console.ReadKey();
         }
 
         private void EditRoute()
         {
             Console.Clear();
-            Console.WriteLine("Edit Route");
-
             Console.Write("Enter route ID to edit: ");
             if (int.TryParse(Console.ReadLine(), out int routeId))
             {
                 Route route = Route.Find(routeId);
-                if (route != null && authenticatedUser.Permission.CanEditRoute(route))
+                if (route == null || !authenticatedUser.Permission.CanEditRoute(route))
                 {
-                    Console.Write("Enter new name (leave blank to keep current): ");
-                    string newName = Console.ReadLine();
-                    Console.Write("Enter new description (leave blank to keep current): ");
-                    string newDescription = Console.ReadLine();
-
-                    route.Update(newName == "" ? route.Name : newName, newDescription == "" ? route.Description : newDescription);
-                    Console.WriteLine("Route updated successfully.");
+                    Console.WriteLine("Route not found or you do not have permission to edit.");
+                    Console.ReadKey();
+                    return;
                 }
-                else
+
+                var fields = new List<FormField>
                 {
-                    Console.WriteLine("Route not found or you do not have permission to edit this route.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid input for route ID.");
-            }
+                    new FormField("name", "New name (leave blank to keep current)", "string", false, route.Name),
+                    new FormField("description", "New description (leave blank to keep current)", "string", false, route.Description)
+                };
+                var values = new Form(fields).Prompt();
+                if (values == null) return;
 
-            Console.WriteLine("Press any key to return to the menu.");
-            Console.ReadKey();
+                route.Update((string)values["name"], (string)values["description"]);
+                Console.WriteLine("Route updated successfully.");
+                Console.ReadKey();
+            }
         }
 
         private void DeleteRoute()
         {
             Console.Clear();
-            Console.WriteLine("Delete Route");
-
             Console.Write("Enter route ID to delete: ");
             if (int.TryParse(Console.ReadLine(), out int routeId))
             {
@@ -158,78 +121,56 @@ namespace ExotischNederland.Menus
                 }
                 else
                 {
-                    Console.WriteLine("Route not found or you do not have permission to delete this route.");
+                    Console.WriteLine("Route not found or you do not have permission to delete.");
                 }
+                Console.ReadKey();
             }
-            else
-            {
-                Console.WriteLine("Invalid input for route ID.");
-            }
-
-            Console.WriteLine("Press any key to return to the menu.");
-            Console.ReadKey();
         }
 
         private void ManageRoutePoints()
         {
             Console.Clear();
-            Console.WriteLine("Manage Route Points");
-
             Console.Write("Enter route ID to manage points: ");
             if (int.TryParse(Console.ReadLine(), out int routeId))
             {
                 Route route = Route.Find(routeId);
-                if (route != null && authenticatedUser.Permission.CanEditRoute(route))
+                if (route == null || !authenticatedUser.Permission.CanEditRoute(route))
                 {
-                    while (true)
-                    {
-                        Console.Clear();
-                        Console.WriteLine($"Managing Points for Route '{route.Name}' (ID: {route.Id})");
-                        Console.WriteLine("1. Add Route Point");
-                        Console.WriteLine("2. Edit Route Point");
-                        Console.WriteLine("3. Delete Route Point");
-                        Console.WriteLine("4. Back to Route Menu");
+                    Console.WriteLine("Route not found or you do not have permission to manage points.");
+                    Console.ReadKey();
+                    return;
+                }
 
-                        string choice = Console.ReadLine();
-                        if (choice == "1")
-                        {
-                            AddRoutePoint(route);
-                        }
-                        else if (choice == "2")
-                        {
-                            EditRoutePoint(route);
-                        }
-                        else if (choice == "3")
-                        {
-                            DeleteRoutePoint(route);
-                        }
-                        else if (choice == "4")
-                        {
-                            break;
-                        }
-                    }
-                }
-                else
+                while (true)
                 {
-                    Console.WriteLine("Route not found or you do not have permission to manage points for this route.");
+                    Console.Clear();
+                    Console.WriteLine($"Managing Points for Route '{route.Name}' (ID: {route.Id})");
+                    Console.WriteLine("1. Add Route Point");
+                    Console.WriteLine("2. Edit Route Point");
+                    Console.WriteLine("3. Delete Route Point");
+                    Console.WriteLine("4. Back to Route Menu");
+
+                    string choice = Console.ReadLine();
+                    if (choice == "1") AddRoutePoint(route);
+                    else if (choice == "2") EditRoutePoint(route);
+                    else if (choice == "3") DeleteRoutePoint(route);
+                    else if (choice == "4") break;
                 }
-            }
-            else
-            {
-                Console.WriteLine("Invalid input for route ID.");
             }
         }
 
         private void AddRoutePoint(Route route)
         {
-            Console.Clear();
-            Console.WriteLine("Add Route Point");
+            var fields = new List<FormField>
+            {
+                new FormField("order", "Enter order for this point", "number", true),
+                new FormField("poiId", "Enter Point of Interest ID", "number", true)
+            };
+            var values = new Form(fields).Prompt();
+            if (values == null) return;
 
-            Console.Write("Enter order for this point: ");
-            int order = int.Parse(Console.ReadLine());
-
-            Console.Write("Enter Point of Interest ID: ");
-            int poiId = int.Parse(Console.ReadLine());
+            int order = (int)values["order"];
+            int poiId = (int)values["poiId"];
             PointOfInterest poi = PointOfInterest.Find(poiId);
 
             if (poi != null)
@@ -241,58 +182,51 @@ namespace ExotischNederland.Menus
             {
                 Console.WriteLine("Point of Interest not found.");
             }
-
-            Console.WriteLine("Press any key to return to the menu.");
             Console.ReadKey();
         }
 
         private void EditRoutePoint(Route route)
         {
             Console.Clear();
-            Console.WriteLine("Edit Route Point");
-
             Console.Write("Enter Route Point ID to edit: ");
             if (int.TryParse(Console.ReadLine(), out int pointId))
             {
                 RoutePoint point = RoutePoint.Find(pointId);
-                if (point != null)
+                if (point == null)
                 {
-                    Console.Write("Enter new order: ");
-                    int newOrder = int.Parse(Console.ReadLine());
+                    Console.WriteLine("Route Point not found.");
+                    Console.ReadKey();
+                    return;
+                }
 
-                    Console.Write("Enter new Point of Interest ID: ");
-                    int newPoiId = int.Parse(Console.ReadLine());
-                    PointOfInterest newPoi = PointOfInterest.Find(newPoiId);
+                var fields = new List<FormField>
+                {
+                    new FormField("order", "Enter new order", "number", true, point.Order.ToString()),
+                    new FormField("poiId", "Enter new Point of Interest ID", "number", true, point.PointOfInterest.Id.ToString())
+                };
+                var values = new Form(fields).Prompt();
+                if (values == null) return;
 
-                    if (newPoi != null)
-                    {
-                        point.Update(newOrder, newPoi);
-                        Console.WriteLine("Route Point updated successfully.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("New Point of Interest not found.");
-                    }
+                int newOrder = (int)values["order"];
+                int newPoiId = (int)values["poiId"];
+                PointOfInterest newPoi = PointOfInterest.Find(newPoiId);
+
+                if (newPoi != null)
+                {
+                    point.Update(newOrder, newPoi);
+                    Console.WriteLine("Route Point updated successfully.");
                 }
                 else
                 {
-                    Console.WriteLine("Route Point not found.");
+                    Console.WriteLine("New Point of Interest not found.");
                 }
+                Console.ReadKey();
             }
-            else
-            {
-                Console.WriteLine("Invalid input for Route Point ID.");
-            }
-
-            Console.WriteLine("Press any key to return to the menu.");
-            Console.ReadKey();
         }
 
         private void DeleteRoutePoint(Route route)
         {
             Console.Clear();
-            Console.WriteLine("Delete Route Point");
-
             Console.Write("Enter Route Point ID to delete: ");
             if (int.TryParse(Console.ReadLine(), out int pointId))
             {
@@ -311,8 +245,6 @@ namespace ExotischNederland.Menus
             {
                 Console.WriteLine("Invalid input for Route Point ID.");
             }
-
-            Console.WriteLine("Press any key to return to the menu.");
             Console.ReadKey();
         }
     }

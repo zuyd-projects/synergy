@@ -4,98 +4,67 @@ using ExotischNederland.Models;
 
 namespace ExotischNederland.Menus
 {
-    internal class GameMenu
+    internal class GameMenu : IMenu
     {
         private readonly User authenticatedUser;
         private Dictionary<string, string> menuItems = new Dictionary<string, string>();
 
         public GameMenu(User _authenticatedUser)
         {
-            this.authenticatedUser = _authenticatedUser;
+            authenticatedUser = _authenticatedUser;
         }
 
         public Dictionary<string, string> GetMenuItems()
         {
-            Dictionary<string, string> menuItems = new Dictionary<string, string>();
-
-            // Add game management options if the user has the "Beheerder" role
+            var menuItems = new Dictionary<string, string>();
             if (authenticatedUser.Permission.CanManageGames())
             {
                 menuItems.Add("createGame", "Create a new game");
                 menuItems.Add("editGame", "Edit an existing game");
                 menuItems.Add("deleteGame", "Delete a game");
             }
-
-            // Add game-playing option for "Familie" and "Kinderen" roles
-            if (authenticatedUser.Permission.CanPlayGames())
-            {
-                menuItems.Add("playGame", "Play a game");
-            }
-
+            if (authenticatedUser.Permission.CanPlayGames()) menuItems.Add("playGame", "Play a game");
             menuItems.Add("back", "Return to main menu");
             return menuItems;
         }
 
         public void Show()
         {
-            menuItems = this.GetMenuItems();
+            menuItems = GetMenuItems();
             while (true)
             {
-                string selected = Helpers.MenuSelect(this.menuItems, true);
+                string selected = Helpers.MenuSelect(menuItems, true);
 
-                if (selected == "createGame")
-                {
-                    CreateGame();
-                }
-                else if (selected == "editGame")
-                {
-                    EditGame();
-                }
-                else if (selected == "deleteGame")
-                {
-                    DeleteGame();
-                }
-                else if (selected == "playGame")
-                {
-                    PlayGame();
-                }
-                else if (selected == "back")
-                {
-                    break;
-                }
+                if (selected == "createGame") CreateGame();
+                else if (selected == "editGame") EditGame();
+                else if (selected == "deleteGame") DeleteGame();
+                else if (selected == "playGame") PlayGame();
+                else if (selected == "back") break;
             }
         }
 
         private void CreateGame()
         {
-            Console.Clear();
-            Console.WriteLine("Create a New Game");
-            Console.Write("Enter the title of the game: ");
-            string title = Console.ReadLine();
-            Console.Write("Enter the description of the game: ");
-            string description = Console.ReadLine();
-
-            Console.Write("Enter route ID for the game: ");
-            int routeId;
-            if (int.TryParse(Console.ReadLine(), out routeId))
+            var fields = new List<FormField>
             {
-                Route route = Route.Find(routeId);
-                if (route != null)
-                {
-                    Game game = Game.Create(route, title, description);
-                    Console.WriteLine($"Game '{title}' created successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Invalid route ID. Game creation failed.");
-                }
+                new FormField("title", "Enter game title", "string", true),
+                new FormField("description", "Enter game description", "string", true),
+                new FormField("routeId", "Enter route ID for the game", "number", true)
+            };
+            var values = new Form(fields).Prompt();
+            if (values == null) return;
+
+            int routeId = (int)values["routeId"];
+            Route route = Route.Find(routeId);
+            if (route != null)
+            {
+                Game game = Game.Create(route, (string)values["title"], (string)values["description"]);
+                Console.WriteLine($"Game '{values["title"]}' created successfully.");
             }
             else
             {
-                Console.WriteLine("Invalid route ID input.");
+                Console.WriteLine("Invalid route ID.");
             }
-
-            Console.WriteLine("Press any key to return to the menu.");
             Console.ReadKey();
         }
 
@@ -103,43 +72,36 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
             Console.WriteLine("Edit a Game");
-            Console.Write("Enter the ID of the game to edit: ");
-            int gameId;
-            if (int.TryParse(Console.ReadLine(), out gameId))
+            Console.Write("Enter game ID: ");
+            if (int.TryParse(Console.ReadLine(), out int gameId))
             {
                 Game game = Game.Find(gameId);
-
-                if (game != null)
-                {
-                    Console.Write("New title (leave empty to keep current): ");
-                    string newTitle = Console.ReadLine();
-                    Console.Write("New description (leave empty to keep current): ");
-                    string newDescription = Console.ReadLine();
-
-                    game.Update(newTitle, newDescription);
-                    Console.WriteLine("Game updated successfully.");
-                }
-                else
+                if (game == null)
                 {
                     Console.WriteLine("Game not found.");
+                    Console.ReadKey();
+                    return;
                 }
-            }
-            else
-            {
-                Console.WriteLine("Invalid game ID input.");
-            }
 
-            Console.WriteLine("Press any key to return to the menu.");
-            Console.ReadKey();
+                var fields = new List<FormField>
+                {
+                    new FormField("title", "New title (leave empty to keep)", "string", false, game.Title),
+                    new FormField("description", "New description (leave empty to keep)", "string", false, game.Description)
+                };
+                var values = new Form(fields).Prompt();
+                if (values == null) return;
+
+                game.Update((string)values["title"], (string)values["description"]);
+                Console.WriteLine("Game updated successfully.");
+                Console.ReadKey();
+            }
         }
 
         private void DeleteGame()
         {
             Console.Clear();
-            Console.WriteLine("Delete a Game");
-            Console.Write("Enter the ID of the game to delete: ");
-            int gameId;
-            if (int.TryParse(Console.ReadLine(), out gameId))
+            Console.Write("Enter game ID to delete: ");
+            if (int.TryParse(Console.ReadLine(), out int gameId))
             {
                 Game game = Game.Find(gameId);
                 if (game != null)
@@ -151,21 +113,14 @@ namespace ExotischNederland.Menus
                 {
                     Console.WriteLine("Game not found.");
                 }
+                Console.ReadKey();
             }
-            else
-            {
-                Console.WriteLine("Invalid game ID input.");
-            }
-
-            Console.WriteLine("Press any key to return to the menu.");
-            Console.ReadKey();
         }
 
         private void PlayGame()
         {
             Console.Clear();
-            Console.WriteLine("Available Games to Play:");
-
+            Console.WriteLine("Available Games:");
             List<Game> games = Game.GetAllPlayableGames();
             int i = 1;
             foreach (var game in games)
@@ -173,8 +128,7 @@ namespace ExotischNederland.Menus
                 Console.WriteLine($"{i}. {game.Title} - {game.Description}");
                 i++;
             }
-
-            Console.WriteLine("Select a game number to play or enter '0' to return:");
+            Console.WriteLine("Enter game number to play or '0' to return:");
             if (int.TryParse(Console.ReadLine(), out int choice) && choice > 0 && choice <= games.Count)
             {
                 StartGame(games[choice - 1]);
@@ -198,13 +152,9 @@ namespace ExotischNederland.Menus
                 }
 
                 Console.WriteLine("Select an answer:");
-                if (int.TryParse(Console.ReadLine(), out int answerChoice) && answerChoice > 0 && answerChoice <= question.Answers.Count)
-                {
-                    // Logic to handle answer choice (e.g., check correctness)
-                }
+                int.TryParse(Console.ReadLine(), out int answerChoice);
             }
-
-            Console.WriteLine("\nEnd of game. Press any key to return to the menu.");
+            Console.WriteLine("\nGame over. Press any key to return.");
             Console.ReadKey();
         }
     }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ExotischNederland.Menus
 {
-    internal class AreaMenu
+    internal class AreaMenu: IMenu
     {
         private readonly User authenticatedUser;
         private Dictionary<string, string> menuItems = new Dictionary<string, string>();
