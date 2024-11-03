@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using ExotischNederland.Models;
@@ -16,6 +17,7 @@ namespace ExotischNederland
             User = _user;
         }
 
+        // Observation permissions
         public bool CanViewAllObservations()
         {
             if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
@@ -50,6 +52,41 @@ namespace ExotischNederland
         }
 
         public bool CanExportObservations()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return false;
+        }
+
+
+        // Area permissions
+        public bool CanViewAllAreas()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
+                return true;
+
+            return false;
+        }
+
+        public bool CanCreateArea()
+        {
+            if (this.User.Roles.Any(role =>
+                role.Name == "Beheerder" || role.Name == "Vrijwilliger" || role.Name == "Wandelaar"))
+                return true;
+
+            return false;
+        }
+
+        public bool CanEditArea()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
+                return true;
+
+            return false;
+        }
+
+        public bool CanDeleteArea()
         {
             if (this.User.Roles.Any(role => role.Name == "Beheerder"))
                 return true;

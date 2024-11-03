@@ -14,6 +14,7 @@ namespace Tests
         {
             // Arrange
             User user = User.Create("Test User", "test@test.com", "password");
+            user.AssignRole(Role.Create("Beheerder"));
             Specie specie = Specie.Create("Test Specie", "Test Description");
             double longitude = 1.0;
             double latitude = 1.0;
@@ -42,7 +43,9 @@ namespace Tests
         {
             // Arrange
             User user = User.Create("Test User", "test@test.com", "password");
+            user.AssignRole(Role.Create("Beheerder"));
             User user2 = User.Create("Test User 2", "test2@test.com", "password");
+            user2.AssignRole(Role.Create("Beheerder"));
             Specie specie = Specie.Create("Test Specie", "Test Description");
             double longitude = 1.0;
             double latitude = 1.0;
