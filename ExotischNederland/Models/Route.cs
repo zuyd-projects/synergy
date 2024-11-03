@@ -20,13 +20,14 @@ namespace ExotischNederland.Models
             Points = LoadRoutePoints(); // Load RoutePoints from the database
         }
 
-        public static Route Create(string name, string description, User user)
+        public static Route Create(string name, string description, int areaId, User user)
         {
             SQLDAL db = SQLDAL.Instance;
             var values = new Dictionary<string, object>
             {
                 { "Name", name },
                 { "Description", description },
+                { "AreaId", areaId },  
                 { "UserId", user.Id }
             };
             int id = db.Insert("Route", values);

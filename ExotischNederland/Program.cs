@@ -21,7 +21,7 @@ namespace ExotischNederland
         
                 // Beheerder (Admin User)
                 // |Id: 1194| Name: Admin User | Role: Beheerder | Email: admin@exotischnederland.com | PasswordHash: 08801e4de3979370bd0c8da452cf1e2d03be081e36986b5e9180036f33679266
-                // debugUser = User.Find(1194); 
+                debugUser = User.Find(1194); 
         
                 // Vrijwilliger (Volunteer User)
                 // |Id: 1195| Name: Volunteer User | Role: Vrijwilliger | Email: volunteer@exotischnederland.com | PasswordHash: 08801e4de3979370bd0c8da452cf1e2d03be081e36986b5e9180036f33679266
