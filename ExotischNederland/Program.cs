@@ -16,7 +16,7 @@ namespace ExotischNederland
             while (true)
             {
                 User debugUser = null;
-                debugUser = User.Find(1); // Uncomment this line to debug as a specific user
+                debugUser = User.Find(1194); // Admin user
                 User authenticatedUser = debugUser ?? MainMenu.Show();
                 if (authenticatedUser is null) return;
                 UserMenu menu = new UserMenu(authenticatedUser);

@@ -175,6 +175,28 @@ namespace ExotischNederland.Menus
             Dictionary<string, object> values = new Form(fields).Prompt();
             Specie specie = Specie.FindOrCreate((string)values["specieName"], (string)values["specieCategory"]);
 
+            List<Observation> similarObservations = Observation.GetAll().Where(x => x.Specie.Name == specie.Name && x.Latitude == (float)values["latitude"] && x.Longitude == (float)values["longitude"]).ToList();
+            int count = similarObservations.Count;
+            if (count > 0)
+            {
+                Console.Clear();
+                Console.WriteLine($"{count} vergelijkbare {(count > 1 ? "observaties" : "observatie")} van deze soort op deze locatie gevonden");
+                foreach(var observation in similarObservations)
+                {
+                    Console.WriteLine($"Observatie ID: {observation.Id}, Specie: {observation.Specie.Name}, Beschrijving: {observation.Description}");
+                }
+                Console.WriteLine("Weet u zeker dat u nog een observatie wilt vastleggen? [J/N]");
+                ConsoleKey key = ConsoleKey.NoName;
+                while (key != ConsoleKey.N && key != ConsoleKey.J)
+                {
+                    key = Console.ReadKey().Key;
+                    // If user presses N, return to menu
+                    if (key == ConsoleKey.N) return;
+                    // If user presses J, continue to create observation
+                    if (key == ConsoleKey.J) break;
+                }
+            }
+
             Observation.Create(specie, (float)values["longitude"], (float)values["latitude"], (string)values["description"], (string)values["photoUrl"], this.authenticatedUser);
             Console.WriteLine("Observation created!");
             Console.ReadKey();
