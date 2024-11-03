@@ -23,7 +23,6 @@ namespace ExotischNederland
                 menu.Show();
             }
         }
-
         
         //    static void RouteMenu(User user)
         //    {

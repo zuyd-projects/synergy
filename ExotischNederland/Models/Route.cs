@@ -7,7 +7,7 @@ using ExotischNederland.DAL;
 
 namespace ExotischNederland.Models
 {
-    internal class Route
+    public class Route
     {
         readonly string tablename = "Route";
         public int Id { get; private set; }
@@ -99,4 +99,5 @@ namespace ExotischNederland.Models
 
         //method to generate shortest route
     }
+
 }
