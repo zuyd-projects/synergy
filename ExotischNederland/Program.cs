@@ -78,6 +78,36 @@ namespace ExotischNederland
                     break;
                 }
             }
+            // Stap 1: Maak een nieuwe Game aan (we gaan ervan uit dat er een route is met Id = 1)
+            Route route = new Route { Id = 1 };
+            Game game = Game.Create(route, "Geschiedenis Quiz", "Een quiz over geschiedenis");
+
+            
+            Question question = Question.Create(game, "Wat is de hoofdstad van Nederland?", "multiple choice");
+
+            
+            Answer answer1 = Answer.CreateAnswer(question, "Amsterdam", true);
+            Answer answer2 = Answer.CreateAnswer(question, "Rotterdam", false);
+            Answer answer3 = Answer.CreateAnswer(question, "Utrecht", false);
+            Answer answer4 = Answer.CreateAnswer(question, "Den Haag", false);
+
+            // Stap 4: Haal de vraag en zijn antwoorden op uit de database
+            Question fetchedQuestion = Question.Find(question.Id);
+
+            if (fetchedQuestion != null)
+            {
+                Console.WriteLine($"Vraag: {fetchedQuestion.Text} ({fetchedQuestion.Type})");
+
+                // De antwoorden ophalen via de Answers eigenschap
+                foreach (var answer in fetchedQuestion.Answers)
+                {
+                    Console.WriteLine($"Antwoord: {answer.Text} - Correct: {answer.Correct}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("De vraag is niet gevonden in de database.");
+            }
         }
 
         static void ObservationMenu(User user)
@@ -371,5 +401,6 @@ namespace ExotischNederland
 
             Console.ReadKey();
         }
+
     }
 }

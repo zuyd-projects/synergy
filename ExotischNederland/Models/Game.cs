@@ -31,11 +31,37 @@ namespace ExotischNederland.Models
             return Find(id);
         }
 
-        public static Game Find(int _gameId)
+        //public static Game Find(int _gameId)
+        //{
+        //    SQLDAL db = new SQLDAL();
+        //    return db.Find<Game>("Id", _gameId.ToString());
+        //}
+        // Private method to find and initialize a Game by Id
+        public static Game Find(int gameId)
         {
             SQLDAL db = new SQLDAL();
-            return db.Find<Game>("Id", _gameId.ToString());
+            var values = db.Find<Dictionary<string, object>>("Game", gameId.ToString());
+
+            if (values != null)
+            {
+                // Gebruik de privé constructor om een nieuw Game object te initialiseren
+                Game game = new Game
+                {
+                    Id = (int)values["Id"],
+                    Route = new Route { Id = (int)values["RouteId"] }, // Route initialisatie
+                    Title = (string)values["Title"],
+                    Description = (string)values["Description"],
+                    Questions = new List<Question>() // Kan later worden geladen als dat nodig is
+                };
+
+                return game;
+            }
+
+            return null; // Return null als de game niet gevonden wordt
         }
+
+        // Maak de default constructor private om directe instanties te voorkomen
+        private Game() { }
 
         public void AddQuestion(Question question)
         {

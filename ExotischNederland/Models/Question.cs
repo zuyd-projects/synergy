@@ -1,10 +1,6 @@
 ﻿using ExotischNederland.DAL;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExotischNederland.Models
 {
@@ -22,13 +18,13 @@ namespace ExotischNederland.Models
             Game = Game.Find((int)_values["GameId"]);
             Text = (string)_values["Text"];
             Type = (string)_values["Type"];
-            Answers = new List<Answer>(); //TODO get answers from database
+            Answers = GetAnswersFromDatabase(); 
         }
 
         // Static factory method to create a new Question and save it to the database
         public static Question Create(Game _game, string _text, string _type)
         {
-            // Save to database
+            
             SQLDAL db = new SQLDAL();
             var values = new Dictionary<string, object>
             {
@@ -36,7 +32,7 @@ namespace ExotischNederland.Models
                 { "Text", _text },
                 { "Type", _type }
             };
-            int id = db.Insert("Question", values);  
+            int id = db.Insert("Question", values);
 
             return Find(id);
         }
@@ -44,8 +40,32 @@ namespace ExotischNederland.Models
         public static Question Find(int _questionId)
         {
             SQLDAL db = new SQLDAL();
-            return db.Find<Question>("Id", _questionId.ToString());
+            var values = db.Find<Dictionary<string, object>>("Question", _questionId.ToString());
+
+            if (values != null)
+            {
+                return new Question(values);
+            }
+
+            return null;
         }
+
+        
+        private List<Answer> GetAnswersFromDatabase()
+        {
+            SQLDAL db = new SQLDAL();
+            var answerValuesList = db.Select<Dictionary<string, object>>(qb => qb.Where("QuestionId", "=", Id.ToString()));
+
+            List<Answer> answerList = new List<Answer>();
+            foreach (var answerValues in answerValuesList)
+            {
+                answerList.Add(new Answer(answerValues));
+            }
+
+            return answerList;
+        }
+
+
 
         public void AddAnswer(Answer answer)
         {

@@ -7,12 +7,14 @@ using ExotischNederland.DAL;
 
 namespace ExotischNederland.Models
 {
-    internal class Route
+    public class Route
     {
-        public int Id { get; private set; }
+        public int Id { get; internal set; }
         public string Name { get; set; }
         public string Description { get; set; }
         //public List<RoutePoint> Points { get; set; }
+
+        public Route() { }
 
         public Route(Dictionary<string, object> _values)
         {
