@@ -108,45 +108,10 @@ namespace ExotischNederland
         }
 
         /// <summary>
-        /// Read a password from the console
-        /// </summary>
-        /// <returns></returns>
-        public static string ReadPassword()
-        {
-            StringBuilder password = new StringBuilder();
-            ConsoleKeyInfo keyInfo;
-
-            while (true)
-            {
-                keyInfo = Console.ReadKey(true);
-                if (keyInfo.Key == ConsoleKey.Enter)
-                {
-                    Console.WriteLine();
-                    break;
-                }
-                else if (keyInfo.Key == ConsoleKey.Backspace)
-                {
-                    if (password.Length > 0)
-                    {
-                        password.Remove(password.Length - 1, 1);
-                        Console.Write("\b \b");
-                    }
-                }
-                else
-                {
-                    password.Append(keyInfo.KeyChar);
-                    Console.Write("*");
-                }
-            }
-
-            return password.ToString();
-        }
-
-        /// <summary>
         /// Get input for the user but cancel on ESC
         /// </summary>
         /// <returns>null for ESC or otherwise a string with the user input</returns>
-        public static string ReadInputWithEsc()
+        public static string ReadInputWithEsc(bool _hidden = false)
         {
             StringBuilder input = new StringBuilder();
             ConsoleKeyInfo keyInfo;
@@ -162,7 +127,14 @@ namespace ExotischNederland
                 else if (keyInfo.Key != ConsoleKey.Backspace)
                 {
                     input.Append(keyInfo.KeyChar);
-                    Console.Write(keyInfo.KeyChar);
+                    if (_hidden)
+                    {
+                        Console.Write("*"); // Mask the input character
+                    }
+                    else
+                    {
+                        Console.Write(keyInfo.KeyChar);
+                    }
                 }
             }
 

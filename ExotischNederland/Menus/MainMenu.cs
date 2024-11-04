@@ -23,13 +23,14 @@ namespace ExotischNederland.Menus
 
             if (selected == "login")
             {
-                Console.Clear();
-                Console.WriteLine("Enter your email:");
-                string email = Console.ReadLine();
-                Console.WriteLine("Enter your password:");
-                string password = Helpers.ReadPassword();
+                List<FormField> fields = new List<FormField>
+                {
+                    new FormField("email", "Email", "string", true),
+                    new FormField("password", "Password", "password", true)
+                };
+                Dictionary<string, object> values = new Form(fields).Prompt();
 
-                User authenticatedUser = User.Authenticate(email, password);
+                User authenticatedUser = User.Authenticate((string)values["email"], (string)values["password"]);
 
                 if (authenticatedUser != null)
                 {

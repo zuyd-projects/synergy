@@ -24,6 +24,7 @@ namespace ExotischNederland.Menus
             // Logic to add menu items
             if (this.authenticatedUser.Permission.CanViewAllObservations() || this.authenticatedUser.Permission.CanCreateObservation()) menuItems.Add("observations", "Observaties");
             if (this.authenticatedUser.Permission.CanViewAllAreas()) menuItems.Add("areas", "Gebieden");
+            if (this.authenticatedUser.Permission.CanViewAllUsers()) menuItems.Add("users", "Gebruikers");
             menuItems.Add("logout", "Uitloggen");
             return menuItems;
         }

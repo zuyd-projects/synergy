@@ -93,5 +93,38 @@ namespace ExotischNederland
 
             return false;
         }
+
+        // User permissions
+        public bool CanViewAllUsers()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return false;
+        }
+
+        public bool CanEditUser(User user)
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return user.Id == this.User.Id;
+        }
+
+        public bool CanDeleteUser(User user)
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return user.Id == this.User.Id;
+        }
+
+        public bool CanCreateUser()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return false;
+        }
     }
 }
