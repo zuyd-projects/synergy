@@ -12,13 +12,13 @@ namespace ExotischNederland.Models
         public string Description { get; private set; }
         public List<Question> Questions { get; private set; }
 
-        private Game(int id, Route route, string title, string description)
+        private Game(Dictionary<string, object> _values)
         {
-            Id = id;
-            Route = route;
-            Title = title;
-            Description = description;
-            Questions = LoadQuestions(); // Lazy loading of questions
+            this.Id = (int)_values["Id"];
+            this.Route = Route.Find((int)_values["RouteId"]);
+            this.Title = (string)_values["Title"];
+            this.Description = (string)_values["Description"];
+            this.Questions = LoadQuestions(); // Lazy loading of questions
         }
 
         public static Game Create(Route route, string title, string description)
@@ -37,16 +37,7 @@ namespace ExotischNederland.Models
         public static Game Find(int gameId)
         {
             SQLDAL db = SQLDAL.Instance;
-            var values = db.Find<Dictionary<string, object>>("Game", gameId.ToString());
-
-            return values != null
-                ? new Game(
-                    (int)values["Id"],
-                    Route.Find((int)values["RouteId"]),
-                    (string)values["Title"],
-                    (string)values["Description"]
-                )
-                : null;
+            return db.Find<Game>("Game", gameId.ToString());
         }
 
         public void Update(string newTitle, string newDescription)
@@ -72,7 +63,7 @@ namespace ExotischNederland.Models
         public static List<Game> GetAllPlayableGames()
         {
             SQLDAL db = SQLDAL.Instance;
-            return db.Select<Game>(qb => qb); // Fetch all games or add criteria for playable games
+            return db.Select<Game>(); // Fetch all games or add criteria for playable games
         }
 
         private List<Question> LoadQuestions()
