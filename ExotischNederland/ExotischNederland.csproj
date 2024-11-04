@@ -47,9 +47,11 @@
     <Compile Include="DAL\SQLDAL.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Menus\AreaMenu.cs" />
+    <Compile Include="Menus\GameMenu.cs" />
     <Compile Include="Menus\IMenu.cs" />
     <Compile Include="Menus\MainMenu.cs" />
     <Compile Include="Menus\ObservationMenu.cs" />
+    <Compile Include="Menus\RouteMenu.cs" />
     <Compile Include="Menus\UserMenu.cs" />
     <Compile Include="Models\Answer.cs" />
     <Compile Include="Models\Area.cs" />

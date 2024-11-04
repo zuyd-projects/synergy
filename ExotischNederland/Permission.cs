@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
 using ExotischNederland.Models;
 
 namespace ExotischNederland
@@ -18,80 +15,33 @@ namespace ExotischNederland
         }
 
         // Observation permissions
-        public bool CanViewAllObservations()
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
-                return true;
-
-            return false;
-        }
-
-        public bool CanCreateObservation()
-        {
-            if (this.User.Roles.Any(role =>
-                role.Name == "Beheerder" || role.Name == "Vrijwilliger" || role.Name == "Wandelaar"))
-                    return true;
-
-            return false;
-        }
-
-        public bool CanEditObservation(Observation observation)
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
-                return true;
-
-            return observation.User.Id == this.User.Id;
-        }
-
-        public bool CanDeleteObservation(Observation observation)
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
-                return true;
-
-            return observation.User.Id == this.User.Id;
-        }
-
-        public bool CanExportObservations()
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
-                return true;
-
-            return false;
-        }
-
+        public bool CanViewAllObservations() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger");
+        public bool CanCreateObservation() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger" || role.Name == "Wandelaar");
+        public bool CanEditObservation(Observation observation) => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger") || observation.User.Id == User.Id;
+        public bool CanDeleteObservation(Observation observation) => User.Roles.Any(role => role.Name == "Beheerder") || observation.User.Id == User.Id;
+        public bool CanExportObservations() => User.Roles.Any(role => role.Name == "Beheerder");
 
         // Area permissions
-        public bool CanViewAllAreas()
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
-                return true;
+        public bool CanViewAllAreas() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger");
+        public bool CanCreateArea() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger" || role.Name == "Wandelaar");
+        public bool CanEditArea() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger");
+        public bool CanDeleteArea() => User.Roles.Any(role => role.Name == "Beheerder");
 
-            return false;
-        }
+        // Game permissions
+        public bool CanManageGames() => User.Roles.Any(role => role.Name == "Beheerder");
+        
+        // Allow both "Familie" and "Kinderen" roles to play games
+        public bool CanPlayGames() => User.Roles.Any(role => role.Name == "Familie" || role.Name == "Kinderen");
 
-        public bool CanCreateArea()
-        {
-            if (this.User.Roles.Any(role =>
-                role.Name == "Beheerder" || role.Name == "Vrijwilliger" || role.Name == "Wandelaar"))
-                return true;
+        // Question and Answer permissions
+        public bool CanManageQuestions() => User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanManageAnswers() => User.Roles.Any(role => role.Name == "Beheerder");
 
-            return false;
-        }
-
-        public bool CanEditArea()
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger"))
-                return true;
-
-            return false;
-        }
-
-        public bool CanDeleteArea()
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
-                return true;
-
-            return false;
-        }
+        // Route permissions
+        public bool CanManageRoutes() => User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanViewRoutes() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Familie" || role.Name == "Kinderen");
+        public bool CanCreateRoute() => User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanEditRoute(Route route) => User.Roles.Any(role => role.Name == "Beheerder") || route.User.Id == User.Id;
+        public bool CanDeleteRoute(Route route) => User.Roles.Any(role => role.Name == "Beheerder") || route.User.Id == User.Id;
     }
 }
