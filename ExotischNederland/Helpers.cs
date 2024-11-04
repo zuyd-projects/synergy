@@ -64,6 +64,83 @@ namespace ExotischNederland
         }
 
         /// <summary>
+        /// Create a menu with a list of items to select from
+        /// </summary>
+        /// <param name="_items"></param>
+        /// <param name="_indexes"></param>
+        /// <param name="_selection"></param>
+        /// <param name="_text"></param>
+        /// <returns>List of strings of selected items</returns>
+        public static List<string> MultiSelect(Dictionary<string, string> _items, bool _indexes = false, List<string> _selection = null, List<string> _text = null)
+        {
+            int selected = 0;
+            List<string> selection = _selection ?? new List<string>();
+            List<string> text = _text ?? new List<string>();
+            text.Add("Druk op spatie om een item te selecteren of deselecteren");
+            text.Add("Druk op enter om de selectie op te slaan");
+            while (true)
+            {
+                Console.Clear();
+                foreach (var item in text)
+                {
+                    Console.WriteLine(item);
+                }
+                foreach (var item in _items)
+                {
+                    if (_items.Keys.ToList().IndexOf(item.Key) == selected)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Gray;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                    if (_indexes) Console.Write(_items.Keys.ToList().IndexOf(item.Key) + 1 + ". ");
+                    if (selection.Contains(item.Key))
+                    {
+                        Console.Write("[X] ");
+                    }
+                    else
+                    {
+                        Console.Write("[ ] ");
+                    }
+                    Console.WriteLine(item.Value);
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
+                ConsoleKey input = Console.ReadKey().Key;
+                if (input == ConsoleKey.UpArrow)
+                {
+                    selected--;
+                    if (selected < 0)
+                    {
+                        selected = _items.Count - 1;
+                    }
+                }
+                else if (input == ConsoleKey.DownArrow)
+                {
+                    selected++;
+                    if (selected > _items.Count - 1)
+                    {
+                        selected = 0;
+                    }
+                }
+                else if (input == ConsoleKey.Spacebar)
+                {
+                    if (selection.Contains(_items.Keys.ToList()[selected]))
+                    {
+                        selection.Remove(_items.Keys.ToList()[selected]);
+                    }
+                    else
+                    {
+                        selection.Add(_items.Keys.ToList()[selected]);
+                    }
+                }
+                else if (input == ConsoleKey.Enter)
+                {
+                    return selection;
+                }
+            }
+        }
+
+        /// <summary>
         /// Method to hash a password using SHA256
         /// </summary>
         /// <param name="_password">Input password</param>
