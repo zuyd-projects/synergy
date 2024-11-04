@@ -1,6 +1,0 @@
-﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AList_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FSourcesCache_003Fb88fc5cbccbb997b67e1efbf3e1ca91fda7c15261117af7f02a53f6aa234ce_003FList_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
-	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3a7b5702_002De285_002D42e2_002D824b_002Dd5f72932b351/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from AreaTest.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;ProjectFile&gt;4F47F992-AE9B-427B-8FFD-2F7A58C915FF/f:AreaTest.cs&lt;/ProjectFile&gt;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
