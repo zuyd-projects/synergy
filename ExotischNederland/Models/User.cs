@@ -120,6 +120,26 @@ namespace ExotischNederland.Models
             this.Roles = this.Roles.Where(r => r.Id != _role.Id).ToList();
         }
 
+        public void SyncRoles(List<Role> _roles, User _authenticatedUser)
+        {
+            if (!_authenticatedUser.Permission.CanEditUser(this)) return;
+
+            foreach (Role _role in this.Roles)
+            {
+                if (!_roles.Any(r => r.Id == _role.Id))
+                {
+                    this.RemoveRole(_role);
+                }
+            }
+            foreach (Role _role in _roles)
+            {
+                if (!this.Roles.Any(r => r.Id == _role.Id))
+                {
+                    this.AssignRole(_role);
+                }
+            }
+        }
+
         private List<Role> GetRoles()
         {
             SQLDAL sql = SQLDAL.Instance;
