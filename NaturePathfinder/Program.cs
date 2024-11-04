@@ -12,52 +12,61 @@ namespace NaturePathfinder
         // Helper method to build a graph of areas with routes between them based on the centroids
         internal static Graph BuildGraph(List<Area> areas)
         {
-            // Create a graph with the areas as vertices
+            // Create a graph with the areas
             var graph = new Graph(areas);
-            // Add routes between each pair of areas based on the distance between their centroids
-            foreach (var area in areas)
+            // Create routes between all pairs of areas
+            foreach (var area in areas) 
             {
-                // Calculate the centroid of the current area
+                // Calculate the centroid of the area
                 var centroid1 = area.CalculateCentroid();
-                // Calculate the distance between the centroid of the current area and the centroid of each other area
+                // Create routes to all other areas
                 foreach (var otherArea in areas)
                 {
-                    // Skip if the other area is the same as the current area
+                    // Skip if the areas are the same
                     if (area == otherArea) continue;
                     // Calculate the centroid of the other area
                     var centroid2 = otherArea.CalculateCentroid();
-                    // Calculate the distance between the centroids of the two areas
+                    // Calculate the distance between the centroids
                     double distance = DistanceCalculator.CalculateDistance(centroid1, centroid2);
-                    // Add a route between the two areas with the calculated distance
+                    distance += new Random().NextDouble() * 0.5; // Adds a small random factor to vary the distances
+
+                    // Create bidirectional routes to ensure connectivity
                     graph.AddRoute(area, new Route(otherArea, distance));
-                    // Display the added route
-                    Console.WriteLine($"Added route from {area.Name} to {otherArea.Name} with distance: {distance}");
+                    graph.AddRoute(otherArea, new Route(area, distance));
+                    // Output the added route
+                    Console.WriteLine($"Added route between {area.Name} and {otherArea.Name} with distance {distance:F2} km");
                 }
             }
-            // Return the built graph
+
             return graph;
         }
 
         // Helper method to prompt the user for area selection
         private static Area GetAreaSelection(List<Area> areas, string prompt)
         {
+            // Loop until a valid area is selected
             while (true)
             {
+                // Display the available areas
                 Console.WriteLine("\nAvailable Areas:");
+                // Display the names of the areas
                 foreach (var area in areas)
                 {
+                    // Display the area name
                     Console.WriteLine($"- {area.Name}");
                 }
-
+                // Prompt the user to select an area
                 Console.Write($"{prompt} ");
+                // Read the user input
                 string userInput = Console.ReadLine()?.Trim();
-
+                // Find the selected area by name
                 var selectedArea = areas.FirstOrDefault(a => a.Name.Equals(userInput, StringComparison.OrdinalIgnoreCase));
+                // Return the selected area if found
                 if (selectedArea != null)
                 {
                     return selectedArea;
                 }
-
+                // Display an error message if the area is not found
                 Console.WriteLine("Invalid selection. Please enter a valid area name from the list.");
             }
         }
@@ -95,6 +104,7 @@ namespace NaturePathfinder
 
             // Display the shortest path
             Console.WriteLine($"\nShortest path from {startArea.Name} to {endArea.Name}:");
+            // Display the path
             foreach (var area in shortestPath)
             {
                 Console.WriteLine($" -> {area.Name}");
