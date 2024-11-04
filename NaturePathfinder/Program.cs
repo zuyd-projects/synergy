@@ -90,6 +90,22 @@ namespace NaturePathfinder
                 new Area(13, "Vijlenerbos", "Forest", new List<(double lat, double lng)> { (50.7767, 5.9498) }),
                 new Area(14, "De Luysen", "Nature Reserve", new List<(double lat, double lng)> { (51.2250, 5.6417) }),
                 new Area(15, "Grensmaasvallei", "River Valley Nature Reserve", new List<(double lat, double lng)> { (50.9833, 5.7890) }),
+                new Area(16, "Leudal", "Nature Reserve", new List<(double lat, double lng)> { (51.2500, 5.9500) }),
+                new Area(17, "De Krang", "Nature Area", new List<(double lat, double lng)> { (51.2324, 5.8475) }),
+                new Area(18, "Limburgse Kempen", "Nature Park", new List<(double lat, double lng)> { (51.1671, 5.4898) }),
+                new Area(19, "Nationaal Park De Zoom - Kalmthoutse Heide", "National Park", new List<(double lat, double lng)> { (51.4005, 4.4696) }),
+                new Area(20, "Ravenvennen", "Nature Reserve", new List<(double lat, double lng)> { (51.4211, 6.2056) }),
+                new Area(21, "Walem", "Nature Reserve", new List<(double lat, double lng)> { (50.8616, 5.8891) }),
+                new Area(22, "Kaldenbroek", "Nature Area", new List<(double lat, double lng)> { (51.4323, 6.1308) }),
+                new Area(23, "Beegderheide", "Heathland", new List<(double lat, double lng)> { (51.2168, 5.8872) }),
+                new Area(24, "Itteren en Borgharen", "Floodplain Area", new List<(double lat, double lng)> { (50.8858, 5.6746) }),
+                new Area(25, "Oude Maasarm", "Nature Area", new List<(double lat, double lng)> { (50.9375, 5.7278) }),
+                new Area(26, "Stramprooierbroek", "Nature Reserve", new List<(double lat, double lng)> { (51.1472, 5.6875) }),
+                new Area(27, "Grenspark Maas-Swalm-Nette", "Cross-border Nature Park", new List<(double lat, double lng)> { (51.2039, 6.1769) }),
+                new Area(28, "Stevensweert en Ohé", "Nature Reserve", new List<(double lat, double lng)> { (51.1256, 5.8569) }),
+                new Area(29, "Mookerheide", "Nature Reserve", new List<(double lat, double lng)> { (51.7572, 5.8813) }),
+                new Area(30, "Landgoed de Hamert", "Nature Reserve", new List<(double lat, double lng)> { (51.5214, 6.1612) }),
+                new Area(31, "Noorderbos", "Nature Reserve", new List<(double lat, double lng)> { (53.0000, 6.0000) })
             };
 
             Graph graph = BuildGraph(areas);
