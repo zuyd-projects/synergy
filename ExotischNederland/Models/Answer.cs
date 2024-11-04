@@ -10,12 +10,12 @@ namespace ExotischNederland.Models
         public string Text { get; private set; }
         public bool Correct { get; private set; }
 
-        private Answer(int id, Question question, string text, bool correct)
+        private Answer(Dictionary<string, object> _values)
         {
-            Id = id;
-            Question = question;
-            Text = text;
-            Correct = correct;
+            Id = (int)_values["Id"];
+            Question = Question.Find((int)_values["QuestionId"]);
+            Text = (string)_values["Text"];
+            Correct = (bool)_values["Correct"];
         }
 
         public static Answer Create(Question question, string text, bool correct)
@@ -34,16 +34,7 @@ namespace ExotischNederland.Models
         public static Answer Find(int answerId)
         {
             SQLDAL db = SQLDAL.Instance;
-            var values = db.Find<Dictionary<string, object>>("Answer", answerId.ToString());
-
-            return values != null
-                ? new Answer(
-                    (int)values["Id"],
-                    Question.Find((int)values["QuestionId"]),
-                    (string)values["Text"],
-                    (bool)values["Correct"]
-                )
-                : null;
+            return db.Find<Answer>("Answer", answerId.ToString());
         }
 
         public void Update(string newText, bool isCorrect)

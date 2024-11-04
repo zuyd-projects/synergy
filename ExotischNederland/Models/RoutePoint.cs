@@ -10,12 +10,12 @@ namespace ExotischNederland.Models
         public int Order { get; private set; }
         public PointOfInterest PointOfInterest { get; private set; }
 
-        private RoutePoint(int id, Route route, int order, PointOfInterest poi)
+        private RoutePoint(Dictionary<string, object> _values)
         {
-            Id = id;
-            Route = route;
-            Order = order;
-            PointOfInterest = poi;
+            this.Id = (int)_values["Id"];
+            Route = Route.Find((int)_values["RouteId"]);
+            Order = (int)_values["Order"];
+            PointOfInterest = PointOfInterest.Find((int)_values["PointOfInterestId"]);
         }
 
         public static RoutePoint Create(Route route, int order, PointOfInterest poi)
@@ -34,16 +34,7 @@ namespace ExotischNederland.Models
         public static RoutePoint Find(int routePointId)
         {
             SQLDAL db = SQLDAL.Instance;
-            var values = db.Find<Dictionary<string, object>>("RoutePoint", routePointId.ToString());
-
-            return values != null
-                ? new RoutePoint(
-                    (int)values["Id"],
-                    Route.Find((int)values["RouteId"]),
-                    (int)values["Order"],
-                    PointOfInterest.Find((int)values["PointOfInterestId"])
-                )
-                : null;
+            return db.Find<RoutePoint>("RoutePoint", routePointId.ToString());
         }
 
         public void Update(int newOrder, PointOfInterest newPoi)

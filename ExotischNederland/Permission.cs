@@ -43,36 +43,9 @@ namespace ExotischNederland
         public bool CanEditRoute(Route route) => User.Roles.Any(role => role.Name == "Beheerder") || route.User.Id == User.Id;
         public bool CanDeleteRoute(Route route) => User.Roles.Any(role => role.Name == "Beheerder") || route.User.Id == User.Id;
 
-       public bool CanViewAllUsers()
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
-                return true;
-
-            return false;
-        }
-
-        public bool CanEditUser(User user)
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
-                return true;
-
-            return user.Id == this.User.Id;
-        }
-
-        public bool CanDeleteUser(User user)
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
-                return true;
-
-            return user.Id == this.User.Id;
-        }
-
-        public bool CanCreateUser()
-        {
-            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
-                return true;
-
-            return false;
-        }
+        // User permissions
+        public bool CanViewAllUsers() => User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanEditUser(User user) => User.Roles.Any(role => role.Name == "Beheerder") || user.Id == User.Id;
+        public bool CanDeleteUser(User user) => User.Roles.Any(role => role.Name == "Beheerder");
     }
 }

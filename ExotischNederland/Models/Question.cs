@@ -11,13 +11,13 @@ namespace ExotischNederland.Models
         public string Type { get; private set; } // "multiple choice" or "open"
         public List<Answer> Answers { get; private set; }
 
-        private Question(int id, Game game, string text, string type)
+        private Question(Dictionary<string, object> _values)
         {
-            Id = id;
-            Game = game;
-            Text = text;
-            Type = type;
-            Answers = LoadAnswers(); // Load answers from the database
+            Id = (int)_values["Id"];
+            Game = Game.Find((int)_values["GameId"]);
+            Text = (string)_values["Text"];
+            Type = (string)_values["Type"];
+            Answers = LoadAnswers();
         }
 
         public static Question Create(Game game, string text, string type)
@@ -36,16 +36,7 @@ namespace ExotischNederland.Models
         public static Question Find(int questionId)
         {
             SQLDAL db = SQLDAL.Instance;
-            var values = db.Find<Dictionary<string, object>>("Question", questionId.ToString());
-
-            return values != null
-                ? new Question(
-                    (int)values["Id"],
-                    Game.Find((int)values["GameId"]),
-                    (string)values["Text"],
-                    (string)values["Type"]
-                )
-                : null;
+            return db.Find<Question>("Question", questionId.ToString());
         }
 
         public void AddAnswer(Answer answer)

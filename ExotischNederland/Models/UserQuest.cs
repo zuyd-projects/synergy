@@ -10,12 +10,12 @@ namespace ExotischNederland.Models
         public User User { get; private set; }
         public Answer Answer { get; private set; }
 
-        private UserQuest(int id, Question question, User user, Answer answer)
+        private UserQuest(Dictionary<string, object> _values)
         {
-            Id = id;
-            Question = question;
-            User = user;
-            Answer = answer;
+            this.Id = (int)_values["Id"];
+            this.Question = Question.Find((int)_values["QuestionId"]);
+            this.User = User.Find((int)_values["UserId"]);
+            this.Answer = Answer.Find((int)_values["AnswerId"]);
         }
 
         public static UserQuest Create(Question question, Answer answer, User user)
@@ -34,16 +34,7 @@ namespace ExotischNederland.Models
         public static UserQuest Find(int userQuestId)
         {
             SQLDAL db = SQLDAL.Instance;
-            var values = db.Find<Dictionary<string, object>>("UserQuest", userQuestId.ToString());
-
-            return values != null
-                ? new UserQuest(
-                    (int)values["Id"],
-                    Question.Find((int)values["QuestionId"]),
-                    User.Find((int)values["UserId"]),
-                    Answer.Find((int)values["AnswerId"])
-                )
-                : null;
+            return db.Find<UserQuest>("UserQuest", userQuestId.ToString());
         }
 
         public void Update(Question newQuestion, Answer newAnswer)
