@@ -45,6 +45,27 @@ namespace ExotischNederland.Models
             return sql.Find<PointOfInterest>("Id", _id.ToString());
         }
 
+        // Update an existing PointOfInterest
+        public static void Update(int _id, string _name, string _type, float _longitude, float _latitude)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            Dictionary<string, object> values = new Dictionary<string, object>
+            {
+                { "Name", _name },
+                { "Type", _type },
+                { "Longitude", _longitude },
+                { "Latitude", _latitude }
+            };
+            sql.Update("PointOfInterest", _id, values);
+        }
+
+        // Delete a PointOfInterest by Id
+        public static void Delete(int _id)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("PointOfInterest", _id);
+        }
+
         // Methode om de afstand tussen een gebruiker en dit PointOfInterest te berekenen
         public double CalculateDistance(float _userLatitude, float _userLongitude)
         {

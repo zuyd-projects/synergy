@@ -22,6 +22,25 @@ namespace ExotischNederland
                 UserMenu menu = new UserMenu(authenticatedUser);
                 menu.Show();
             }
+
+            
+            var poi = PointOfInterest.Create("Eiffeltoren", "Cultural", 2.2945f, 48.8584f);
+            Console.WriteLine($"Nieuw punt toegevoegd: {poi.Name}, ID: {poi.Id}");
+
+            
+            var foundPoi = PointOfInterest.Find(poi.Id);
+            if (foundPoi != null)
+            {
+                Console.WriteLine($"Gevonden punt: {foundPoi.Name}, Type: {foundPoi.Type}");
+            }
+
+            
+            PointOfInterest.Update(poi.Id, "Eiffeltoren Paris", "Historical", 2.2945f, 48.8584f);
+            Console.WriteLine("Locatie bijgewerkt.");
+
+            
+            PointOfInterest.Delete(poi.Id);
+            Console.WriteLine("Locatie verwijderd.");
         }
 
         
