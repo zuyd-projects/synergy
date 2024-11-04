@@ -60,18 +60,15 @@ Available Areas:
 - Sint-Pietersberg
 - ...
 
-Please enter the name of the starting area: De Meinweg
-Please enter the name of the destination area: Grensmaasvallei
+Please enter the name of the starting area: Noorderbos
+Please enter the name of the destination area: Sint-Pietersberg
 
-Starting Dijkstra's algorithm from: De Meinweg
-Processing area: De Meinweg, Distance from start: 0
-Updating distance of Groote Peel from ∞ to 20.5
+Starting Dijkstra's algorithm from: Noorderbos
 ...
-
-Shortest path from De Meinweg to Grensmaasvallei:
--> De Meinweg
--> Maasduinen
--> Grensmaasvallei
+Shortest path from De Noorderbos to Sint-Pietersberg:
+-> Noorderbos
+-> Kempen-Broek
+-> Sint-Pietersberg
 
 📊 Algorithms and Formulas
 
