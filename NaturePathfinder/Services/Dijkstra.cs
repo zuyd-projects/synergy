@@ -14,7 +14,7 @@ namespace NaturePathfinder.Services
             var distances = new Dictionary<Area, double>();
             var previousAreas = new Dictionary<Area, Area>();
             var priorityQueue = new SortedSet<(double distance, Area area)>();
-            
+
             // Initialize distances and previous areas
             foreach (var area in graph.Areas)
             {
@@ -26,8 +26,8 @@ namespace NaturePathfinder.Services
             distances[startArea] = 0;
             // Add the start area to the priority queue
             priorityQueue.Add((0, startArea));
-            // Print the start of the algorithm
             Console.WriteLine($"Starting Dijkstra's algorithm from: {startArea.Name}");
+
             // Process the priority queue
             while (priorityQueue.Count > 0)
             {
@@ -35,65 +35,76 @@ namespace NaturePathfinder.Services
                 var (currentDistance, currentArea) = priorityQueue.Min;
                 // Remove the area from the priority queue
                 priorityQueue.Remove((currentDistance, currentArea));
-                // Print the current area and distance
-                Console.WriteLine($"\nProcessing area: {currentArea.Name}, Distance from start: {currentDistance}");
+                Console.WriteLine($"\\nProcessing area: {currentArea.Name}, Distance from start: {currentDistance}");
+
                 // Iterate over the routes from the current area
                 foreach (var route in graph.GetRoutesFromArea(currentArea))
                 {
                     // Get the neighbor area and calculate the new distance
                     var neighbor = route.TargetArea;
-                    // Skip the neighbor if it has already been visited
                     var newDist = currentDistance + route.Weight;
+
                     // Update the distance and previous area if the new distance is smaller
                     if (newDist < distances[neighbor])
                     {
-                        // Print the updated distance
                         Console.WriteLine($"Updating distance of {neighbor.Name} from {distances[neighbor]} to {newDist}");
                         // Remove outdated entry if it exists
                         priorityQueue.Remove((distances[neighbor], neighbor)); // Remove outdated entry if it exists
+                        
                         // Update the distance and previous area
                         distances[neighbor] = newDist;
-                        // Add the neighbor to the priority queue
-                        previousAreas[neighbor] = currentArea;
-                        // Add the neighbor to the priority queue
+                        previousAreas[neighbor] = currentArea;  // Add this line to update path tracking
                         priorityQueue.Add((newDist, neighbor));
                     }
                 }
             }
-            // Return the distances and previous areas
+
+            // Debug: Print the populated previousAreas for verification
+            Console.WriteLine("Populated previousAreas dictionary:");
+            foreach (var area in previousAreas)
+            {
+                if (area.Value != null)
+                    Console.WriteLine($"{area.Key.Name} <- {area.Value.Name}");
+                else
+                    Console.WriteLine($"{area.Key.Name} has no previous area (start or disconnected)");
+            }
+            
             return (distances, previousAreas);
         }
-        
+
         // Reconstructs the shortest path from startArea to endArea
         public static List<Area> GetShortestPath(Dictionary<Area, Area> previousAreas, Area startArea, Area endArea)
         {
-            // Initialize the path
             var path = new List<Area>();
-            // Start from the end area
             var currentArea = endArea;
-            // Print the start of the path reconstruction
             Console.WriteLine($"\nReconstructing path from {endArea.Name} back to {startArea.Name}:");
-            // Reconstruct the path
+
+            // Traverse from endArea back to startArea, collecting all nodes
             while (currentArea != null)
             {
-                // Add the current area to the path
                 path.Add(currentArea);
-                // Print the current area
                 Console.WriteLine($" -> {currentArea.Name}");
-                // Move to the previous area
-                currentArea = previousAreas[currentArea];
+        
+                // Move to the previous area in the path
+                currentArea = previousAreas.ContainsKey(currentArea) ? previousAreas[currentArea] : null;
             }
-            // Reverse the path
+
+            // Reverse the path to get the correct order from start to end
             path.Reverse();
-            // Return an empty list if no path exists
+
+            // Verify if the path starts with startArea
             if (path.First() != startArea)
             {
-                // Print a message if no path exists
                 Console.WriteLine("No path found from start to end area.");
-                // Return an empty list if no path exists
-                return new List<Area>(); // Return an empty list if no path exists
+                return new List<Area>(); // Return empty list if no valid path
             }
-            // Return the path
+    
+            // Print the final path for verification
+            Console.WriteLine("Final path from start to end area:");
+            foreach (var area in path)
+            {
+                Console.WriteLine($" -> {area.Name}");
+            }
             return path;
         }
     }
