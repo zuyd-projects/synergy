@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using ExotischNederland.Models;
 
 namespace ExotischNederland.Menus
@@ -13,7 +9,7 @@ namespace ExotischNederland.Menus
         private readonly User authenticatedUser;
         private Dictionary<string, string> menuItems = new Dictionary<string, string>();
 
-        public UserMenu(User _authenticatedUser) 
+        public UserMenu(User _authenticatedUser)
         {
             this.authenticatedUser = _authenticatedUser;
         }
@@ -21,10 +17,28 @@ namespace ExotischNederland.Menus
         public Dictionary<string, string> GetMenuItems()
         {
             Dictionary<string, string> menuItems = new Dictionary<string, string>();
-            // Logic to add menu items
-            if (this.authenticatedUser.Permission.CanViewAllObservations() || this.authenticatedUser.Permission.CanCreateObservation()) menuItems.Add("observations", "Observaties");
-            if (this.authenticatedUser.Permission.CanViewAllAreas()) menuItems.Add("areas", "Gebieden");
+
+
+            // Observation and Area menu options
+            if (authenticatedUser.Permission.CanViewAllObservations() || authenticatedUser.Permission.CanCreateObservation())
+                menuItems.Add("observations", "Observaties");
+            if (authenticatedUser.Permission.CanViewAllAreas())
+                menuItems.Add("areas", "Gebieden");
+
+            // Game-related options based on user role
+            if (authenticatedUser.Permission.CanManageGames())
+                menuItems.Add("manage_games", "Beheer Spellen");
+            if (authenticatedUser.Permission.CanPlayGames())
+                menuItems.Add("play_game", "Speel Spel");
+            
+            // Route menu option
+            if (authenticatedUser.Permission.CanManageRoutes())
+                menuItems.Add("routes", "Routes");
+            if (authenticatedUser.Permission.CanViewRoutes())
+                menuItems.Add("view_routes", "Bekijk Routes");
             if (this.authenticatedUser.Permission.CanViewAllUsers()) menuItems.Add("users", "Gebruikers");
+            
+           
             menuItems.Add("logout", "Uitloggen");
             return menuItems;
         }
@@ -34,31 +48,47 @@ namespace ExotischNederland.Menus
             this.menuItems = this.GetMenuItems();
             while (true)
             {
-                List<string> text = new List<string>
-                {
-                    "Database is online"
-                };
+                List<string> text = new List<string> { "Database is online" };
                 string selected = Helpers.MenuSelect(this.menuItems, true, text);
 
                 if (selected == "observations")
                 {
-                    ObservationMenu observarionMenu = new ObservationMenu(this.authenticatedUser);
-                    observarionMenu.Show();
+                    ObservationMenu observationMenu = new ObservationMenu(this.authenticatedUser);
+                    observationMenu.Show();
                 }
-
-                if (selected == "areas")
+                else if (selected == "areas")
                 {
                     AreaMenu areaMenu = new AreaMenu(this.authenticatedUser);
                     areaMenu.Show();
                 }
-
-                if (selected == "logout")
+                else if (selected == "routes")
+                {
+                    RouteMenu routeMenu = new RouteMenu(this.authenticatedUser);
+                    routeMenu.Show();
+                }
+                else if (selected == "manage_games")
+                {
+                    GameMenu gameMenu = new GameMenu(this.authenticatedUser);
+                    gameMenu.Show();
+                }
+                else if (selected == "play_game")
+                {
+                    GameMenu gameMenu = new GameMenu(this.authenticatedUser);
+                    gameMenu.Show(); 
+                }
+                else if (selected == "logout")
                 {
                     Console.Clear();
                     Console.WriteLine("U bent uitgelogd");
                     Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
                     Console.ReadKey();
                     return;
+                }
+                else
+                {
+                    Console.WriteLine("Ongeldige keuze");
+                    Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
+                    Console.ReadKey();
                 }
             }
         }

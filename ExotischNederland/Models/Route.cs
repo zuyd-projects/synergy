@@ -1,102 +1,103 @@
-﻿using System;
+﻿using ExotischNederland.DAL;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExotischNederland.DAL;
 
 namespace ExotischNederland.Models
 {
     internal class Route
     {
-        readonly string tablename = "Route";
         public int Id { get; private set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public int UserId { get; set; }
-        public int AreaId { get; set; }
+        public string Name { get; private set; }
+        public string Description { get; private set; }
+        public User User { get; private set; }
+        public List<RoutePoint> Points { get; private set; }
 
-        public List<RoutePoint> Points { get; set; }
-
-        public Route(Dictionary<string, object> _values)
+        private Route(int id, string name, string description, User user)
         {
-            this.Id = (int)_values["Id"];
-            this.Name = (string)_values["Name"];
-            this.Description = (string)_values["Description"];
-            this.UserId = (int)_values["UserId"];
-            this.AreaId = (int)_values["AreaId"];
-            this.Points = this.GetRoutePoints();
+            Id = id;
+            Name = name;
+            Description = description;
+            User = user;
+            Points = LoadRoutePoints(); // Load RoutePoints from the database
         }
-        // Static method for creating a route
-        public static Route Create(string name, string description, int userId, int areaId)
+
+        public static Route Create(string name, string description, int areaId, User user)
         {
-            SQLDAL sql = SQLDAL.Instance;
-            Dictionary<string, object> values = new Dictionary<string, object>
+            SQLDAL db = SQLDAL.Instance;
+            var values = new Dictionary<string, object>
             {
                 { "Name", name },
                 { "Description", description },
-                { "UserId", userId },
-                { "AreaId", areaId }
+                { "AreaId", areaId },  
+                { "UserId", user.Id }
             };
-
-            int id = sql.Insert("Route", values);
+            int id = db.Insert("Route", values);
             return Find(id);
         }
-        public static Route Find(int id)
+
+        public static Route Find(int routeId)
         {
-            SQLDAL sql = SQLDAL.Instance;
-            return sql.Find<Route>("Id", id.ToString());
+            SQLDAL db = SQLDAL.Instance;
+            var values = db.Find<Dictionary<string, object>>("Route", routeId.ToString());
+
+            return values != null
+                ? new Route(
+                    (int)values["Id"],
+                    (string)values["Name"],
+                    (string)values["Description"],
+                    User.Find((int)values["UserId"])
+                )
+                : null;
         }
 
-        public static void Update(int id, string name, string description, int userId, int areaId)
+        public static List<Route> GetAllRoutes()
         {
             SQLDAL sql = SQLDAL.Instance;
-            Dictionary<string, object> values = new Dictionary<string, object>
+            List<Route> routes = sql.Select<Route>();
+
+            return routes;
+        }
+
+        public void Update(string newName, string newDescription)
+        {
+            Name = newName;
+            Description = newDescription;
+
+            SQLDAL db = SQLDAL.Instance;
+            var values = new Dictionary<string, object>
             {
-                { "Name", name },
-                { "Description", description },
-                { "UserId", userId },
-                { "AreaId", areaId }
+                { "Name", newName },
+                { "Description", newDescription }
             };
-
-            sql.Update("Route", id, values);
+            db.Update("Route", this.Id, values);
         }
-        public static void Delete(int id)
+
+        public void AddRoutePoint(RoutePoint point)
         {
-            SQLDAL sql = SQLDAL.Instance;
-            sql.Delete("Route", id);
+            if (!Points.Exists(p => p.Id == point.Id))
+            {
+                Points.Add(point);
+            }
         }
 
-        public List<RoutePoint> GetRoutePoints()
+        public void RemoveRoutePoint(int pointId)
         {
-            SQLDAL sql = SQLDAL.Instance;
-            return sql.Select<RoutePoint>(qb => qb
-                .Where("RouteId", "=", this.Id));
+            Points.RemoveAll(p => p.Id == pointId);
+            SQLDAL db = SQLDAL.Instance;
+            db.Delete("RoutePoint", qb => qb
+                .Where("RouteId", "=", this.Id)
+                .Where("Id", "=", pointId));
         }
-        //method to add route points
-        //public void AddRoutePoint(RoutePoint point)
-        //{
-        //    point.RouteId = this.Id;
-        //    point.Save();
-        //    this.Points.Add(point);
-        //}
-        //method to remove route points
-        //public void RemoveRoutePoint(int pointId)
-        //{
-        //    RoutePoint point = this.Points.FirstOrDefault(p => p.Id == pointId);
-        //    if (point != null)
-        //    {
-        //        point.Delete();
-        //        this.Points.Remove(point);
-        //    }
-        //}
 
-        public static List<Route> ListRoutes()
+        private List<RoutePoint> LoadRoutePoints()
         {
-            SQLDAL sql = SQLDAL.Instance;
-            return sql.Select<Route>();
+            SQLDAL db = SQLDAL.Instance;
+            return db.Select<RoutePoint>(qb => qb.Where("RouteId", "=", this.Id));
         }
 
-        //method to generate shortest route
+        public static void Delete(int routeId)
+        {
+            SQLDAL db = SQLDAL.Instance;
+            db.Delete("Route", routeId);
+        }
     }
 }

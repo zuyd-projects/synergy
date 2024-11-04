@@ -1,13 +1,69 @@
-﻿using System;
+﻿using ExotischNederland.DAL;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExotischNederland.Models
 {
     internal class Answer
     {
-        private string tablename = "Answer";
+        public int Id { get; private set; }
+        public Question Question { get; private set; }
+        public string Text { get; private set; }
+        public bool Correct { get; private set; }
+
+        private Answer(int id, Question question, string text, bool correct)
+        {
+            Id = id;
+            Question = question;
+            Text = text;
+            Correct = correct;
+        }
+
+        public static Answer Create(Question question, string text, bool correct)
+        {
+            SQLDAL db = SQLDAL.Instance;
+            var values = new Dictionary<string, object>
+            {
+                { "QuestionId", question.Id },
+                { "Text", text },
+                { "Correct", correct }
+            };
+            int id = db.Insert("Answer", values);
+            return Find(id);
+        }
+
+        public static Answer Find(int answerId)
+        {
+            SQLDAL db = SQLDAL.Instance;
+            var values = db.Find<Dictionary<string, object>>("Answer", answerId.ToString());
+
+            return values != null
+                ? new Answer(
+                    (int)values["Id"],
+                    Question.Find((int)values["QuestionId"]),
+                    (string)values["Text"],
+                    (bool)values["Correct"]
+                )
+                : null;
+        }
+
+        public void Update(string newText, bool isCorrect)
+        {
+            Text = newText;
+            Correct = isCorrect;
+
+            SQLDAL db = SQLDAL.Instance;
+            var values = new Dictionary<string, object>
+            {
+                { "Text", newText },
+                { "Correct", isCorrect }
+            };
+            db.Update("Answer", this.Id, values);
+        }
+
+        public static void Delete(int answerId)
+        {
+            SQLDAL db = SQLDAL.Instance;
+            db.Delete("Answer", answerId);
+        }
     }
 }
