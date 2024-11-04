@@ -1,68 +1,104 @@
-﻿using ExotischNederland.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ExotischNederland.Models;
 
 namespace ExotischNederland.Menus
 {
-    internal class MainMenu
+    internal class MainMenu: IMenu
     {
-        
+        private readonly User authenticatedUser;
+        private Dictionary<string, string> menuItems = new Dictionary<string, string>();
 
-        public static User Show()
+        public MainMenu(User _authenticatedUser)
         {
-            Dictionary<string, string> items = new Dictionary<string, string>
-            {
-                { "login", "Login" },
-                { "register", "Register" },
-                { "exit", "Exit" }
-            };
-            string selected = Helpers.MenuSelect(items, true);
+            this.authenticatedUser = _authenticatedUser;
+        }
 
-            if (selected == "login")
+        public Dictionary<string, string> GetMenuItems()
+        {
+            Dictionary<string, string> menuItems = new Dictionary<string, string>();
+
+
+            // Observation and Area menu options
+            if (authenticatedUser.Permission.CanViewAllObservations() || authenticatedUser.Permission.CanCreateObservation())
+                menuItems.Add("observations", "Observaties");
+            if (authenticatedUser.Permission.CanViewAllAreas())
+                menuItems.Add("areas", "Gebieden");
+
+            // Game-related options based on user role
+            if (authenticatedUser.Permission.CanManageGames())
+                menuItems.Add("manage_games", "Beheer Spellen");
+            if (authenticatedUser.Permission.CanPlayGames())
+                menuItems.Add("play_game", "Speel Spel");
+            
+            // Route menu option
+            if (authenticatedUser.Permission.CanManageRoutes())
+                menuItems.Add("routes", "Routes");
+            if (authenticatedUser.Permission.CanViewRoutes())
+                menuItems.Add("view_routes", "Bekijk Routes");
+
+            // User menu option
+            if (this.authenticatedUser.Permission.CanViewAllUsers())
+                menuItems.Add("users", "Gebruikers");
+            
+           
+            menuItems.Add("logout", "Uitloggen");
+            return menuItems;
+        }
+
+        public void Show()
+        {
+            this.menuItems = this.GetMenuItems();
+            while (true)
             {
-                List<FormField> fields = new List<FormField>
+                List<string> text = new List<string> { "Database is online" };
+                string selected = Helpers.MenuSelect(this.menuItems, true, text);
+
+                if (selected == "observations")
                 {
-                    new FormField("email", "Email", "string", true),
-                    new FormField("password", "Password", "password", true)
-                };
-                Dictionary<string, object> values = new Form(fields).Prompt();
-
-                User authenticatedUser = User.Authenticate((string)values["email"], (string)values["password"]);
-
-                if (authenticatedUser != null)
+                    ObservationMenu observationMenu = new ObservationMenu(this.authenticatedUser);
+                    observationMenu.Show();
+                }
+                else if (selected == "areas")
+                {
+                    AreaMenu areaMenu = new AreaMenu(this.authenticatedUser);
+                    areaMenu.Show();
+                }
+                else if (selected == "routes")
+                {
+                    RouteMenu routeMenu = new RouteMenu(this.authenticatedUser);
+                    routeMenu.Show();
+                }
+                else if (selected == "manage_games")
+                {
+                    GameMenu gameMenu = new GameMenu(this.authenticatedUser);
+                    gameMenu.Show();
+                }
+                else if (selected == "play_game")
+                {
+                    GameMenu gameMenu = new GameMenu(this.authenticatedUser);
+                    gameMenu.Show(); 
+                }
+                else if (selected == "users")
+                {
+                    UserMenu userMenu = new UserMenu(this.authenticatedUser);
+                    userMenu.Show();
+                }
+                else if (selected == "logout")
                 {
                     Console.Clear();
-                    Console.WriteLine($"Welkom {authenticatedUser.Name}");
-                    return authenticatedUser;
+                    Console.WriteLine("U bent uitgelogd");
+                    Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
+                    Console.ReadKey();
+                    return;
                 }
                 else
                 {
-                    Console.WriteLine("Login failed!");
+                    Console.WriteLine("Ongeldige keuze");
+                    Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
+                    Console.ReadKey();
                 }
-
-                Console.WriteLine("Press a key to return to the menu");
-                Console.ReadKey();
-                Show();
             }
-            else if (selected == "register")
-            {
-                Console.Clear();
-                Console.WriteLine("Enter your name:");
-                string name = Console.ReadLine();
-                Console.WriteLine("Enter your email:");
-                string email = Console.ReadLine();
-                Console.WriteLine("Enter your password:");
-                string password = Console.ReadLine();
-                User.Create(name, email, password);
-                Console.WriteLine("User created!");
-                Console.WriteLine("Press a key to return to the menu");
-                Console.ReadKey();
-                Show();
-            }
-            return null;
         }
     }
 }
