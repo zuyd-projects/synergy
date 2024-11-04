@@ -130,8 +130,33 @@ namespace ExotischNederland.Models
             );
         }
 
-        // TODO: Implement the following methods
-        // + Update(int id, string name, string email, string passwordHash)
-        // + Delete(int id)
+        public static List<User> GetAll()
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<User>();
+        }
+
+        public void Update(User _authenticatedUser)
+        {
+            if (!_authenticatedUser.Permission.CanEditUser(this)) return;
+
+            SQLDAL sql = SQLDAL.Instance;
+            Dictionary<string, object> values = new Dictionary<string, object>
+            {
+                { "Name", this.Name },
+                { "Email", this.Email },
+                { "PasswordHash", this.PasswordHash }
+            };
+
+            sql.Update("User", this.Id, values);
+        }
+
+        public void Delete(User _authenticatedUser)
+        {
+            if (!_authenticatedUser.Permission.CanDeleteUser(this)) return;
+
+            SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("User", this.Id);
+        }
     }
 }

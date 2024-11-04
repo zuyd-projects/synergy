@@ -18,6 +18,7 @@ namespace ExotischNederland.Menus
         {
             Dictionary<string, string> menuItems = new Dictionary<string, string>();
 
+
             // Observation and Area menu options
             if (authenticatedUser.Permission.CanViewAllObservations() || authenticatedUser.Permission.CanCreateObservation())
                 menuItems.Add("observations", "Observaties");
@@ -35,10 +36,9 @@ namespace ExotischNederland.Menus
                 menuItems.Add("routes", "Routes");
             if (authenticatedUser.Permission.CanViewRoutes())
                 menuItems.Add("view_routes", "Bekijk Routes");
+            if (this.authenticatedUser.Permission.CanViewAllUsers()) menuItems.Add("users", "Gebruikers");
             
-            
-
-            // Logout option
+           
             menuItems.Add("logout", "Uitloggen");
             return menuItems;
         }

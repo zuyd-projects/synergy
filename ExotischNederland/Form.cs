@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,10 +48,15 @@ namespace ExotischNederland
         /// <param name="field"></param>
         private void InputField(FormField field)
         {
-            Console.WriteLine(field.Text);
-            if (field.Value != null) Console.Write($" [{field.Value}]");
+            Console.Write(field.Text);
+            if (field.Value != null && field.Type != "password") Console.Write($" [{field.Value}]");
             Console.WriteLine();
-            string input = Helpers.ReadInputWithEsc();
+            string input;
+            if (field.Type == "password") 
+                // Add the hidden boolean
+                input = Helpers.ReadInputWithEsc(true);
+            else
+                input = Helpers.ReadInputWithEsc();
             // If ESC is pressed, set cancelled to true to return null from the main loop
             if (input == null)
             {
@@ -70,12 +76,14 @@ namespace ExotischNederland
                     InputField(field);
                 }
             }
+            // If the value was set and should be treated as a password, hash it
+            else if (field.Type == "password")
+            {
+                input = Helpers.HashPassword(input);
+            }
             // Parse the input based on the field type
             switch (field.Type)
             {
-                case "string":
-                    values.Add(field.Name, input);
-                    break;
                 case "number":
                     ParseNumber(field, input);
                     break;
@@ -90,6 +98,9 @@ namespace ExotischNederland
                     break;
                 case "polygonString":
                     ParsePolygonString(field, input);
+                    break;
+                default:
+                    values.Add(field.Name, input);
                     break;
             }
         }

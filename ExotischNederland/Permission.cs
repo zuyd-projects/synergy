@@ -21,7 +21,6 @@ namespace ExotischNederland
         public bool CanDeleteObservation(Observation observation) => User.Roles.Any(role => role.Name == "Beheerder") || observation.User.Id == User.Id;
         public bool CanExportObservations() => User.Roles.Any(role => role.Name == "Beheerder");
 
-        // Area permissions
         public bool CanViewAllAreas() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger");
         public bool CanCreateArea() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger" || role.Name == "Wandelaar");
         public bool CanEditArea() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger");
@@ -43,5 +42,37 @@ namespace ExotischNederland
         public bool CanCreateRoute() => User.Roles.Any(role => role.Name == "Beheerder");
         public bool CanEditRoute(Route route) => User.Roles.Any(role => role.Name == "Beheerder") || route.User.Id == User.Id;
         public bool CanDeleteRoute(Route route) => User.Roles.Any(role => role.Name == "Beheerder") || route.User.Id == User.Id;
+
+       public bool CanViewAllUsers()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return false;
+        }
+
+        public bool CanEditUser(User user)
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return user.Id == this.User.Id;
+        }
+
+        public bool CanDeleteUser(User user)
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return user.Id == this.User.Id;
+        }
+
+        public bool CanCreateUser()
+        {
+            if (this.User.Roles.Any(role => role.Name == "Beheerder"))
+                return true;
+
+            return false;
+        }
     }
 }
