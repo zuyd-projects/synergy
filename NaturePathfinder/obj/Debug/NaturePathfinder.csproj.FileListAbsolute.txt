@@ -1,0 +1,10 @@
+/Users/noaheutz/Developer/synergy/NaturePathfinder/obj/Debug/NaturePathfinder.csproj.AssemblyReference.cache
+/Users/noaheutz/Developer/synergy/NaturePathfinder/obj/Debug/NaturePathfinder.csproj.CoreCompileInputs.cache
+/Users/noaheutz/Developer/synergy/NaturePathfinder/bin/Debug/NaturePathfinder.exe
+/Users/noaheutz/Developer/synergy/NaturePathfinder/bin/Debug/NaturePathfinder.pdb
+/Users/noaheutz/Developer/synergy/NaturePathfinder/bin/Debug/ExotischNederland.exe
+/Users/noaheutz/Developer/synergy/NaturePathfinder/bin/Debug/ExotischNederland.pdb
+/Users/noaheutz/Developer/synergy/NaturePathfinder/bin/Debug/ExotischNederland.exe.config
+/Users/noaheutz/Developer/synergy/NaturePathfinder/obj/Debug/NaturePathfinder.csproj.CopyComplete
+/Users/noaheutz/Developer/synergy/NaturePathfinder/obj/Debug/NaturePathfinder.exe
+/Users/noaheutz/Developer/synergy/NaturePathfinder/obj/Debug/NaturePathfinder.pdb
