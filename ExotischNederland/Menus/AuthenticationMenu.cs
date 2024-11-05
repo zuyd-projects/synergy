@@ -16,8 +16,8 @@ namespace ExotischNederland.Menus
             Dictionary<string, string> items = new Dictionary<string, string>
             {
                 { "login", "Login" },
-                { "register", "Register" },
-                { "exit", "Exit" }
+                { "register", "Registreer" },
+                { "exit", "Verlaat" }
             };
             string selected = Helpers.MenuSelect(items, true);
 
@@ -25,8 +25,8 @@ namespace ExotischNederland.Menus
             {
                 List<FormField> fields = new List<FormField>
                 {
-                    new FormField("email", "Email", "string", true),
-                    new FormField("password", "Password", "password", true)
+                    new FormField("email", "E-mail", "string", true),
+                    new FormField("password", "Wachtwoord", "password", true)
                 };
                 Dictionary<string, object> values = new Form(fields).Prompt();
 
@@ -40,25 +40,25 @@ namespace ExotischNederland.Menus
                 }
                 else
                 {
-                    Console.WriteLine("Login failed!");
+                    Console.WriteLine("Login mislukt!");
                 }
 
-                Console.WriteLine("Press a key to return to the menu");
+                Console.WriteLine("Druk op een toets om terug te keren naar het menu");
                 Console.ReadKey();
                 Show();
             }
-            else if (selected == "register")
+            else if (selected == "registreer")
             {
                 Console.Clear();
-                Console.WriteLine("Enter your name:");
+                Console.WriteLine("Voer uw naam in:");
                 string name = Console.ReadLine();
-                Console.WriteLine("Enter your email:");
+                Console.WriteLine("Voer uw e-mailadres in:");
                 string email = Console.ReadLine();
-                Console.WriteLine("Enter your password:");
+                Console.WriteLine("Voer uw wachtwoord in:");
                 string password = Console.ReadLine();
                 User.Create(name, email, password);
-                Console.WriteLine("User created!");
-                Console.WriteLine("Press a key to return to the menu");
+                Console.WriteLine("Gebruiker gemaakt!");
+                Console.WriteLine("Druk op een toets om terug te keren naar het menu");
                 Console.ReadKey();
                 Show();
             }
