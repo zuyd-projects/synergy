@@ -1,6 +1,8 @@
 ﻿using ExotischNederland.DAL;
 using System.Collections.Generic;
 using ExotischNederland.Models;
+using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace ExotischNederland.Models
 {
@@ -10,7 +12,17 @@ namespace ExotischNederland.Models
         public Route Route { get; private set; }
         public string Title { get; private set; }
         public string Description { get; private set; }
-        public List<Question> Questions { get; private set; }
+        public List<Question> Questions
+        {
+            get
+            {
+                return LoadQuestions();
+            }
+            private set
+            {
+                Questions = value;
+            }
+        }
 
         public Game(Dictionary<string, object> _values)
         {
@@ -18,7 +30,6 @@ namespace ExotischNederland.Models
             this.Route = Route.Find((int)_values["RouteId"]);
             this.Title = (string)_values["Title"];
             this.Description = (string)_values["Description"];
-            this.Questions = LoadQuestions(); // Lazy loading of questions
         }
 
         public static Game Create(Route route, string title, string description)
@@ -54,13 +65,16 @@ namespace ExotischNederland.Models
             db.Update("Game", this.Id, values);
         }
 
-        public static void Delete(int gameId)
+        public void Delete(User _authenticatedUser)
         {
+            if (!_authenticatedUser.Permission.CanManageGames()) return;
+            foreach (var question in Questions) question.Delete(_authenticatedUser);
+
             SQLDAL db = SQLDAL.Instance;
-            db.Delete("Game", gameId);
+            db.Delete("Game", this.Id);
         }
 
-        public static List<Game> GetAllPlayableGames()
+        public static List<Game> GetAll()
         {
             SQLDAL db = SQLDAL.Instance;
             return db.Select<Game>(); // Fetch all games or add criteria for playable games
@@ -70,6 +84,29 @@ namespace ExotischNederland.Models
         {
             SQLDAL db = SQLDAL.Instance;
             return db.Select<Question>(qb => qb.Where("GameId", "=", this.Id));
+        }
+
+        public int UserScore(User _user)
+        {
+            int score = 0;
+            List<UserQuest> userQuests = _user.UserQuests();
+            foreach (Question question in Questions)
+            {
+                if (userQuests.Any(uq => uq.Question.Id == question.Id && uq.Answer.Correct))
+                {
+                    score += 1;
+                }
+            }
+            return score;
+        }
+
+        public void ResetUserScore(User _user)
+        {
+            List<UserQuest> userQuests = _user.UserQuests();
+            foreach (Question question in Questions)
+            {
+                userQuests.First(uq => uq.Question.Id == question.Id).Delete();
+            }
         }
     }
 }

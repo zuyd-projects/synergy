@@ -178,5 +178,11 @@ namespace ExotischNederland.Models
             SQLDAL sql = SQLDAL.Instance;
             sql.Delete("User", this.Id);
         }
+
+        public List<UserQuest> UserQuests()
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<UserQuest>(qb => qb.Where("UserId", "=", this.Id));
+        }
     }
 }

@@ -1,40 +1,40 @@
 ﻿using ExotischNederland.DAL;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExotischNederland.Models
 {
     internal class PointOfInterest
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public float Longitude { get; set; }
-        public float Latitude { get; set; }
+        public int Id { get; private set; }
+        public string Name { get; private set; }
+        public string Description { get; private set; }
+        public string Type { get; private set; }
+        public float Longitude { get; private set; }
+        public float Latitude { get; private set; }
 
         public PointOfInterest(Dictionary<string, object> _values)
         {
-            Id = (int)_values["Id"];
-            Name = (string)_values["Name"];
-            Type = (string)_values["Type"];
-            Longitude = (float)_values["Longitude"];
-            Latitude = (float)_values["Latitude"];
+            this.Id = Convert.ToInt32(_values["Id"]);
+            this.Name = Convert.ToString(_values["Name"]);
+            this.Description = Convert.ToString(_values["Description"]);
+            this.Type = Convert.ToString(_values["Type"]);
+            this.Longitude = Convert.ToSingle(_values["Longitude"]);
+            this.Latitude = Convert.ToSingle(_values["Latitude"]);
         }
 
-        public static PointOfInterest Create(string _name, string _type, float _longitude, float _latitude)
+        public static PointOfInterest Create(string _name, string _description, string _type, float _longitude, float _latitude)
         {
             SQLDAL sql = SQLDAL.Instance;
-            Dictionary<string, object> values = new Dictionary<string, object>
+            var values = new Dictionary<string, object>
             {
                 { "Name", _name },
+                { "Description", _description },
                 { "Type", _type },
                 { "Longitude", _longitude },
                 { "Latitude", _latitude }
             };
-
+            if (_description != null) values.Add("Description", _description);
             int id = sql.Insert("PointOfInterest", values);
             return Find(id);
         }
@@ -45,10 +45,38 @@ namespace ExotischNederland.Models
             return sql.Find<PointOfInterest>("Id", _id.ToString());
         }
 
-        // Methode om de afstand tussen een gebruiker en dit PointOfInterest te berekenen
+        // Update method to modify an existing PointOfInterest
+        public void Update(string newName, string newDescription, string newType, float newLongitude, float newLatitude)
+        {
+            Name = newName;
+            Description = newDescription;
+            Type = newType;
+            Longitude = newLongitude;
+            Latitude = newLatitude;
+
+            SQLDAL sql = SQLDAL.Instance;
+            var values = new Dictionary<string, object>
+            {
+                { "Name", newName },
+                { "Description", newDescription },
+                { "Type", newType },
+                { "Longitude", newLongitude },
+                { "Latitude", newLatitude }
+            };
+
+            sql.Update("PointOfInterest", this.Id, values);
+        }
+
+        // Delete method to remove an existing PointOfInterest
+        public static void Delete(int poiId)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("PointOfInterest", poiId);
+        }
+
         public double CalculateDistance(float _userLatitude, float _userLongitude)
         {
-            double R = 6371e3; // Radius van de aarde in meters
+            double R = 6371e3; // Earth's radius in meters
             double phi1 = Latitude * Math.PI / 180;
             double phi2 = _userLatitude * Math.PI / 180;
             double deltaPhi = (_userLatitude - Latitude) * Math.PI / 180;
@@ -59,17 +87,15 @@ namespace ExotischNederland.Models
                        Math.Sin(deltaLambda / 2) * Math.Sin(deltaLambda / 2);
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-            return R * c; // Afstand in meters
+            return R * c; // Distance in meters
         }
 
-        // Methode om alle Points of Interest op te halen uit de database
         public static List<PointOfInterest> GetAll()
         {
             SQLDAL sql = SQLDAL.Instance;
             return sql.Select<PointOfInterest>();
         }
 
-        // Methode om nabijheid van gebruiker te controleren en notificatie te genereren
         internal static List<string> CheckProximityForUser(User _user, double _radius)
         {
             List<string> notifications = new List<string>();
@@ -80,7 +106,7 @@ namespace ExotischNederland.Models
                 double distance = poi.CalculateDistance(_user.CurrentLatitude, _user.CurrentLongitude);
                 if (distance <= _radius)
                 {
-                    notifications.Add($"Notificatie: {_user.Name}, je bent binnen {_radius} meter van {poi.Name}!");
+                    notifications.Add($"Notification: {_user.Name}, you are within {_radius} meters of {poi.Name}!");
                 }
             }
 

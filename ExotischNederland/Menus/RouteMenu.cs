@@ -20,11 +20,11 @@ namespace ExotischNederland.Menus
             var permission = authenticatedUser.Permission;
 
             if (permission.CanViewRoutes())
-                menuItems.Add("viewAllRoutes", "Bekijk alle routes");
+                menuItems.Add("viewAllRoutes", "View All Routes");
             if (permission.CanCreateRoute())
-                menuItems.Add("createRoute", "Route aanmaken");
+                menuItems.Add("createRoute", "Create Route");
 
-            menuItems.Add("back", "Keer terug naar het hoofdmenu");
+            menuItems.Add("back", "Return to main menu");
             return menuItems;
         }
 
@@ -44,7 +44,7 @@ namespace ExotischNederland.Menus
         private void ViewAllRoutes()
         {
             Console.Clear();
-            List<Route> routes = Route.GetAllRoutes();
+            List<Route> routes = Route.GetAll();
 
             Console.WriteLine("All Routes:");
             if (routes.Count > 0)
@@ -54,7 +54,7 @@ namespace ExotischNederland.Menus
                 {
                     routeOptions[route.Id.ToString()] = $"{route.Name} - {route.Description}";
                 }
-                routeOptions.Add("back", "Terug naar menu");
+                routeOptions.Add("back", "Ga terug");
 
                 string selectedRouteId = Helpers.MenuSelect(routeOptions, false);
                 if (selectedRouteId != "back")
@@ -66,7 +66,7 @@ namespace ExotischNederland.Menus
             }
             else
             {
-                Console.WriteLine("Geen routes beschikbaar.");
+                Console.WriteLine("Geen routes beschikbaar");
                 Console.ReadKey();
             }
         }
@@ -74,19 +74,19 @@ namespace ExotischNederland.Menus
         private void ViewRouteDetails(Route route)
         {
             Console.Clear();
-            Console.WriteLine("Routedetails:");
-            Console.WriteLine($"Naam: {route.Name}");
-            Console.WriteLine($"Beschrijving: {route.Description}");
+            Console.WriteLine("Route Details:");
+            Console.WriteLine($"Name: {route.Name}");
+            Console.WriteLine($"Description: {route.Description}");
 
-            var options = new Dictionary<string, string> { { "back", "Terug naar routelijst" } };
+            var options = new Dictionary<string, string> { { "back", "Ga terug" } };
             if (authenticatedUser.Permission.CanEditRoute(route))
             {
-                options.Add("edit", "Bewerk deze route");
-                options.Add("managePoints", "Routepunten beheren");
+                options.Add("edit", "Edit this route");
+                options.Add("managePoints", "Manage Route Points");
             }
             if (authenticatedUser.Permission.CanDeleteRoute(route))
             {
-                options.Add("delete", "Verwijder deze route");
+                options.Add("delete", "Delete this route");
             }
 
             string selectedOption = Helpers.MenuSelect(options, true);
@@ -100,16 +100,17 @@ namespace ExotischNederland.Menus
         {
             var fields = new List<FormField>
             {
-                new FormField("name", "Voer de routenaam in", "string", true),
-                new FormField("description", "Routebeschrijving invoeren", "string", true),
-                new FormField("areaId", "Voer gebieds-ID voor de route in", "number", true)  // Added area ID field
+                new FormField("name", "Enter route name", "string", true),
+                new FormField("description", "Enter route description", "string", true),
+                //TODO: @Rick, add select here please
+                new FormField("areaId", "Enter Area ID for the route", "number", true)  // Added area ID field
             };
             var values = new Form(fields).Prompt();
             if (values == null) return;
 
             int areaId = (int)values["areaId"];  // Ensure areaId is provided and not null
             Route route = Route.Create((string)values["name"], (string)values["description"], areaId, authenticatedUser);
-            Console.WriteLine($"Route '{values["name"]}' succesvol aangemaakt met ID: {route.Id}");
+            Console.WriteLine($"Route '{values["name"]}' created successfully with ID: {route.Id}");
             Console.ReadKey();
         }
 
@@ -117,27 +118,27 @@ namespace ExotischNederland.Menus
         {
             var fields = new List<FormField>
             {
-                new FormField("name", "Nieuwe naam (leeg laten om te behouden)", "string", false, route.Name),
-                new FormField("description", "Nieuwe beschrijving (leeg laten om te behouden", "string", false, route.Description)
+                new FormField("name", "New name (leave blank to keep current)", "string", false, route.Name),
+                new FormField("description", "New description (leave blank to keep current)", "string", false, route.Description)
             };
             var values = new Form(fields).Prompt();
             if (values == null) return;
 
             route.Update((string)values["name"], (string)values["description"]);
-            Console.WriteLine("Route succesvol bijgewerkt.");
+            Console.WriteLine("Route updated successfully.");
             Console.ReadKey();
         }
 
         private void DeleteRoute(Route route)
         {
             Console.Clear();
-            Console.Write($"Weet u zeker dat u de route wilt verwijderen? '{route.Name}'? [Y/N] ");
+            Console.Write($"Are you sure you want to delete the route '{route.Name}'? [Y/N] ");
             ConsoleKey confirmation = Console.ReadKey().Key;
 
             if (confirmation == ConsoleKey.Y)
             {
                 Route.Delete(route.Id);
-                Console.WriteLine("Route succesvol verwijderd.");
+                Console.WriteLine("\nRoute deleted successfully.");
             }
             else
             {
@@ -151,11 +152,11 @@ namespace ExotischNederland.Menus
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine($"Punten voor route beheren '{route.Name}' (ID: {route.Id})");
-                Console.WriteLine("1. Routepunt toevoegen");
-                Console.WriteLine("2. Routepunt toevoegen");
-                Console.WriteLine("3. Routepunt verwijderen");
-                Console.WriteLine("4. Terug naar Routedetails");
+                Console.WriteLine($"Managing Points for Route '{route.Name}' (ID: {route.Id})");
+                Console.WriteLine("1. Add Route Point");
+                Console.WriteLine("2. Edit Route Point");
+                Console.WriteLine("3. Delete Route Point");
+                Console.WriteLine("4. Back to Route Details");
 
                 string choice = Console.ReadLine();
                 if (choice == "1") AddRoutePoint(route);
@@ -169,8 +170,9 @@ namespace ExotischNederland.Menus
         {
             var fields = new List<FormField>
             {
-                new FormField("order", "Voer de volgorde voor dit punt in", "number", true),
-                new FormField("poiId", "Voer InteressePunt-ID in", "number", true)
+                new FormField("order", "Enter order for this point", "number", true),
+                //TODO: @Rick, add select here please
+                new FormField("poiId", "Enter Point of Interest ID", "number", true)
             };
             var values = new Form(fields).Prompt();
             if (values == null) return;
@@ -182,32 +184,34 @@ namespace ExotischNederland.Menus
             if (poi != null)
             {
                 RoutePoint point = RoutePoint.Create(route, order, poi);
-                Console.WriteLine($"Routepunt toegevoegd met ID: {point.Id}");
+                Console.WriteLine($"Route Point added with ID: {point.Id}");
             }
             else
             {
-                Console.WriteLine("Interesse Punt niet gevonden.");
+                Console.WriteLine("Point of Interest not found.");
             }
             Console.ReadKey();
         }
 
         private void EditRoutePoint(Route route)
         {
-            Console.Write("Voer Routepunt-ID in om te bewerken: ");
+            //TODO: @Rick, add select here please
+            Console.Write("Enter Route Point ID to edit: ");
             if (int.TryParse(Console.ReadLine(), out int pointId))
             {
                 RoutePoint point = RoutePoint.Find(pointId);
                 if (point == null)
                 {
-                    Console.WriteLine("Routepunt niet gevonden.");
+                    Console.WriteLine("Route Point not found.");
                     Console.ReadKey();
                     return;
                 }
 
                 var fields = new List<FormField>
                 {
-                    new FormField("order", "Voer een nieuwe bestelling in", "number", true, point.Order.ToString()),
-                    new FormField("poiId", "Voer een nieuwe InteressePunt-ID in", "number", true, point.PointOfInterest.Id.ToString())
+                    new FormField("order", "Enter new order", "number", true, point.Order.ToString()),
+                    //TODO: @Rick, add select here please
+                    new FormField("poiId", "Enter new Point of Interest ID", "number", true, point.PointOfInterest.Id.ToString())
                 };
                 var values = new Form(fields).Prompt();
                 if (values == null) return;
@@ -219,11 +223,11 @@ namespace ExotischNederland.Menus
                 if (newPoi != null)
                 {
                     point.Update(newOrder, newPoi);
-                    Console.WriteLine("Routepunt is succesvol bijgewerkt.");
+                    Console.WriteLine("Route Point updated successfully.");
                 }
                 else
                 {
-                    Console.WriteLine("Nieuwe nuttige plaats niet gevonden.");
+                    Console.WriteLine("New Point of Interest not found.");
                 }
                 Console.ReadKey();
             }
@@ -231,24 +235,25 @@ namespace ExotischNederland.Menus
 
         private void DeleteRoutePoint(Route route)
         {
-            Console.Write("Voer Routepunt-ID in om te verwijderen: ");
+            //TODO: @Rick, add select here please
+            Console.Write("Enter Route Point ID to delete: ");
             if (int.TryParse(Console.ReadLine(), out int pointId))
             {
                 RoutePoint point = RoutePoint.Find(pointId);
                 if (point != null)
                 {
                     RoutePoint.Delete(pointId);
-                    Console.WriteLine("Routepunt is succesvol verwijderd.");
+                    Console.WriteLine("Route Point deleted successfully.");
                 }
                 else
                 {
-                    Console.WriteLine("Routepunt niet gevonden.");
+                    Console.WriteLine("Route Point not found.");
                 }
                 Console.ReadKey();
             }
             else
             {
-                Console.WriteLine("Ongeldige invoer voor routepunt-ID.");
+                Console.WriteLine("Invalid input for Route Point ID.");
             }
         }
     }
