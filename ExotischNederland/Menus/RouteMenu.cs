@@ -44,7 +44,7 @@ namespace ExotischNederland.Menus
         private void ViewAllRoutes()
         {
             Console.Clear();
-            List<Route> routes = Route.GetAllRoutes();
+            List<Route> routes = Route.GetAll();
 
             Console.WriteLine("All Routes:");
             if (routes.Count > 0)
@@ -102,6 +102,7 @@ namespace ExotischNederland.Menus
             {
                 new FormField("name", "Enter route name", "string", true),
                 new FormField("description", "Enter route description", "string", true),
+                //TODO: @Rick, add select here please
                 new FormField("areaId", "Enter Area ID for the route", "number", true)  // Added area ID field
             };
             var values = new Form(fields).Prompt();
@@ -170,6 +171,7 @@ namespace ExotischNederland.Menus
             var fields = new List<FormField>
             {
                 new FormField("order", "Enter order for this point", "number", true),
+                //TODO: @Rick, add select here please
                 new FormField("poiId", "Enter Point of Interest ID", "number", true)
             };
             var values = new Form(fields).Prompt();
@@ -193,6 +195,7 @@ namespace ExotischNederland.Menus
 
         private void EditRoutePoint(Route route)
         {
+            //TODO: @Rick, add select here please
             Console.Write("Enter Route Point ID to edit: ");
             if (int.TryParse(Console.ReadLine(), out int pointId))
             {
@@ -207,6 +210,7 @@ namespace ExotischNederland.Menus
                 var fields = new List<FormField>
                 {
                     new FormField("order", "Enter new order", "number", true, point.Order.ToString()),
+                    //TODO: @Rick, add select here please
                     new FormField("poiId", "Enter new Point of Interest ID", "number", true, point.PointOfInterest.Id.ToString())
                 };
                 var values = new Form(fields).Prompt();
@@ -231,6 +235,7 @@ namespace ExotischNederland.Menus
 
         private void DeleteRoutePoint(Route route)
         {
+            //TODO: @Rick, add select here please
             Console.Write("Enter Route Point ID to delete: ");
             if (int.TryParse(Console.ReadLine(), out int pointId))
             {
