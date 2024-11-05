@@ -40,7 +40,7 @@ namespace ExotischNederland.Models
             return db.Find<Route>("Id", routeId.ToString());
         }
 
-        public static List<Route> GetAllRoutes()
+        public static List<Route> GetAll()
         {
             SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Route>();

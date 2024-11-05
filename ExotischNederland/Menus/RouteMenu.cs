@@ -44,7 +44,7 @@ namespace ExotischNederland.Menus
         private void ViewAllRoutes()
         {
             Console.Clear();
-            List<Route> routes = Route.GetAllRoutes();
+            List<Route> routes = Route.GetAll();
 
             Console.WriteLine("All Routes:");
             if (routes.Count > 0)
