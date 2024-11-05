@@ -20,14 +20,14 @@ namespace ExotischNederland.Menus
 
             if (authenticatedUser.Permission.CanManageGames())
             {
-                menuItems.Add("viewAllGames", "View all games");
-                menuItems.Add("createGame", "Create a new game");
+                menuItems.Add("viewAllGames", "Bekijk alle spellen");
+                menuItems.Add("createGame", "Maak een nieuw spel");
             }
             if (authenticatedUser.Permission.CanPlayGames())
             {
-                menuItems.Add("playGame", "Play a game");
+                menuItems.Add("playGame", "Speel een spel");
             }
-            menuItems.Add("back", "Return to main menu");
+            menuItems.Add("back", "Keer terug naar het hoofdmenu");
             return menuItems;
         }
 
@@ -62,7 +62,7 @@ namespace ExotischNederland.Menus
             Console.Clear();
             List<Game> games = Game.GetAllPlayableGames();
 
-            Console.WriteLine("Available Games:");
+            Console.WriteLine("Beschikbare spellen:");
             if (games.Count > 0)
             {
                 var gameOptions = new Dictionary<string, string>();
@@ -70,7 +70,7 @@ namespace ExotischNederland.Menus
                 {
                     gameOptions[game.Id.ToString()] = $"{game.Title} - {game.Description}";
                 }
-                gameOptions.Add("back", "Return to main menu");
+                gameOptions.Add("back", "Keer terug naar het hoofdmenu");
 
                 string selectedGameId = Helpers.MenuSelect(gameOptions, false);
                 if (selectedGameId != "back")
@@ -82,7 +82,7 @@ namespace ExotischNederland.Menus
             }
             else
             {
-                Console.WriteLine("No games available.");
+                Console.WriteLine("Geen spellen beschikbaar");
                 Console.ReadKey();
             }
         }
@@ -90,20 +90,20 @@ namespace ExotischNederland.Menus
         private void ViewGameDetails(Game game)
         {
             Console.Clear();
-            Console.WriteLine("Game Details:");
-            Console.WriteLine($"Title: {game.Title}");
-            Console.WriteLine($"Description: {game.Description}");
+            Console.WriteLine("Spel Details:");
+            Console.WriteLine($"Titel: {game.Title}");
+            Console.WriteLine($"Beschrijving: {game.Description}");
             Console.WriteLine($"Route ID: {game.Route.Id}");
 
             var options = new Dictionary<string, string>
             {
-                { "back", "Return to game list" }
+                { "back", "Terug naar de spellenlijst" }
             };
 
             if (authenticatedUser.Permission.CanManageGames())
             {
-                options.Add("edit", "Edit this game");
-                options.Add("delete", "Delete this game");
+                options.Add("edit", "Bewerk dit spel");
+                options.Add("delete", "Verwijder dit spel");
             }
 
             string selectedOption = Helpers.MenuSelect(options, true);
@@ -123,28 +123,28 @@ namespace ExotischNederland.Menus
             Console.Clear();
             List<FormField> fields = new List<FormField>
             {
-                new FormField("title", "New title (leave empty to keep)", "string", false, game.Title),
-                new FormField("description", "New description (leave empty to keep)", "string", false, game.Description)
+                new FormField("title", "Nieuwe titel (leeg laten om te behouden)", "string", false, game.Title),
+                new FormField("description", "Nieuwe beschrijving (leeg laten om te behouden)", "string", false, game.Description)
             };
 
             Dictionary<string, object> values = new Form(fields).Prompt();
             if (values == null) return;
 
             game.Update((string)values["title"], (string)values["description"]);
-            Console.WriteLine("Game updated successfully.");
+            Console.WriteLine("Spel is succesvol bijgewerkt.");
             Console.ReadKey();
         }
 
         private void DeleteGame(Game game)
         {
             Console.Clear();
-            Console.WriteLine($"Are you sure you want to delete the game '{game.Title}'? [Y/N]");
+            Console.WriteLine($"Weet je zeker dat je het spel wilt verwijderen '{game.Title}'? [Y/N]");
             ConsoleKey confirmation = Console.ReadKey().Key;
 
             if (confirmation == ConsoleKey.Y)
             {
                 Game.Delete(game.Id);
-                Console.WriteLine("\nGame deleted successfully.");
+                Console.WriteLine("Spel succesvol verwijderd.");
                 Console.ReadKey();
             }
             else
@@ -158,9 +158,9 @@ namespace ExotischNederland.Menus
             Console.Clear();
             var fields = new List<FormField>
             {
-                new FormField("title", "Enter game title", "string", true),
-                new FormField("description", "Enter game description", "string", true),
-                new FormField("routeId", "Enter route ID for the game", "number", true)
+                new FormField("title", "Voer de speltitel in", "string", true),
+                new FormField("description", "Voer de spelbeschrijving in", "string", true),
+                new FormField("routeId", "Voer de route-ID voor het spel in", "number", true)
             };
 
             var values = new Form(fields).Prompt();
@@ -171,11 +171,11 @@ namespace ExotischNederland.Menus
             if (route != null)
             {
                 Game game = Game.Create(route, (string)values["title"], (string)values["description"]);
-                Console.WriteLine($"Game '{values["title"]}' created successfully.");
+                Console.WriteLine($"Spel '{values["title"]}' succesvol aangemaakt.");
             }
             else
             {
-                Console.WriteLine("Invalid route ID.");
+                Console.WriteLine("Ongeldige route ID.");
             }
             Console.ReadKey();
         }
@@ -183,7 +183,7 @@ namespace ExotischNederland.Menus
         private void PlayGame()
         {
             Console.Clear();
-            Console.WriteLine("Available Games to Play:");
+            Console.WriteLine("Beschikbare Spellen om te Spelen:");
             List<Game> games = Game.GetAllPlayableGames();
             int i = 1;
             foreach (var game in games)
@@ -192,7 +192,7 @@ namespace ExotischNederland.Menus
                 i++;
             }
 
-            Console.WriteLine("Select a game number to play or enter '0' to return:");
+            Console.WriteLine("Selecteer een spelnummer om te spelen of voer '0' in om terug te keren:");
             if (int.TryParse(Console.ReadLine(), out int choice) && choice > 0 && choice <= games.Count)
             {
                 StartGame(games[choice - 1]);
