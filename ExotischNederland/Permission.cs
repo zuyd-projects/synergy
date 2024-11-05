@@ -22,6 +22,7 @@ namespace ExotischNederland
         public bool CanDeleteObservation(Observation observation) => User.Roles.Any(role => role.Name == "Beheerder") || observation.User.Id == User.Id;
         public bool CanExportObservations() => User.Roles.Any(role => role.Name == "Beheerder");
 
+        // Area permissions
         public bool CanViewAllAreas() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger");
         public bool CanCreateArea() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger" || role.Name == "Wandelaar");
         public bool CanEditArea() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Vrijwilliger");
@@ -48,5 +49,11 @@ namespace ExotischNederland
         public bool CanViewAllUsers() => User.Roles.Any(role => role.Name == "Beheerder");
         public bool CanEditUser(User user) => User.Roles.Any(role => role.Name == "Beheerder") || user.Id == User.Id;
         public bool CanDeleteUser(User user) => User.Roles.Any(role => role.Name == "Beheerder");
+
+        // Point of Interest permissions
+        public bool CanViewPointsOfInterest() => User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanCreatePointOfInterest() => User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanEditPointOfInterest(PointOfInterest poi) => User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanDeletePointOfInterest(PointOfInterest poi) => User.Roles.Any(role => role.Name == "Beheerder");
     }
 }

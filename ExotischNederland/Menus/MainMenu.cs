@@ -4,43 +4,45 @@ using ExotischNederland.Models;
 
 namespace ExotischNederland.Menus
 {
-    internal class MainMenu: IMenu
+    internal class MainMenu : IMenu
     {
         private readonly User authenticatedUser;
-        private Dictionary<string, string> menuItems = new Dictionary<string, string>();
+        private Dictionary<string, string> menuItems;
 
         public MainMenu(User _authenticatedUser)
         {
             this.authenticatedUser = _authenticatedUser;
+            this.menuItems = new Dictionary<string, string>();
         }
 
         public Dictionary<string, string> GetMenuItems()
         {
-            Dictionary<string, string> menuItems = new Dictionary<string, string>();
-
-
-            // Observation and Area menu options
+            var menuItems = new Dictionary<string, string>();
+            
+            // Observations menu
             if (authenticatedUser.Permission.CanViewAllObservations() || authenticatedUser.Permission.CanCreateObservation())
-                menuItems.Add("observations", "Observaties");
+                menuItems.Add("observations", "Observaties Beheren");
+            // Areas menu
             if (authenticatedUser.Permission.CanViewAllAreas())
                 menuItems.Add("areas", "Gebieden");
 
             // Game-related options based on user role
             if (authenticatedUser.Permission.CanManageGames() || authenticatedUser.Permission.CanPlayGames())
                 menuItems.Add("games", "Spellen");
-            
-            // Route menu option
-            if (authenticatedUser.Permission.CanManageRoutes())
-                menuItems.Add("routes", "Routes");
-            if (authenticatedUser.Permission.CanViewRoutes())
-                menuItems.Add("view_routes", "Bekijk Routes");
 
-            // User menu option
-            if (this.authenticatedUser.Permission.CanViewAllUsers())
-                menuItems.Add("users", "Gebruikers");
-            
-           
-            menuItems.Add("logout", "Uitloggen");
+            if (authenticatedUser.Permission.CanManageRoutes())
+                menuItems.Add("routes", "Routes Beheren");
+            // View routes menu
+            if (authenticatedUser.Permission.CanViewRoutes())
+                menuItems.Add("view_routes", "Routes Bekijken");
+            // Points of Interest menu
+            if (authenticatedUser.Permission.CanViewPointsOfInterest() || authenticatedUser.Permission.CanCreatePointOfInterest())
+                menuItems.Add("points_of_interest", "Points of Interest Beheren");
+            // Users menu
+            if (authenticatedUser.Permission.CanViewAllUsers())
+                menuItems.Add("users", "Gebruikers Beheren");
+
+            menuItems.Add("logout", "Logout");
             return menuItems;
         }
 
@@ -66,6 +68,11 @@ namespace ExotischNederland.Menus
                 {
                     RouteMenu routeMenu = new RouteMenu(this.authenticatedUser);
                     routeMenu.Show();
+                }
+                else if (selected == "points_of_interest")
+                {
+                    PointOfInterestMenu pointOfInterestMenu = new PointOfInterestMenu(this.authenticatedUser);
+                    pointOfInterestMenu.Show();
                 }
                 else if (selected == "games")
                 {
