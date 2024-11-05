@@ -139,10 +139,8 @@ namespace ExotischNederland.Menus
         private void DeleteArea(Area _area)
         {
             Console.Clear();
-            Console.Write($"Weet u zeker dat u observatie {_area.Id} wilt verwijderen? ");
-            Console.WriteLine("J/N");
-            ConsoleKey key = Console.ReadKey().Key;
-            if (key == ConsoleKey.J)
+            Console.Write($"Weet u zeker dat u observatie {_area.Id} wilt verwijderen? [J/N]");
+            if (Helpers.ConfirmPrompt())
             {
                 _area.Delete(this.authenticatedUser);
                 Console.WriteLine("Area deleted!");

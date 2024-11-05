@@ -26,18 +26,21 @@ namespace ExotischNederland
                 // Vrijwilliger (Volunteer User)
                 // |Id: 1195| Name: Volunteer User | Role: Vrijwilliger | Email: volunteer@exotischnederland.com | PasswordHash: 08801e4de3979370bd0c8da452cf1e2d03be081e36986b5e9180036f33679266
                 // debugUser = User.Find(1195);
+                //debugUser = User.Find(1195);
 
                 // Wandelaar (Walker User)
                 // |Id: 1196| Name: Walker User | Role: Wandelaar | Email: walker@exotischnederland.com | PasswordHash: 08801e4de3979370bd0c8da452cf1e2d03be081e36986b5e9180036f33679266
                 // debugUser = User.Find(1196);
+                //debugUser = User.Find(1196);
 
                 // Familie (Family User)
                 // |Id: 1197| Name: Family User | Role: Familie | Email: family@exotischnederland.com | PasswordHash: 08801e4de3979370bd0c8da452cf1e2d03be081e36986b5e9180036f33679266
                 // debugUser = User.Find(1197);
+                //debugUser = User.Find(1197);
 
                 // Kinderen (Child User)
                 // |Id: 1198| Name: Child User | Role: Kinderen | Email: child@exotischnederland.com | PasswordHash: 08801e4de3979370bd0c8da452cf1e2d03be081e36986b5e9180036f33679266
-                // debugUser = User.Find(1198);
+                //debugUser = User.Find(1198);
 
                 User authenticatedUser = debugUser ?? AuthenticationMenu.Show();
         

@@ -54,7 +54,7 @@ namespace ExotischNederland.Menus
                 {
                     routeOptions[route.Id.ToString()] = $"{route.Name} - {route.Description}";
                 }
-                routeOptions.Add("back", "Return to menu");
+                routeOptions.Add("back", "Ga terug");
 
                 string selectedRouteId = Helpers.MenuSelect(routeOptions, false);
                 if (selectedRouteId != "back")
@@ -66,7 +66,7 @@ namespace ExotischNederland.Menus
             }
             else
             {
-                Console.WriteLine("No routes available.");
+                Console.WriteLine("Geen routes beschikbaar");
                 Console.ReadKey();
             }
         }
@@ -78,7 +78,7 @@ namespace ExotischNederland.Menus
             Console.WriteLine($"Name: {route.Name}");
             Console.WriteLine($"Description: {route.Description}");
 
-            var options = new Dictionary<string, string> { { "back", "Return to routes list" } };
+            var options = new Dictionary<string, string> { { "back", "Ga terug" } };
             if (authenticatedUser.Permission.CanEditRoute(route))
             {
                 options.Add("edit", "Edit this route");

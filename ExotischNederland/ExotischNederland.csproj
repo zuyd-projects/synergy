@@ -51,6 +51,7 @@
     <Compile Include="Menus\IMenu.cs" />
     <Compile Include="Menus\AuthenticationMenu.cs" />
     <Compile Include="Menus\ObservationMenu.cs" />
+    <Compile Include="Menus\QuestionMenu.cs" />
     <Compile Include="Menus\PointOfInterestMenu.cs" />
     <Compile Include="Menus\UserMenu.cs" />
     <Compile Include="Menus\RouteMenu.cs" />

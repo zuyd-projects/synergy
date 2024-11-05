@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using ExotischNederland.Models;
 
@@ -29,13 +30,13 @@ namespace ExotischNederland
 
         // Game permissions
         public bool CanManageGames() => User.Roles.Any(role => role.Name == "Beheerder");
-        
+
         // Allow both "Familie" and "Kinderen" roles to play games
-        public bool CanPlayGames() => User.Roles.Any(role => role.Name == "Familie" || role.Name == "Kinderen");
+        public bool CanPlayGames() => User.Roles.Any(role => role.Name == "Beheerder" || role.Name == "Familie" || role.Name == "Kinderen");
 
         // Question and Answer permissions
-        public bool CanManageQuestions() => User.Roles.Any(role => role.Name == "Beheerder");
-        public bool CanManageAnswers() => User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanManageQuestions() => this.CanManageGames() || User.Roles.Any(role => role.Name == "Beheerder");
+        public bool CanManageAnswers() => this.CanManageQuestions() || User.Roles.Any(role => role.Name == "Beheerder");
 
         // Route permissions
         public bool CanManageRoutes() => User.Roles.Any(role => role.Name == "Beheerder");

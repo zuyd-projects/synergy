@@ -9,8 +9,9 @@ namespace ExotischNederland.Models
         public Question Question { get; private set; }
         public User User { get; private set; }
         public Answer Answer { get; private set; }
+        public bool Correct { get { return Answer.Correct; } }
 
-        private UserQuest(Dictionary<string, object> _values)
+        public UserQuest(Dictionary<string, object> _values)
         {
             this.Id = (int)_values["Id"];
             this.Question = Question.Find((int)_values["QuestionId"]);
@@ -18,14 +19,14 @@ namespace ExotischNederland.Models
             this.Answer = Answer.Find((int)_values["AnswerId"]);
         }
 
-        public static UserQuest Create(Question question, Answer answer, User user)
+        public static UserQuest Create(Question _question, Answer _answer, User _user)
         {
             SQLDAL db = SQLDAL.Instance;
             var values = new Dictionary<string, object>
             {
-                { "QuestionId", question.Id },
-                { "AnswerId", answer.Id },
-                { "UserId", user.Id }
+                { "QuestionId", _question.Id },
+                { "AnswerId", _answer.Id },
+                { "UserId", _user.Id }
             };
             int id = db.Insert("UserQuest", values);
             return Find(id);
@@ -34,27 +35,13 @@ namespace ExotischNederland.Models
         public static UserQuest Find(int userQuestId)
         {
             SQLDAL db = SQLDAL.Instance;
-            return db.Find<UserQuest>("UserQuest", userQuestId.ToString());
+            return db.Find<UserQuest>("Id", userQuestId.ToString());
         }
 
-        public void Update(Question newQuestion, Answer newAnswer)
-        {
-            Question = newQuestion;
-            Answer = newAnswer;
-
-            SQLDAL db = SQLDAL.Instance;
-            var values = new Dictionary<string, object>
-            {
-                { "QuestionId", newQuestion.Id },
-                { "AnswerId", newAnswer.Id }
-            };
-            db.Update("UserQuest", this.Id, values);
-        }
-
-        public static void Delete(int userQuestId)
+        public void Delete()
         {
             SQLDAL db = SQLDAL.Instance;
-            db.Delete("UserQuest", userQuestId);
+            db.Delete("UserQuest", this.Id);
         }
     }
 }

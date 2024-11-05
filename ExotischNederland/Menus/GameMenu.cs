@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using ExotischNederland.Models;
+using System.Linq;
+using System.Security.Cryptography;
 
 namespace ExotischNederland.Menus
 {
@@ -18,14 +20,10 @@ namespace ExotischNederland.Menus
         {
             var menuItems = new Dictionary<string, string>();
 
+            menuItems.Add("viewAllGames", "Bekijk alle spellen");
             if (authenticatedUser.Permission.CanManageGames())
             {
-                menuItems.Add("viewAllGames", "View all games");
                 menuItems.Add("createGame", "Create a new game");
-            }
-            if (authenticatedUser.Permission.CanPlayGames())
-            {
-                menuItems.Add("playGame", "Play a game");
             }
             menuItems.Add("back", "Return to main menu");
             return menuItems;
@@ -34,192 +32,233 @@ namespace ExotischNederland.Menus
         public void Show()
         {
             menuItems = GetMenuItems();
-            while (true)
-            {
-                string selected = Helpers.MenuSelect(menuItems, true);
+            string selected = Helpers.MenuSelect(menuItems, true);
 
-                if (selected == "viewAllGames")
-                {
-                    ViewAllGames();
-                }
-                else if (selected == "createGame")
-                {
-                    CreateGame();
-                }
-                else if (selected == "playGame")
-                {
-                    PlayGame();
-                }
-                else if (selected == "back")
-                {
-                    break;
-                }
+            if (selected == null) return;
+            else if (selected == "viewAllGames")
+            {
+                ViewAllGames();
             }
+            else if (selected == "createGame")
+            {
+                CreateGame();
+            }
+            Show();
         }
 
         private void ViewAllGames()
         {
             Console.Clear();
-            List<Game> games = Game.GetAllPlayableGames();
+            List<Game> games = Game.GetAll();
 
-            Console.WriteLine("Available Games:");
+            Console.WriteLine("Beschikbare spellen:");
             if (games.Count > 0)
             {
-                var gameOptions = new Dictionary<string, string>();
-                foreach (var game in games)
-                {
-                    gameOptions[game.Id.ToString()] = $"{game.Title} - {game.Description}";
-                }
-                gameOptions.Add("back", "Return to main menu");
+                Dictionary<string, string> options = games.ToDictionary(x => x.Id.ToString(), x => $"{x.Id}. {x.Title}: {x.Description}");
+                options.Add("back", "Ga terug");
 
-                string selectedGameId = Helpers.MenuSelect(gameOptions, false);
-                if (selectedGameId != "back")
+                string selectedGameId = Helpers.MenuSelect(options, false, new List<string> { "Alle spellen:"});
+                if (selectedGameId == "back" || selectedGameId == null) return;
+                else
                 {
-                    int gameId = int.Parse(selectedGameId);
-                    Game game = games.Find(g => g.Id == gameId);
+                    Game game = games.Find(g => g.Id == int.Parse(selectedGameId));
                     ViewGameDetails(game);
                 }
             }
             else
             {
-                Console.WriteLine("No games available.");
+                Console.WriteLine("Geen spellen beschikbaar");
                 Console.ReadKey();
             }
         }
 
-        private void ViewGameDetails(Game game)
+        private void ViewGameDetails(Game _game)
         {
             Console.Clear();
-            Console.WriteLine("Game Details:");
-            Console.WriteLine($"Title: {game.Title}");
-            Console.WriteLine($"Description: {game.Description}");
-            Console.WriteLine($"Route ID: {game.Route.Id}");
-
-            var options = new Dictionary<string, string>
+            List<string> text = new List<string>
             {
-                { "back", "Return to game list" }
+                "Game Details:",
+                $"Title: {_game.Title}",
+                $"Description: {_game.Description}",
+                $"Route: {_game.Route.Name}"
             };
+            int userScore = _game.UserScore(this.authenticatedUser);
+            float percentage = (float)userScore / _game.Questions.Count * 100;
+            if (userScore > 0)
+            {
+                text.Add($"Resultaat: {percentage}%");
+            }
+
+
+            Dictionary<string, string> options = new Dictionary<string, string>();
+
+            if (authenticatedUser.Permission.CanPlayGames())
+            {
+                options.Add("play", "Speel dit spel");
+            }
 
             if (authenticatedUser.Permission.CanManageGames())
             {
-                options.Add("edit", "Edit this game");
-                options.Add("delete", "Delete this game");
+                options.Add("edit", "Spel bewerken");
+                options.Add("questions", "Vragen beheren");
+                options.Add("delete", "Spel verwijderen");
             }
 
-            string selectedOption = Helpers.MenuSelect(options, true);
-
-            if (selectedOption == "edit")
+            string selectedOption = Helpers.MenuSelect(options, true, text);
+            
+            if (selectedOption == "play")
             {
-                EditGame(game);
+                StartGame(_game);
+                ViewGameDetails(_game);
+            } 
+            else if (selectedOption == "edit")
+            {
+                EditGame(_game);
+                ViewGameDetails(_game);
+            }
+            else if (selectedOption == "questions")
+            {
+                QuestionMenu qm = new QuestionMenu(_game, this.authenticatedUser);
+                qm.Show();
+                ViewGameDetails(_game);
             }
             else if (selectedOption == "delete")
             {
-                DeleteGame(game);
+                DeleteGame(_game);
             }
+            ViewAllGames();
         }
 
-        private void EditGame(Game game)
+        private void EditGame(Game _game)
         {
             Console.Clear();
             List<FormField> fields = new List<FormField>
             {
-                new FormField("title", "New title (leave empty to keep)", "string", false, game.Title),
-                new FormField("description", "New description (leave empty to keep)", "string", false, game.Description)
+                new FormField("title", "Nieuwe naam", "string", false, _game.Title),
+                new FormField("description", "Nieuwe beschrijving", "string", false, _game.Description)
             };
 
             Dictionary<string, object> values = new Form(fields).Prompt();
             if (values == null) return;
 
-            game.Update((string)values["title"], (string)values["description"]);
-            Console.WriteLine("Game updated successfully.");
+            _game.Update((string)values["title"], (string)values["description"]);
+            Console.WriteLine("Spel bijgewerkt");
             Console.ReadKey();
         }
 
-        private void DeleteGame(Game game)
+        private void DeleteGame(Game _game)
         {
             Console.Clear();
-            Console.WriteLine($"Are you sure you want to delete the game '{game.Title}'? [Y/N]");
-            ConsoleKey confirmation = Console.ReadKey().Key;
-
-            if (confirmation == ConsoleKey.Y)
+            Console.WriteLine($"Weet u zeker dat u het spel '{_game.Title}' wilt verwijderen? [J/N]");
+            
+            if (Helpers.ConfirmPrompt())
             {
-                Game.Delete(game.Id);
-                Console.WriteLine("\nGame deleted successfully.");
+                _game.Delete(authenticatedUser);
+                Console.WriteLine("Spel verwijderd");
                 Console.ReadKey();
             }
             else
             {
-                ViewGameDetails(game);
+                ViewGameDetails(_game);
             }
         }
 
         private void CreateGame()
         {
             Console.Clear();
-            var fields = new List<FormField>
+            Dictionary<string, string> routeOptions = new Dictionary<string, string>();
+            List<Route> routes = Route.GetAll();
+            if (routes.Count > 0)
             {
-                new FormField("title", "Enter game title", "string", true),
-                new FormField("description", "Enter game description", "string", true),
-                new FormField("routeId", "Enter route ID for the game", "number", true)
-            };
-
-            var values = new Form(fields).Prompt();
-            if (values == null) return;
-
-            int routeId = (int)values["routeId"];
-            Route route = Route.Find(routeId);
-            if (route != null)
-            {
-                Game game = Game.Create(route, (string)values["title"], (string)values["description"]);
-                Console.WriteLine($"Game '{values["title"]}' created successfully.");
+                routeOptions = routes.ToDictionary(x => x.Id.ToString(), x => $"{x.Id}. {x.Name}");
             }
             else
             {
-                Console.WriteLine("Invalid route ID.");
+                Console.WriteLine("Er zijn geen routes beschikbaar. Maak eerst een route aan.");
+                Console.ReadKey();
+                return;
             }
+            List<FormField> fields = new List<FormField>
+            {
+                new FormField("title", "Naam", "string", true),
+                new FormField("description", "Beschrijving", "string", true),
+                new FormField("routeId", "Enter route ID for the game", "single_select", true, null, routeOptions)
+            };
+
+            Dictionary<string, object> values = new Form(fields).Prompt();
+            if (values == null) return;
+
+            int routeId = int.Parse(values["routeId"].ToString());
+            Route route = Route.Find(routeId);
+            
+            Game game = Game.Create(route, (string)values["title"], (string)values["description"]);
+            Console.WriteLine($"Spel '{values["title"]}' aangemaakt");
+            new QuestionMenu(game, this.authenticatedUser).Show();
+            ViewGameDetails(game);
+        }
+
+        private void StartGame(Game _game)
+        {
+            Console.Clear();
+            int userScore = _game.UserScore(this.authenticatedUser);
+            if (userScore > 0)
+            {
+                Console.WriteLine("U heeft dit spel eerder gespeeld. Opnieuw spelen zal de score wissen. Doorgaan? [J/N]");
+                if (!Helpers.ConfirmPrompt()) return;
+                _game.ResetUserScore(this.authenticatedUser);
+            }
+            List<string> text = new List<string>
+            {
+                _game.Title,
+                _game.Description
+            };
+            int numberCorrect = 0;
+            foreach (Question question in _game.Questions)
+                if (this.AskQuestion(question)) numberCorrect++;
+            
+            Console.Clear();
+            Console.WriteLine("Einde van het spel!");
+            Console.WriteLine($"Je hebt {numberCorrect} van de {_game.Questions.Count} vragen goed beantwoord.");
             Console.ReadKey();
         }
 
-        private void PlayGame()
+        private bool AskQuestion(Question _question)
         {
             Console.Clear();
-            Console.WriteLine("Available Games to Play:");
-            List<Game> games = Game.GetAllPlayableGames();
-            int i = 1;
-            foreach (var game in games)
+            FormField field;
+            if (_question.Type == "multipleChoice")
             {
-                Console.WriteLine($"{i}. {game.Title} - {game.Description}");
-                i++;
-            }
-
-            Console.WriteLine("Select a game number to play or enter '0' to return:");
-            if (int.TryParse(Console.ReadLine(), out int choice) && choice > 0 && choice <= games.Count)
-            {
-                StartGame(games[choice - 1]);
-            }
-        }
-
-        private void StartGame(Game game)
-        {
-            Console.Clear();
-            Console.WriteLine($"Playing Game: {game.Title}");
-            Console.WriteLine(game.Description);
-
-            foreach (var question in game.Questions)
-            {
-                Console.WriteLine($"\nQuestion: {question.Text}");
-                int j = 1;
-                foreach (var answer in question.Answers)
+                Dictionary<string, string> options = new Dictionary<string, string>();
+                foreach (Answer answer in _question.Answers)
                 {
-                    Console.WriteLine($"{j}. {answer.Text}");
-                    j++;
+                    options.Add(answer.Id.ToString(), answer.Text);
                 }
-
-                Console.WriteLine("Select an answer:");
-                int.TryParse(Console.ReadLine(), out int answerChoice);
+                field = new FormField("answer", _question.Text, "single_select", true, null, options);
             }
-            Console.WriteLine("\nEnd of game. Press any key to return.");
-            Console.ReadKey();
+            else
+            {
+                field = new FormField("answer", _question.Text, _question.Type, true);
+            }
+            object result = field.Input();
+            Answer givenAnswer = CheckAnswer(_question, result);
+
+            return UserQuest.Create(_question, givenAnswer, this.authenticatedUser).Correct;
+        }
+
+        private Answer CheckAnswer(Question _question, object _result)
+        {
+            switch (_question.Type)
+            {
+                case "boolean":
+                    // Return the answer
+                    return _question.Answers.Find(a => a.Text == ((bool)_result ? "T" : "F"));
+                case "multipleChoice":
+                    // Return the answer if it exists and is correct, otherwise return null.
+                    return _question.Answers.Find(a => a.Id == int.Parse((string)_result));
+                default:
+                    // This should never happen. If it does, return false.
+                    return _question.Answers.Find(a => a.Text.ToLower() == _result.ToString().ToLower()) ?? Answer.Create(_question, (string)_result, false);
+            }
         }
     }
 }

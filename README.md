@@ -127,6 +127,24 @@ public static string ReadInputWithEsc()
 
 Read an input from the user or return null if ESC is pressed (used primarily in the Form class)
 
+```cs
+public static bool ConfirmPrompt()
+```
+
+Returns true or false depending on keyboard J or N key press (waits for either one)
+Example:
+
+```cs
+Console.Write($"Weet u zeker dat u gebruiker {_user.Id} wilt verwijderen? [J/N]");
+if (Helpers.ConfirmPrompt())
+{
+    _user.Delete(this.authenticatedUser);
+    Console.WriteLine("Gebruiker verwijderd!");
+    Console.ReadKey();
+    return;
+}
+```
+
 ### Tools
 
 The tools are available in the Tools folder.
