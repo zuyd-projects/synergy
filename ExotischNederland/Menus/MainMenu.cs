@@ -4,101 +4,112 @@ using ExotischNederland.Models;
 
 namespace ExotischNederland.Menus
 {
-    internal class MainMenu: IMenu
+    internal class MainMenu : IMenu
     {
         private readonly User authenticatedUser;
-        private Dictionary<string, string> menuItems = new Dictionary<string, string>();
+        private Dictionary<string, string> menuItems;
 
         public MainMenu(User _authenticatedUser)
         {
             this.authenticatedUser = _authenticatedUser;
+            this.menuItems = new Dictionary<string, string>();
         }
 
         public Dictionary<string, string> GetMenuItems()
         {
-            Dictionary<string, string> menuItems = new Dictionary<string, string>();
-
-
-            // Observation and Area menu options
+            var menuItems = new Dictionary<string, string>();
+            
+            // Observations menu
             if (authenticatedUser.Permission.CanViewAllObservations() || authenticatedUser.Permission.CanCreateObservation())
-                menuItems.Add("observations", "Observaties");
+                menuItems.Add("observations", "Observaties Beheren");
+            // Areas menu
             if (authenticatedUser.Permission.CanViewAllAreas())
-                menuItems.Add("areas", "Gebieden");
-
-            // Game-related options based on user role
+                menuItems.Add("areas", "Natuurgebieden Beheren");
+            // Games menu
             if (authenticatedUser.Permission.CanManageGames())
-                menuItems.Add("manage_games", "Beheer Spellen");
+                menuItems.Add("manage_games", "Spellen Beheren");
+            // Play game menu
             if (authenticatedUser.Permission.CanPlayGames())
-                menuItems.Add("play_game", "Speel Spel");
-            
-            // Route menu option
+                menuItems.Add("play_game", "Spel Spelen");
+            // Routes menu
             if (authenticatedUser.Permission.CanManageRoutes())
-                menuItems.Add("routes", "Routes");
+                menuItems.Add("routes", "Routes Beheren");
+            // View routes menu
             if (authenticatedUser.Permission.CanViewRoutes())
-                menuItems.Add("view_routes", "Bekijk Routes");
+                menuItems.Add("view_routes", "Routes Bekijken");
+            // Points of Interest menu
+            if (authenticatedUser.Permission.CanViewPointsOfInterest() || authenticatedUser.Permission.CanCreatePointOfInterest())
+                menuItems.Add("points_of_interest", "Points of Interest Beheren");
+            // Users menu
+            if (authenticatedUser.Permission.CanViewAllUsers())
+                menuItems.Add("users", "Gebruikers Beheren");
 
-            // User menu option
-            if (this.authenticatedUser.Permission.CanViewAllUsers())
-                menuItems.Add("users", "Gebruikers");
-            
-           
-            menuItems.Add("logout", "Uitloggen");
+            menuItems.Add("logout", "Logout");
             return menuItems;
         }
 
         public void Show()
         {
-            this.menuItems = this.GetMenuItems();
+            menuItems = GetMenuItems();
             while (true)
             {
-                List<string> text = new List<string> { "Database is online" };
-                string selected = Helpers.MenuSelect(this.menuItems, true, text);
+                string selected = Helpers.MenuSelect(menuItems, true, new List<string> { "Database is online" });
 
-                if (selected == "observations")
+                // Invoke respective menu based on selection
+                switch (selected)
                 {
-                    ObservationMenu observationMenu = new ObservationMenu(this.authenticatedUser);
-                    observationMenu.Show();
-                }
-                else if (selected == "areas")
-                {
-                    AreaMenu areaMenu = new AreaMenu(this.authenticatedUser);
-                    areaMenu.Show();
-                }
-                else if (selected == "routes")
-                {
-                    RouteMenu routeMenu = new RouteMenu(this.authenticatedUser);
-                    routeMenu.Show();
-                }
-                else if (selected == "manage_games")
-                {
-                    GameMenu gameMenu = new GameMenu(this.authenticatedUser);
-                    gameMenu.Show();
-                }
-                else if (selected == "play_game")
-                {
-                    GameMenu gameMenu = new GameMenu(this.authenticatedUser);
-                    gameMenu.Show(); 
-                }
-                else if (selected == "users")
-                {
-                    UserMenu userMenu = new UserMenu(this.authenticatedUser);
-                    userMenu.Show();
-                }
-                else if (selected == "logout")
-                {
-                    Console.Clear();
-                    Console.WriteLine("U bent uitgelogd");
-                    Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
-                    Console.ReadKey();
-                    return;
-                }
-                else
-                {
-                    Console.WriteLine("Ongeldige keuze");
-                    Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
-                    Console.ReadKey();
+                    case "observations":
+                        ShowMenu(new ObservationMenu(authenticatedUser));
+                        break;
+                    case "areas":
+                        ShowMenu(new AreaMenu(authenticatedUser));
+                        break;
+                    case "manage_games":
+                        ShowMenu(new GameMenu(authenticatedUser));
+                        break;
+                    case "play_game":
+                        ShowMenu(new GameMenu(authenticatedUser));
+                        break;
+                    case "routes":
+                        ShowMenu(new RouteMenu(authenticatedUser));
+                        break;
+                    case "view_routes":
+                        ShowMenu(new RouteMenu(authenticatedUser));
+                        break;
+                    case "points_of_interest":
+                        ShowMenu(new PointOfInterestMenu(authenticatedUser));
+                        break;
+                    case "users":
+                        ShowMenu(new UserMenu(authenticatedUser));
+                        break;
+                    case "logout":
+                        Logout();
+                        return;
+                    default:
+                        InvalidSelection();
+                        break;
                 }
             }
+        }
+
+        private void ShowMenu(IMenu menu)
+        {
+            menu.Show();
+        }
+
+        private void Logout()
+        {
+            Console.Clear();
+            Console.WriteLine("You have logged out.");
+            Console.WriteLine("Press any key to return to the main menu.");
+            Console.ReadKey();
+        }
+
+        private void InvalidSelection()
+        {
+            Console.WriteLine("Invalid selection.");
+            Console.WriteLine("Press any key to return to the main menu.");
+            Console.ReadKey();
         }
     }
 }
