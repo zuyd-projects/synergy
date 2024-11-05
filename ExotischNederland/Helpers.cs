@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ExotischNederland
 {
@@ -13,9 +14,11 @@ namespace ExotischNederland
         /// <summary>
         /// Create a menu with a list of items to select from
         /// </summary>
-        /// <param name="items"></param>
-        /// <param name="indexes"></param>
+        /// <param name="_items"></param>
+        /// <param name="_indexes"></param>
+        /// <param name="_text"></param>
         /// <returns>The key of the selected item</returns>
+        // TODO: Rename this method to SelectMenu
         public static string MenuSelect(Dictionary<string, string> _items, bool _indexes = false, List<string> _text = null)
         {
             if (_text is null) _text = new List<string>();
@@ -25,7 +28,7 @@ namespace ExotischNederland
                 Console.Clear();
                 foreach (var item in _text)
                 {
-                    Console.WriteLine(item);
+                    if (_text != null) Console.WriteLine(item);
                 }
                 foreach (var item in _items)
                 {
@@ -40,6 +43,7 @@ namespace ExotischNederland
                     Console.ForegroundColor = ConsoleColor.Gray;
                 }
                 ConsoleKey input = Console.ReadKey().Key;
+                if (input == ConsoleKey.Escape) return null;
                 if (input == ConsoleKey.UpArrow)
                 {
                     selected--;
@@ -71,6 +75,7 @@ namespace ExotischNederland
         /// <param name="_selection"></param>
         /// <param name="_text"></param>
         /// <returns>List of strings of selected items</returns>
+        // TODO: Rename this method to MultiSelectMenu
         public static List<string> MultiSelect(Dictionary<string, string> _items, bool _indexes = false, List<string> _selection = null, List<string> _text = null)
         {
             int selected = 0;
@@ -83,7 +88,7 @@ namespace ExotischNederland
                 Console.Clear();
                 foreach (var item in text)
                 {
-                    Console.WriteLine(item);
+                    if (text != null) Console.WriteLine(item);
                 }
                 foreach (var item in _items)
                 {
@@ -217,6 +222,23 @@ namespace ExotischNederland
 
             Console.WriteLine();
             return input.ToString();
+        }
+
+        /// <summary>
+        /// Wait for J or N key
+        /// </summary>
+        /// <returns>true or false respectively</returns>
+        public static bool ConfirmPrompt()
+        {
+            ConsoleKey key = ConsoleKey.NoName;
+            while (key != ConsoleKey.N && key != ConsoleKey.J)
+            {
+                // true hides the pressed key from the output
+                key = Console.ReadKey(true).Key;
+                if (key == ConsoleKey.N) return false;
+                if (key == ConsoleKey.J) return true;
+            }
+            return false; // Default return value to satisfy all code paths
         }
     }
 }

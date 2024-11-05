@@ -9,7 +9,17 @@ namespace ExotischNederland.Models
         public string Name { get; private set; }
         public string Description { get; private set; }
         public User User { get; private set; }
-        public List<RoutePoint> Points { get; private set; }
+        public List<RoutePoint> Points 
+        {
+            get
+            {
+                return LoadRoutePoints();
+            }
+            private set
+            {
+                Points = value;
+            }
+        }
 
         public Route(Dictionary<string, object> _values)
         {
@@ -17,7 +27,6 @@ namespace ExotischNederland.Models
             this.Name = (string)_values["Name"];
             this.Description = (string)_values["Description"];
             this.User = User.Find((int)_values["UserId"]);
-            this.Points = LoadRoutePoints();
         }
 
         public static Route Create(string name, string description, int areaId, User user)
@@ -40,7 +49,7 @@ namespace ExotischNederland.Models
             return db.Find<Route>("Id", routeId.ToString());
         }
 
-        public static List<Route> GetAllRoutes()
+        public static List<Route> GetAll()
         {
             SQLDAL sql = SQLDAL.Instance;
             return sql.Select<Route>();

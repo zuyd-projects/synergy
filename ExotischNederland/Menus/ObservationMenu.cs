@@ -148,10 +148,8 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
 
-            Console.Write($"Weet u zeker dat u observatie {_observation.Id} wilt verwijderen? ");
-            Console.WriteLine("J/N");
-            ConsoleKey key = Console.ReadKey().Key;
-            if (key == ConsoleKey.J)
+            Console.Write($"Weet u zeker dat u observatie {_observation.Id} wilt verwijderen? [J/N]");
+            if (Helpers.ConfirmPrompt())
             {
                 _observation.Delete(this.authenticatedUser);
                 Console.WriteLine("Observation deleted!");
@@ -186,15 +184,7 @@ namespace ExotischNederland.Menus
                     Console.WriteLine($"Observatie ID: {observation.Id}, Specie: {observation.Specie.Name}, Beschrijving: {observation.Description}");
                 }
                 Console.WriteLine("Weet u zeker dat u nog een observatie wilt vastleggen? [J/N]");
-                ConsoleKey key = ConsoleKey.NoName;
-                while (key != ConsoleKey.N && key != ConsoleKey.J)
-                {
-                    key = Console.ReadKey().Key;
-                    // If user presses N, return to menu
-                    if (key == ConsoleKey.N) return;
-                    // If user presses J, continue to create observation
-                    if (key == ConsoleKey.J) break;
-                }
+                if (!Helpers.ConfirmPrompt()) return;
             }
 
             Observation.Create(specie, (float)values["longitude"], (float)values["latitude"], (string)values["description"], (string)values["photoUrl"], this.authenticatedUser);

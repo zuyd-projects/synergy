@@ -10,7 +10,7 @@ namespace ExotischNederland.Models
         public int Order { get; private set; }
         public PointOfInterest PointOfInterest { get; private set; }
 
-        private RoutePoint(Dictionary<string, object> _values)
+        public RoutePoint(Dictionary<string, object> _values)
         {
             this.Id = (int)_values["Id"];
             Route = Route.Find((int)_values["RouteId"]);

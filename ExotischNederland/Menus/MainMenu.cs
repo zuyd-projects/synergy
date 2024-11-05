@@ -26,10 +26,8 @@ namespace ExotischNederland.Menus
                 menuItems.Add("areas", "Gebieden");
 
             // Game-related options based on user role
-            if (authenticatedUser.Permission.CanManageGames())
-                menuItems.Add("manage_games", "Beheer Spellen");
-            if (authenticatedUser.Permission.CanPlayGames())
-                menuItems.Add("play_game", "Speel Spel");
+            if (authenticatedUser.Permission.CanManageGames() || authenticatedUser.Permission.CanPlayGames())
+                menuItems.Add("games", "Spellen");
             
             // Route menu option
             if (authenticatedUser.Permission.CanManageRoutes())
@@ -69,12 +67,7 @@ namespace ExotischNederland.Menus
                     RouteMenu routeMenu = new RouteMenu(this.authenticatedUser);
                     routeMenu.Show();
                 }
-                else if (selected == "manage_games")
-                {
-                    GameMenu gameMenu = new GameMenu(this.authenticatedUser);
-                    gameMenu.Show();
-                }
-                else if (selected == "play_game")
+                else if (selected == "games")
                 {
                     GameMenu gameMenu = new GameMenu(this.authenticatedUser);
                     gameMenu.Show(); 
@@ -91,12 +84,6 @@ namespace ExotischNederland.Menus
                     Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
                     Console.ReadKey();
                     return;
-                }
-                else
-                {
-                    Console.WriteLine("Ongeldige keuze");
-                    Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
-                    Console.ReadKey();
                 }
             }
         }

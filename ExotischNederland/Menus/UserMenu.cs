@@ -147,10 +147,8 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
 
-            Console.Write($"Weet u zeker dat u gebruiker {_user.Id} wilt verwijderen? ");
-            Console.WriteLine("J/N");
-            ConsoleKey key = Console.ReadKey().Key;
-            if (key == ConsoleKey.J)
+            Console.Write($"Weet u zeker dat u gebruiker {_user.Id} wilt verwijderen? [J/N]");
+            if (Helpers.ConfirmPrompt())
             {
                 _user.Delete(this.authenticatedUser);
                 Console.WriteLine("Gebruiker verwijderd!");
