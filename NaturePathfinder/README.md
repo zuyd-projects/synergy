@@ -25,8 +25,8 @@ NaturePathfinder
 ⚙️ Complexity and Big O Analysis
 
 	1.	Graph Creation (BuildGraph in Program.cs):
-	•	Complexity: O(N²), where N is the number of areas.
-	•	Explanation: Each area is paired with every other area to calculate distances, resulting in ￼ calculations.
+	•	Complexity: O(N^2), where N is the number of areas.
+	•	Explanation: Each area is paired with every other area to calculate distances, resulting in O(n^2) calculations. Distance calculation is O(1). After distance calculation each area is processes again. Filtering here is O(n) and sorting by distance is at most O(n-1), resulting in O(n log(n)), but since we only take the first 5, this is practically O(n). The most significant is the nested loop with a complexity of O(n^2)^)
 
 	2.	Distance Calculation (CalculateDistance in DistanceCalculator.cs):
 	•	Complexity: O(1) (constant time for each pair).

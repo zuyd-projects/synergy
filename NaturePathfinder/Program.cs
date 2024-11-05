@@ -14,13 +14,18 @@ namespace NaturePathfinder
         {
             // Create a graph with the areas
             var graph = new Graph(areas);
+
+            // Dictionary to store the distances between areas
+            var distances = new Dictionary<(Area, Area), double>();
+
             // Create routes between all pairs of areas
-            foreach (var area in areas) 
+            foreach (Area area in areas) 
             {
+                
                 // Calculate the centroid of the area
                 var centroid1 = area.CalculateCentroid();
                 // Create routes to all other areas
-                foreach (var otherArea in areas)
+                foreach (Area otherArea in areas)
                 {
                     // Skip if the areas are the same
                     if (area == otherArea) continue;
@@ -28,13 +33,26 @@ namespace NaturePathfinder
                     var centroid2 = otherArea.CalculateCentroid();
                     // Calculate the distance between the centroids
                     double distance = DistanceCalculator.CalculateDistance(centroid1, centroid2);
-                    distance += new Random().NextDouble() * 0.5; // Adds a small random factor to vary the distances
+                    //distance += new Random().NextDouble() * 0.5; // Adds a small random factor to vary the distances
 
-                    // Create bidirectional routes to ensure connectivity
-                    graph.AddRoute(area, new Route(otherArea, distance));
-                    graph.AddRoute(otherArea, new Route(area, distance));
-                    // Output the added route
-                    Console.WriteLine($"Added route between {area.Name} and {otherArea.Name} with distance {distance:F2} km");
+                    distances[(area, otherArea)] = distance;
+                }
+            }
+
+            foreach (var area in areas)
+            {
+                var closestAreas = distances
+                    .Where(d => d.Key.Item1 == area)
+                    .OrderBy(d => d.Value)
+                    .Take(5)
+                    .Select(d => new Route(d.Key.Item2, d.Value))
+                    .ToList();
+
+                foreach (var route in closestAreas)
+                {
+                    graph.AddRoute(area, route);
+                    graph.AddRoute(route.TargetArea, new Route(area, route.Weight));
+                    Console.WriteLine($"Added route between {area.Name} and {route.TargetArea.Name} with distance {route.Weight:F2} km");
                 }
             }
 
@@ -125,6 +143,8 @@ namespace NaturePathfinder
             {
                 Console.WriteLine($" -> {area.Name}");
             }
+
+            Console.ReadKey();
         }
     }
 }

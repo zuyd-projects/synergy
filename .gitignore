@@ -15,3 +15,6 @@ ExotischNederland/.env
 /NaturePathfinder/obj/Debug/NaturePathfinder.exe
 /NaturePathfinder/obj/Debug/NaturePathfinder.pdb
 /synergy.sln.DotSettings.user
+/NaturePathfinder/obj
+/NaturePathfinder/obj
+/NaturePathfinder/bin
