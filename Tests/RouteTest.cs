@@ -3,111 +3,120 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ExotischNederland.DAL;
 using ExotischNederland.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests
 {
     [TestClass]
-    public class RouteTest : TransactionTest
+    public class RouteTest
     {
-        //    [TestMethod]
-        //    public void TestRouteCanBeCreated()
-        //    {
-        //        string name = "Test Route";
-        //        string description = "A scenic route for testing.";
-        //        int userId = 1; // Assuming a user with ID 1 exists
-        //        int areaId = 1; // Assuming an area with ID 1 exists
+        private SQLDAL db;
+        private User testUser;
 
-        //        Route route = Route.Create(name, description, userId, areaId);
+        [TestInitialize]
+        public void Setup()
+        {
+            db = SQLDAL.Instance;
+                        
+            testUser = User.Create("Test User", "test@test.com", "password");
+        }
 
-        //        Assert.IsInstanceOfType(route, typeof(Route));
-        //        Assert.AreEqual(name, route.Name);
-        //        Assert.AreEqual(description, route.Description);
-        //        Assert.AreEqual(userId, route.UserId);
-        //        Assert.AreEqual(areaId, route.AreaId);
-        //    }
+        [TestMethod]
+        public void TestRouteCanBeCreated()
+        {
+            string name = "Test Route";
+            string description = "A scenic route for testing.";
+            int areaId = 1; // Assuming an area with ID 1 exists
 
-        //    [TestMethod]
-        //    public void TestRouteCanBeUpdated()
-        //    {
-        //        string name = "Original Route";
-        //        string description = "Original description.";
-        //        int userId = 1; // Assuming a user with ID 1 exists
-        //        int areaId = 1; // Assuming an area with ID 1 exists
+            Route route = Route.Create(name, description, areaId, testUser);
 
-        //        // Create the route with original values
-        //        Route route = Route.Create(name, description, userId, areaId);
+            Assert.IsInstanceOfType(route, typeof(Route));
+            Assert.AreEqual(name, route.Name);
+            Assert.AreEqual(description, route.Description);
+            Assert.AreEqual(testUser.Id, route.User.Id);
+        }
 
-        //        // New values for update
-        //        string newName = "Updated Route";
-        //        string newDescription = "Updated description.";
-        //        int newUserId = 2; // Assuming a user with ID 2 exists
-        //        int newAreaId = 2; // Assuming an area with ID 2 exists
+        [TestMethod]
+        public void TestRouteCanBeUpdated()
+        {
+            string name = "Original Route";
+            string description = "Original description.";
+            int areaId = 1; // Assuming an area with ID 1 exists
 
-        //        // Update the route
-        //        Route.Update(route.Id, newName, newDescription, newUserId, newAreaId);
-        //        Route updatedRoute = Route.Find(route.Id);
+            // Create the route with original values
+            Route route = Route.Create(name, description, areaId, testUser);
 
-        //        // Assertions to check the update was successful
-        //        Assert.AreEqual(newName, updatedRoute.Name);
-        //        Assert.AreEqual(newDescription, updatedRoute.Description);
-        //        Assert.AreEqual(newUserId, updatedRoute.UserId);
-        //        Assert.AreEqual(newAreaId, updatedRoute.AreaId);
-        //    }
+            // New values for update
+            string newName = "Updated Route";
+            string newDescription = "Updated description.";
 
-        //    [TestMethod]
-        //    public void TestRouteCanBeDeleted()
-        //    {
-        //        string name = "Route to Delete";
-        //        string description = "This route will be deleted.";
-        //        int userId = 1; // Assuming a user with ID 1 exists
-        //        int areaId = 1; // Assuming an area with ID 1 exists
+            // Update the route
+            route.Update(newName, newDescription);
+            Route updatedRoute = Route.Find(route.Id);
 
-        //        // Create the route
-        //        Route route = Route.Create(name, description, userId, areaId);
-        //        int routeId = route.Id;
+            // Assertions to check the update was successful
+            Assert.AreEqual(newName, updatedRoute.Name);
+            Assert.AreEqual(newDescription, updatedRoute.Description);
+        }
 
-        //        // Delete the route and verify deletion
-        //        Route.Delete(routeId);
-        //        Route deletedRoute = Route.Find(routeId);
+        [TestMethod]
+        public void TestRouteCanBeDeleted()
+        {
+            string name = "Route to Delete";
+            string description = "This route will be deleted.";
+            int areaId = 1; // Assuming an area with ID 1 exists
 
-        //        Assert.IsNull(deletedRoute);
-        //    }
+            // Create the route
+            Route route = Route.Create(name, description, areaId, testUser);
+            int routeId = route.Id;
 
-        //    [TestMethod]
-        //    public void TestRoutePointsCanBeAddedAndRemoved()
-        //    {
-        //        string name = "Route with Points";
-        //        string description = "Route for testing points.";
-        //        int userId = 1; // Assuming a user with ID 1 exists
-        //        int areaId = 1; // Assuming an area with ID 1 exists
+            // Delete the route and verify deletion
+            Route.Delete(routeId);
+            Route deletedRoute = Route.Find(routeId);
 
-        //        // Create the route
-        //        Route route = Route.Create(name, description, userId, areaId);
+            Assert.IsNull(deletedRoute);
+        }
 
-        //        // Add route points
-        //        var routePoints = new List<RoutePoint>
-        //        {
-        //            new RoutePoint { Latitude = 1.0, Longitude = 1.0 },
-        //            new RoutePoint { Latitude = 2.0, Longitude = 2.0 }
-        //        };
+        [TestMethod]
+        public void TestRoutePointsCanBeAddedAndRemoved()
+        {
+            string name = "Route with Points";
+            string description = "Route for testing points.";
+            int areaId = 1; // Assuming an area with ID 1 exists
 
-        //        foreach (var point in routePoints)
-        //        {
-        //            route.AddRoutePoint(point);
-        //        }
+            // Create the route
+            Route route = Route.Create(name, description, areaId, testUser);
 
-        //        // Verify points were added
-        //        List<RoutePoint> points = route.GetRoutePoints();
-        //        Assert.AreEqual(2, points.Count);
+            // Create a PointOfInterest for the RoutePoints
+            PointOfInterest poi = PointOfInterest.Create("Test POI", "Description", 1.0, 1.0);
 
-        //        // Remove a route point
-        //        route.RemoveRoutePoint(points[0].Id);
+            // Add route points
+            var routePoints = new List<RoutePoint>
+            {
+                RoutePoint.Create(route, 1, poi),
+                RoutePoint.Create(route, 2, poi)
+            };
 
-        //        // Verify point was removed
-        //        points = route.GetRoutePoints();
-        //        Assert.AreEqual(1, points.Count);
-        //    }
+            foreach (var point in routePoints)
+            {
+                route.AddRoutePoint(point);
+            }
+
+            // Verify points were added
+            List<RoutePoint> points = route.Points;
+            Assert.AreEqual(2, points.Count);
+
+            // Remove a route point
+            route.RemoveRoutePoint(points[0].Id);
+
+            // Verify point was removed
+            points = route.Points;
+            Assert.AreEqual(1, points.Count);
+        }
     }
+
+    
 }
+
