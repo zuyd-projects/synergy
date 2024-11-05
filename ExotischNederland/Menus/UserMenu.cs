@@ -106,9 +106,9 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
             List<FormField> fields = new List<FormField>();
-            fields.Add(new FormField("name", "Enter new name", "string", true, _user.Name));
-            fields.Add(new FormField("email", "Enter new email", "string", true, _user.Email));
-            fields.Add(new FormField("password", "Enter new password", "password", true, _user.PasswordHash));
+            fields.Add(new FormField("name", "Voer een nieuwe naam in", "string", true, _user.Name));
+            fields.Add(new FormField("email", "Voer een nieuw e-mailadres in", "string", true, _user.Email));
+            fields.Add(new FormField("password", "Voer een nieuw wachtwoord in", "password", true, _user.PasswordHash));
 
             Dictionary<string, object> values = new Form(fields).Prompt();
             if (values == null)

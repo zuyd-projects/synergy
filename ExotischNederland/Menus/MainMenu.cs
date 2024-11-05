@@ -32,12 +32,10 @@ namespace ExotischNederland.Menus
 
             if (authenticatedUser.Permission.CanManageRoutes())
                 menuItems.Add("routes", "Routes Beheren");
-            // View routes menu
-            if (authenticatedUser.Permission.CanViewRoutes())
-                menuItems.Add("view_routes", "Routes Bekijken");
+
             // Points of Interest menu
             if (authenticatedUser.Permission.CanViewPointsOfInterest() || authenticatedUser.Permission.CanCreatePointOfInterest())
-                menuItems.Add("points_of_interest", "Points of Interest Beheren");
+                menuItems.Add("points_of_interest", "Points of Interests");
             // Users menu
             if (authenticatedUser.Permission.CanViewAllUsers())
                 menuItems.Add("users", "Gebruikers Beheren");

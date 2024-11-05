@@ -149,7 +149,7 @@ namespace ExotischNederland.Menus
         private void DeleteGame(Game _game)
         {
             Console.Clear();
-            Console.WriteLine($"Weet u zeker dat u het spel '{_game.Title}' wilt verwijderen? [J/N]");
+            Console.WriteLine($"Weet je zeker dat je het spel '{_game.Title}' wilt verwijderen? [J/N]");
             
             if (Helpers.ConfirmPrompt())
             {
@@ -182,7 +182,7 @@ namespace ExotischNederland.Menus
             {
                 new FormField("title", "Naam", "string", true),
                 new FormField("description", "Beschrijving", "string", true),
-                new FormField("routeId", "Enter route ID for the game", "single_select", true, null, routeOptions)
+                new FormField("routeId", "Selecteer een route", "single_select", true, null, routeOptions)
             };
 
             Dictionary<string, object> values = new Form(fields).Prompt();
@@ -203,7 +203,7 @@ namespace ExotischNederland.Menus
             int userScore = _game.UserScore(this.authenticatedUser);
             if (userScore > 0)
             {
-                Console.WriteLine("U heeft dit spel eerder gespeeld. Opnieuw spelen zal de score wissen. Doorgaan? [J/N]");
+                Console.WriteLine("Je hebt dit spel eerder gespeeld. Opnieuw spelen zal de score wissen. Doorgaan? [J/N]");
                 if (!Helpers.ConfirmPrompt()) return;
                 _game.ResetUserScore(this.authenticatedUser);
             }
