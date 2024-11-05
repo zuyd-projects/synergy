@@ -1,5 +1,6 @@
 ﻿using ExotischNederland.DAL;
 using System.Collections.Generic;
+using System;
 
 namespace ExotischNederland.Models
 {
@@ -12,10 +13,10 @@ namespace ExotischNederland.Models
 
         public RoutePoint(Dictionary<string, object> _values)
         {
-            this.Id = (int)_values["Id"];
-            Route = Route.Find((int)_values["RouteId"]);
-            Order = (int)_values["Order"];
-            PointOfInterest = PointOfInterest.Find((int)_values["PointOfInterestId"]);
+            this.Id = Convert.ToInt32(_values["Id"]);
+            this.Route = Route.Find(Convert.ToInt32(_values["RouteId"]));
+            this.Order = Convert.ToInt32(_values["Order"]);
+            this.PointOfInterest = PointOfInterest.Find(Convert.ToInt32(_values["PointOfInterestId"]));
         }
 
         public static RoutePoint Create(Route route, int order, PointOfInterest poi)

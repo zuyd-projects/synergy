@@ -15,12 +15,12 @@ namespace ExotischNederland.Models
 
         public PointOfInterest(Dictionary<string, object> _values)
         {
-            this.Id = (int)_values["Id"];
-            this.Name = (string)_values["Name"];
-            this.Description = (string)_values["Description"];
-            this.Type = (string)_values["Type"];
-            this.Longitude = (float)_values["Longitude"];
-            this.Latitude = (float)_values["Latitude"];
+            this.Id = Convert.ToInt32(_values["Id"]);
+            this.Name = Convert.ToString(_values["Name"]);
+            this.Description = Convert.ToString(_values["Description"]);
+            this.Type = Convert.ToString(_values["Type"]);
+            this.Longitude = Convert.ToSingle(_values["Longitude"]);
+            this.Latitude = Convert.ToSingle(_values["Latitude"]);
         }
 
         public static PointOfInterest Create(string _name, string _description, string _type, float _longitude, float _latitude)
@@ -34,7 +34,7 @@ namespace ExotischNederland.Models
                 { "Longitude", _longitude },
                 { "Latitude", _latitude }
             };
-
+            if (_description != null) values.Add("Description", _description);
             int id = sql.Insert("PointOfInterest", values);
             return Find(id);
         }
