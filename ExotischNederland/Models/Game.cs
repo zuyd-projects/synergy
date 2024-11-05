@@ -12,7 +12,7 @@ namespace ExotischNederland.Models
         public string Description { get; private set; }
         public List<Question> Questions { get; private set; }
 
-        private Game(Dictionary<string, object> _values)
+        public Game(Dictionary<string, object> _values)
         {
             this.Id = (int)_values["Id"];
             this.Route = Route.Find((int)_values["RouteId"]);
@@ -37,7 +37,7 @@ namespace ExotischNederland.Models
         public static Game Find(int gameId)
         {
             SQLDAL db = SQLDAL.Instance;
-            return db.Find<Game>("Game", gameId.ToString());
+            return db.Find<Game>("Id", gameId.ToString());
         }
 
         public void Update(string newTitle, string newDescription)
