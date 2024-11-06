@@ -12,7 +12,6 @@ namespace ExotischNederland.Models
 {
     internal class User
     {
-        readonly string tablename = "User";
         public int Id { get; private set; }  // Add the User ID property with a private setter
         public string Name { get; set; }
         public string Email { get; set; }

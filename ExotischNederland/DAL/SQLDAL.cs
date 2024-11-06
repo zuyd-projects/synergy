@@ -101,7 +101,7 @@ namespace ExotischNederland.DAL
                         object result = (int)command.ExecuteScalar();
                         return (int)result;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return 0;
                     }
