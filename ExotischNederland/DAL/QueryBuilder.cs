@@ -76,6 +76,7 @@ namespace ExotischNederland.DAL
         // Add WHERE clause using parameters to avoid SQL injection
         public QueryBuilder Where(string _column, string _operator, object _value)
         {
+            if (_value is DateTime) _value = ((DateTime)_value).ToString("yyyy-MM-dd HH:mm:ss");
             string parameterValue = _value is string ? $"'{_value}'" : _value.ToString();
             // If the value contains a . it contains the table name, so we need to split it (e.g. "User.Id" -> [User].[Id])
             this.whereClauses.Add($"[{string.Join("].[", _column.Split('.'))}] {_operator} {parameterValue}");

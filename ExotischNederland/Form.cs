@@ -11,7 +11,6 @@ namespace ExotischNederland
     {
         private List<FormField> fields;
         private Dictionary<string, object> values;
-        private bool cancelled = false;
 
         /// <summary>
         /// Create a new form
@@ -63,7 +62,6 @@ namespace ExotischNederland
             this.Options = _options;
         }
 
-        
         public object Input()
         {
             string input = this.Prompt();
@@ -90,7 +88,15 @@ namespace ExotischNederland
         {
             Console.Clear();
             List<string> promptText = new List<string> { this.Text };
+            if (this.Required) promptText[0] += " *";
             if (this.Type == "boolean") promptText[0] += " (waar/onwaar)";
+            if (this.Type == "date")
+            {
+                promptText[0] += " (dd-mm-jjjj HH:MM)";
+                promptText.Add("  >Voorbeeld: 01-01-2021 12:00");
+                promptText.Add("  >Tijd is optioneel");
+                promptText.Add($"  >Alleen een tijd invullen zal automatisch de datum van vandaag kiezen ({DateTime.Now.Date.ToString("d")})");
+            }
             if (this.Value != null && this.Type != "password") promptText[0] += $" ({this.Value})";
             Console.WriteLine(promptText[0]);
             if (_error != null)

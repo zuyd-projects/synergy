@@ -8,7 +8,6 @@ namespace ExotischNederland.Models
 {
     internal class Area
     {
-        readonly string tablename = "Area";
         public int Id { get; private set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -115,7 +114,7 @@ namespace ExotischNederland.Models
                     .Select(coords => (lat: double.Parse(coords[0]), lng: double.Parse(coords[1])))
                     .ToList();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine("Error parsing PolygonPoints");
                 return new List<(double lat, double lng)>();
