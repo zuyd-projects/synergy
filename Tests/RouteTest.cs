@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Tests
 {
     [TestClass]
-    public class RouteTest
+    public class RouteTest: TransactionTest
     {
         private SQLDAL db;
         private User testUser;
