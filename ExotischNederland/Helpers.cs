@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -239,6 +240,41 @@ namespace ExotischNederland
                 if (key == ConsoleKey.J) return true;
             }
             return false; // Default return value to satisfy all code paths
+        }
+
+        /// <summary>
+        /// Get a path to the AppData folder and block path traversal
+        /// Creates the folder if it doesn't exist
+        /// </summary>
+        /// <param name="_name"></param>
+        /// <param name="_extension"></param>
+        /// <param name="_subFolder"></param>
+        /// <returns>The full path to the file</returns>
+        public static string GetSafeFilePath(string _name, string _extension, string _subFolder = null)
+        {
+            string fileName = _name;
+            // Replace invalid characters with an underscore
+            foreach (char c in Path.GetInvalidFileNameChars())
+                fileName = fileName.Replace(c, '_');
+            // Block path traversal
+            fileName = fileName.Replace("..", "_");
+            // Remove / or \ from the filename
+            fileName = fileName.Replace("/", "_").Replace("\\", "_");
+            // Add the extension if it's not already there
+            if (!_extension.StartsWith("."))
+            {
+                _extension = "." + _extension;
+                if (!fileName.EndsWith(_extension))
+                {
+                    fileName += _extension;
+                }
+            }
+            
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ExotischNederland", _subFolder);
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+            
+
+            return Path.Combine(folderPath, fileName);
         }
     }
 }

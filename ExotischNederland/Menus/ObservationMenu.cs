@@ -66,7 +66,7 @@ namespace ExotischNederland.Menus
                 Dictionary<string, string> options = _observations.ToDictionary(x => x.Id.ToString(), x => $"{x.Id}. Specie: {x.Specie.Name}, Description: {x.Description}");
                 options.Add("back", "Ga terug");
                 string selectedObservation = Helpers.MenuSelect(options, false);
-                if (selectedObservation == "back")
+                if (selectedObservation == "back" || selectedObservation is null)
                 {
                     return;
                 }
@@ -195,23 +195,35 @@ namespace ExotischNederland.Menus
         private void ExportObservations()
         {
             Console.Clear();
-            List<Observation> observations = Observation.GetAll();
-            Console.WriteLine("Voer het pad in naar het exportbestand:");
-            string filePath = Console.ReadLine();
-
-            using (StreamWriter writer = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(), "../../../ExotischNederland/", filePath)))
+            List<FormField> fields = new List<FormField>
             {
-                // Schrijf de header
-                writer.WriteLine("Id,Specie,Longitude,Latitude,Description,PhotoUrl,UserId");
+                new FormField("fileName", "Voer de naam in van het exportbestand", "string", true),
+                new FormField("from", "Start (dd-mm-yyyy HH:MM)", "datetime", false),
+                new FormField("to", "Eind (dd-mm-yyyy HH:MM)", "datetime", false)
+            };
+            Dictionary<string, object> values = new Form(fields).Prompt();
+            if (values == null) return;
+            
+            string path = Helpers.GetSafeFilePath((string)values["fileName"], "csv", "ObservatieExports");
 
-                // Schrijf elke observatie
+            DateTime? fromDate = !string.IsNullOrEmpty((string)values["from"]) ? (DateTime?)DateTime.Parse((string)values["from"]) : null;
+            DateTime? toDate = !string.IsNullOrEmpty((string)values["to"]) ? (DateTime?)DateTime.Parse((string)values["to"]) : null;
+
+            using (StreamWriter writer = new StreamWriter(path))
+            {
+                // Write the header
+                writer.WriteLine("Id,Specie,Longitude,Latitude,Description,PhotoUrl,UserId,TimeStamp");
+                List<Observation> observations = Observation.GetRange(fromDate, toDate);
+                // Write each observation
                 foreach (var observation in observations)
                 {
-                    writer.WriteLine($"{observation.Id},{observation.Specie.Name},{observation.Longitude},{observation.Latitude},{observation.Description},{observation.PhotoUrl},{observation.User.Id}");
+                    writer.WriteLine($"{observation.Id},{observation.Specie.Name},{observation.Longitude},{observation.Latitude},{observation.Description},{observation.PhotoUrl},{observation.User.Id},{observation.TimeStamp}");
                 }
             }
 
-            Console.WriteLine($"Waarnemingen zijn geëxporteerd naar {filePath}");
+            Console.WriteLine($"Waarnemingen zijn geëxporteerd naar {path}");
+           
+            
             Console.ReadKey();
         }
     }
