@@ -54,7 +54,7 @@ namespace ExotischNederland.Menus
                 Dictionary<string, string> options = _users.ToDictionary(x => x.Id.ToString(), x => $"{x.Id}. {x.Name} ({x.Email})");
                 options.Add("back", "Ga terug");
                 string selectedUser = Helpers.MenuSelect(options, false);
-                if (selectedUser == "back")
+                if (selectedUser == "back" || selectedUser is null)
                 {
                     return;
                 }
@@ -62,6 +62,7 @@ namespace ExotischNederland.Menus
                 {
                     User user = _users.Find(x => x.Id == int.Parse(selectedUser));
                     this.ViewUser(user);
+                    ViewUsers(_users);
                 }
             }
             else
@@ -83,7 +84,6 @@ namespace ExotischNederland.Menus
 
             Dictionary<string, string> menu = new Dictionary<string, string>();
             if (this.authenticatedUser.Permission.CanEditUser(_user)) menu.Add("edit", "Gebruiker bewerken");
-            if (this.authenticatedUser.Permission.CanEditUser(_user)) menu.Add("editRoles", "Rollen bewerken");
             if (this.authenticatedUser.Permission.CanDeleteUser(_user)) menu.Add("delete", "Gebruiker verwijderen");
             menu.Add("back", "Terug naar menu");
             string selected = Helpers.MenuSelect(menu, true, text);
@@ -91,10 +91,6 @@ namespace ExotischNederland.Menus
             if (selected == "edit")
             {
                 EditUser(_user);
-            }
-            else if (selected == "editRoles")
-            {
-                EditRoles(_user);
             }
             else if (selected == "delete")
             {
@@ -105,10 +101,14 @@ namespace ExotischNederland.Menus
         private void EditUser(User _user)
         {
             Console.Clear();
+            List<Role> roles = Role.GetAll();
+            Dictionary<string, string> roleOptions = roles.ToDictionary(x => x.Id.ToString(), x => x.Name);
+            string userRoles = string.Join(",", _user.Roles.Select(x => x.Id));
             List<FormField> fields = new List<FormField>();
             fields.Add(new FormField("name", "Voer een nieuwe naam in", "string", true, _user.Name));
             fields.Add(new FormField("email", "Voer een nieuw e-mailadres in", "string", true, _user.Email));
             fields.Add(new FormField("password", "Voer een nieuw wachtwoord in", "password", true, _user.PasswordHash));
+            fields.Add(new FormField("roles", "Gebruikersrollen", "multi_select", false, userRoles, roleOptions));
 
             Dictionary<string, object> values = new Form(fields).Prompt();
             if (values == null)
@@ -122,24 +122,10 @@ namespace ExotischNederland.Menus
             _user.PasswordHash = (string)values["password"];
 
             _user.Update(this.authenticatedUser);
-
-            Console.WriteLine("Gebruiker bijgewerkt!");
-            Console.ReadKey();
-        }
-
-        private void EditRoles(User _user)
-        {
-            Console.Clear();
-            List<Role> roles = Role.GetAll();
-            Dictionary<string, string> options = roles.ToDictionary(x => x.Id.ToString(), x => x.Name);
-            
-            List<string> userRoles = _user.Roles.Select(x => x.Id.ToString()).ToList();
-
-            List<string> selectedRoleIds = Helpers.MultiSelect(options, false, userRoles, new List<string> { "Selecteer gebruikersrollen"});
-
+            List<string> selectedRoleIds = values["roles"].ToString().Split(',').ToList();
             List<Role> selectedRoles = roles.Where(x => selectedRoleIds.Contains(x.Id.ToString())).ToList();
-
             _user.SyncRoles(selectedRoles, this.authenticatedUser);
+
             ViewUser(_user);
         }
 
@@ -155,16 +141,18 @@ namespace ExotischNederland.Menus
                 Console.ReadKey();
                 return;
             }
-            ViewUser(_user);
         }
 
         private void CreateUser()
         {
             Console.Clear();
+            List<Role> roles = Role.GetAll();
+            Dictionary<string, string> roleOptions = roles.ToDictionary(x => x.Id.ToString(), x => x.Name);
             List<FormField> fields = new List<FormField>();
             fields.Add(new FormField("name", "Naam", "string", true));
             fields.Add(new FormField("email", "Email", "string", true));
             fields.Add(new FormField("password", "Wachtwoord", "password", true));
+            fields.Add(new FormField("roles", "Gebruikersrollen", "multi_select", false, null, roleOptions));
 
             Dictionary<string, object> values = new Form(fields).Prompt();
 
@@ -177,6 +165,10 @@ namespace ExotischNederland.Menus
                 Console.ReadKey();
                 return;
             }
+            List<string> selectedRoleIds = values["roles"].ToString().Split(',').ToList();
+            List<Role> selectedRoles = roles.Where(x => selectedRoleIds.Contains(x.Id.ToString())).ToList();
+            createdUser.SyncRoles(selectedRoles, this.authenticatedUser);
+
             ViewUser(createdUser);
         }
     }

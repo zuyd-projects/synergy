@@ -9,6 +9,7 @@ namespace ExotischNederland.Models
         public string Name { get; private set; }
         public string Description { get; private set; }
         public User User { get; private set; }
+        public Area Area { get; private set; }
         public List<RoutePoint> Points { 
             get
             {
@@ -26,6 +27,7 @@ namespace ExotischNederland.Models
             this.Name = (string)_values["Name"];
             this.Description = (string)_values["Description"];
             this.User = User.Find((int)_values["UserId"]);
+            this.Area = Area.Find((int)_values["AreaId"]);
         }
 
         public static Route Create(string name, string description, int areaId, User user)
