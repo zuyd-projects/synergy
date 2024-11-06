@@ -122,6 +122,21 @@ namespace ExotischNederland.Models
             }
         }
         
+        //Method for caluclating centoid of polygon
+        public (double lat, double lng) CalculateCentroid()
+        {
+            double latSum = 0, lngSum = 0;
+            int numPoints = PolygonCoordinates.Count;
+
+            foreach (var point in PolygonCoordinates)
+            {
+                latSum += point.lat;
+                lngSum += point.lng;
+            }
+
+            return (latSum / numPoints, lngSum / numPoints);
+        }
+        
         public static string SerializePolygonPoints(List<(double lat, double lng)> polygonCoordinates)
         {
             return string.Join(", ", polygonCoordinates.Select(coord => $"POINT({coord.lat} {coord.lng})"));

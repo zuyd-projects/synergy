@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,129 +35,12 @@ namespace ExotischNederland
 
             foreach (FormField field in this.fields)
             {
-                InputField(field);
-                
-                if (this.cancelled) return null;
+                object value = field.Input();
+
+                if (value is null) return null;
+                values.Add(field.Name, value);
             }
             return values;
-        }
-
-        /// <summary>
-        /// Ask the user for input and allow to be cancelled with ESC
-        /// </summary>
-        /// <param name="field"></param>
-        private void InputField(FormField field)
-        {
-            Console.WriteLine(field.Text);
-            if (field.Value != null) Console.Write($" [{field.Value}]");
-            Console.WriteLine();
-            string input = Helpers.ReadInputWithEsc();
-            // If ESC is pressed, set cancelled to true to return null from the main loop
-            if (input == null)
-            {
-                this.cancelled = true;
-                return;
-            }
-            // NOTE: this logic means that if a field is not required and there is an existing
-            // value, there is no way to clear this value. A possible improvement could be made
-            if (input == "")
-            {
-                // If the field already has a value (from an update form), use the existing value
-                if (field.Value != null) input = field.Value;
-                // Otherwise, if the field is required, print an error and ask for input again
-                else if (field.Required)
-                {
-                    Console.WriteLine("  >This field is required!");
-                    InputField(field);
-                }
-            }
-            // Parse the input based on the field type
-            switch (field.Type)
-            {
-                case "string":
-                    values.Add(field.Name, input);
-                    break;
-                case "number":
-                    ParseNumber(field, input);
-                    break;
-                case "float":
-                    ParseFloat(field, input);
-                    break;
-                case "bool":
-                    ParseBool(field, input);
-                    break;
-                case "date":
-                    ParseDate(field, input);
-                    break;
-                case "polygonString":
-                    ParsePolygonString(field, input);
-                    break;
-            }
-        }
-
-        private void ParseNumber(FormField _field, string _value)
-        {
-            if (!int.TryParse(_value, out int result))
-            {
-                Console.WriteLine("  >This field must be a number!");
-                InputField(_field);
-            }
-            else
-            {
-                values.Add(_field.Name, result);
-            }
-        }
-
-        private void ParseFloat(FormField _field, string _value)
-        {
-            if (!float.TryParse(_value, out float result))
-            {
-                Console.WriteLine("  >This field must be a float!");
-                InputField(_field);
-            }
-            else
-            {
-                values.Add(_field.Name, result);
-            }
-        }
-
-        private void ParseBool(FormField _field, string _value)
-        {
-            if (_value.ToLower() != "true" && _value.ToLower() != "false")
-            {
-                Console.WriteLine("  >This field must be a boolean!");
-                InputField(_field);
-            }
-            else
-            {
-                values.Add(_field.Name, _value.ToLower() == "true");
-            }
-        }
-
-        private void ParseDate(FormField _field, string _value)
-        {
-            if (!DateTime.TryParse(_value, out DateTime result))
-            {
-                Console.WriteLine("  >This field must be a date!");
-                InputField(_field);
-            }
-            else
-            {
-                values.Add(_field.Name, result);
-            }
-        }
-
-        private void ParsePolygonString(FormField _field, string _value)
-        {
-            if (Models.Area.ParsePolygonPoints(_value).Count == 0) // Check if the input is a polygon string
-            {
-                Console.WriteLine("  >This field must be a polygon string!");
-                InputField(_field);
-            }
-            else
-            {
-                values.Add(_field.Name, _value);
-            }
         }
     }
 
@@ -167,14 +51,132 @@ namespace ExotischNederland
         public string Type { get; set; }
         public bool Required { get; set; }
         public string Value { get; set; }
+        public Dictionary<string, string> Options { get; set; }
 
-        public FormField(string _name, string _text, string _type, bool _required, string _value = null)
+        public FormField(string _name, string _text, string _type, bool _required, string _value = null, Dictionary<string, string> _options = null)
         {
             this.Name = _name;
             this.Text = _text;
             this.Type = _type;
             this.Required = _required;
             this.Value = _value;
+            this.Options = _options;
+        }
+
+        
+        public object Input()
+        {
+            string input = this.Prompt();
+
+            // Parse the input based on the field type
+            switch (this.Type)
+            {
+                case "number":
+                    return ParseNumber(input);
+                case "float":
+                    return ParseFloat(input);
+                case "boolean":
+                    return ParseBool(input);
+                case "date":
+                    return ParseDate(input);
+                case "polygonString":
+                    return ParsePolygonString(input);
+                default:
+                    return input;
+            }
+        }
+
+        private string Prompt(string _error = null)
+        {
+            Console.Clear();
+            List<string> promptText = new List<string> { this.Text };
+            if (this.Type == "boolean") promptText[0] += " (waar/onwaar)";
+            if (this.Value != null && this.Type != "password") promptText[0] += $" ({this.Value})";
+            Console.WriteLine(promptText[0]);
+            if (_error != null)
+            {
+                promptText.Add($" >{_error}");
+                Console.WriteLine(promptText[1]);
+            }
+            string input;
+            if (this.Type == "single_select")
+                input = Helpers.MenuSelect(this.Options, false, promptText);
+            else if (this.Type == "multi_select")
+                input = string.Join(",", Helpers.MultiSelect(this.Options, false, null, promptText));
+            else if (this.Type == "password")
+                // Add the hidden boolean
+                input = Helpers.ReadInputWithEsc(true);
+            else
+                input = Helpers.ReadInputWithEsc();
+            // If ESC is pressed, set cancelled to true to return null from the main loop
+            if (input == null)
+            {
+                return null;
+            }
+            // NOTE: this logic means that if a field is not required and there is an existing
+            // value, there is no way to clear this value. A possible improvement could be made
+            if (input == "")
+            {
+                // If the field already has a value (from an update form), use the existing value
+                if (this.Value != null) input = this.Value;
+                // Otherwise, if the field is required, print an error and ask for input again
+                else if (this.Required)
+                {
+                    Console.WriteLine("  >This field is required!");
+                    Input();
+                }
+            }
+            // If the value was set and should be treated as a password, hash it
+            else if (this.Type == "password")
+            {
+                input = Helpers.HashPassword(input);
+            }
+            return input;
+        }
+
+        private int ParseNumber(string _value)
+        {
+            if (!int.TryParse(_value, out int result))
+            {
+                return ParseNumber(Prompt("Ongeldig getal!"));
+            }
+            return result;
+        }
+
+        private float ParseFloat(string _value)
+        {
+            if (!float.TryParse(_value, out float result))
+            {
+                return ParseFloat(Prompt("Ongeldig getal!"));
+            }
+            return result;
+        }
+
+        private bool ParseBool(string _value)
+        {
+            if (_value.ToLower() != "waar" && _value.ToLower() != "onwaar")
+            {
+                return ParseBool(Prompt("Vul waar of onwaar in!"));
+            }
+            return _value.ToLower() == "waar";
+        }
+
+        private DateTime ParseDate(string _value)
+        {
+            if (!DateTime.TryParse(_value, out DateTime result))
+            {
+                return ParseDate(Prompt("Vul een geldige datum in!"));
+            }
+            return result;
+        }
+
+        private string ParsePolygonString(string _value)
+        {
+            if (Models.Area.ParsePolygonPoints(_value).Count == 0) // Check if the input is a polygon string
+            {
+                return ParsePolygonString(Prompt("Ongeldige invoer!"));
+            }
+            return _value;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ExotischNederland
 {
@@ -13,9 +14,11 @@ namespace ExotischNederland
         /// <summary>
         /// Create a menu with a list of items to select from
         /// </summary>
-        /// <param name="items"></param>
-        /// <param name="indexes"></param>
+        /// <param name="_items"></param>
+        /// <param name="_indexes"></param>
+        /// <param name="_text"></param>
         /// <returns>The key of the selected item</returns>
+        // TODO: Rename this method to SelectMenu
         public static string MenuSelect(Dictionary<string, string> _items, bool _indexes = false, List<string> _text = null)
         {
             if (_text is null) _text = new List<string>();
@@ -25,7 +28,7 @@ namespace ExotischNederland
                 Console.Clear();
                 foreach (var item in _text)
                 {
-                    Console.WriteLine(item);
+                    if (_text != null) Console.WriteLine(item);
                 }
                 foreach (var item in _items)
                 {
@@ -35,6 +38,74 @@ namespace ExotischNederland
                         Console.ForegroundColor = ConsoleColor.Black;
                     }
                     if (_indexes) Console.Write(_items.Keys.ToList().IndexOf(item.Key) + 1 + ". ");
+                    Console.WriteLine(item.Value);
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
+                ConsoleKey input = Console.ReadKey().Key;
+                if (input == ConsoleKey.Escape) return null;
+                if (input == ConsoleKey.UpArrow)
+                {
+                    selected--;
+                    if (selected < 0)
+                    {
+                        selected = _items.Count - 1;
+                    }
+                }
+                else if (input == ConsoleKey.DownArrow)
+                {
+                    selected++;
+                    if (selected > _items.Count - 1)
+                    {
+                        selected = 0;
+                    }
+                }
+                else if (input == ConsoleKey.Enter)
+                {
+                    return _items.Keys.ToList()[selected];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Create a menu with a list of items to select from
+        /// </summary>
+        /// <param name="_items"></param>
+        /// <param name="_indexes"></param>
+        /// <param name="_selection"></param>
+        /// <param name="_text"></param>
+        /// <returns>List of strings of selected items</returns>
+        // TODO: Rename this method to MultiSelectMenu
+        public static List<string> MultiSelect(Dictionary<string, string> _items, bool _indexes = false, List<string> _selection = null, List<string> _text = null)
+        {
+            int selected = 0;
+            List<string> selection = _selection ?? new List<string>();
+            List<string> text = _text ?? new List<string>();
+            text.Add("Druk op spatie om een item te selecteren of deselecteren");
+            text.Add("Druk op enter om de selectie op te slaan");
+            while (true)
+            {
+                Console.Clear();
+                foreach (var item in text)
+                {
+                    if (text != null) Console.WriteLine(item);
+                }
+                foreach (var item in _items)
+                {
+                    if (_items.Keys.ToList().IndexOf(item.Key) == selected)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Gray;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                    if (_indexes) Console.Write(_items.Keys.ToList().IndexOf(item.Key) + 1 + ". ");
+                    if (selection.Contains(item.Key))
+                    {
+                        Console.Write("[X] ");
+                    }
+                    else
+                    {
+                        Console.Write("[ ] ");
+                    }
                     Console.WriteLine(item.Value);
                     Console.BackgroundColor = ConsoleColor.Black;
                     Console.ForegroundColor = ConsoleColor.Gray;
@@ -56,9 +127,20 @@ namespace ExotischNederland
                         selected = 0;
                     }
                 }
+                else if (input == ConsoleKey.Spacebar)
+                {
+                    if (selection.Contains(_items.Keys.ToList()[selected]))
+                    {
+                        selection.Remove(_items.Keys.ToList()[selected]);
+                    }
+                    else
+                    {
+                        selection.Add(_items.Keys.ToList()[selected]);
+                    }
+                }
                 else if (input == ConsoleKey.Enter)
                 {
-                    return _items.Keys.ToList()[selected];
+                    return selection;
                 }
             }
         }
@@ -108,45 +190,10 @@ namespace ExotischNederland
         }
 
         /// <summary>
-        /// Read a password from the console
-        /// </summary>
-        /// <returns></returns>
-        public static string ReadPassword()
-        {
-            StringBuilder password = new StringBuilder();
-            ConsoleKeyInfo keyInfo;
-
-            while (true)
-            {
-                keyInfo = Console.ReadKey(true);
-                if (keyInfo.Key == ConsoleKey.Enter)
-                {
-                    Console.WriteLine();
-                    break;
-                }
-                else if (keyInfo.Key == ConsoleKey.Backspace)
-                {
-                    if (password.Length > 0)
-                    {
-                        password.Remove(password.Length - 1, 1);
-                        Console.Write("\b \b");
-                    }
-                }
-                else
-                {
-                    password.Append(keyInfo.KeyChar);
-                    Console.Write("*");
-                }
-            }
-
-            return password.ToString();
-        }
-
-        /// <summary>
         /// Get input for the user but cancel on ESC
         /// </summary>
         /// <returns>null for ESC or otherwise a string with the user input</returns>
-        public static string ReadInputWithEsc()
+        public static string ReadInputWithEsc(bool _hidden = false)
         {
             StringBuilder input = new StringBuilder();
             ConsoleKeyInfo keyInfo;
@@ -162,12 +209,36 @@ namespace ExotischNederland
                 else if (keyInfo.Key != ConsoleKey.Backspace)
                 {
                     input.Append(keyInfo.KeyChar);
-                    Console.Write(keyInfo.KeyChar);
+                    if (_hidden)
+                    {
+                        Console.Write("*"); // Mask the input character
+                    }
+                    else
+                    {
+                        Console.Write(keyInfo.KeyChar);
+                    }
                 }
             }
 
             Console.WriteLine();
             return input.ToString();
+        }
+
+        /// <summary>
+        /// Wait for J or N key
+        /// </summary>
+        /// <returns>true or false respectively</returns>
+        public static bool ConfirmPrompt()
+        {
+            ConsoleKey key = ConsoleKey.NoName;
+            while (key != ConsoleKey.N && key != ConsoleKey.J)
+            {
+                // true hides the pressed key from the output
+                key = Console.ReadKey(true).Key;
+                if (key == ConsoleKey.N) return false;
+                if (key == ConsoleKey.J) return true;
+            }
+            return false; // Default return value to satisfy all code paths
         }
     }
 }

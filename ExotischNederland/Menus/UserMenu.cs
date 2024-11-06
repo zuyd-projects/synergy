@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using ExotischNederland.Models;
@@ -11,55 +11,173 @@ namespace ExotischNederland.Menus
     internal class UserMenu: IMenu
     {
         private readonly User authenticatedUser;
-        private Dictionary<string, string> menuItems = new Dictionary<string, string>();
+        private Dictionary<string, string> menuItems;
 
-        public UserMenu(User _authenticatedUser) 
+        public UserMenu(User authenticatedUser)
         {
-            this.authenticatedUser = _authenticatedUser;
+            this.authenticatedUser = authenticatedUser;
         }
 
         public Dictionary<string, string> GetMenuItems()
         {
             Dictionary<string, string> menuItems = new Dictionary<string, string>();
-            // Logic to add menu items
-            if (this.authenticatedUser.Permission.CanViewAllObservations() || this.authenticatedUser.Permission.CanCreateObservation()) menuItems.Add("observations", "Observaties");
-            if (this.authenticatedUser.Permission.CanViewAllAreas()) menuItems.Add("areas", "Gebieden");
-            menuItems.Add("logout", "Uitloggen");
+            if (this.authenticatedUser.Permission.CanViewAllUsers()) menuItems.Add("viewAll", "Bekijk alle gebruikers");
+            menuItems.Add("create", "Maak nieuwe gebruiker aan");
+            menuItems.Add("back", "Terug naar menu");
             return menuItems;
         }
 
         public void Show()
         {
-            this.menuItems = this.GetMenuItems();
-            while (true)
+            menuItems = this.GetMenuItems();
+            string selected = Helpers.MenuSelect(this.menuItems, true);
+
+            if (selected == "viewAll")
             {
-                List<string> text = new List<string>
-                {
-                    "Database is online"
-                };
-                string selected = Helpers.MenuSelect(this.menuItems, true, text);
+                ViewUsers(User.GetAll());
+                Show();
+            }
+            else if (selected == "create")
+            {
+                CreateUser();
+                Show();
+            }
+        }
 
-                if (selected == "observations")
-                {
-                    ObservationMenu observarionMenu = new ObservationMenu(this.authenticatedUser);
-                    observarionMenu.Show();
-                }
+        private void ViewUsers(List<User> _users)
+        {
+            Console.Clear();
+            Console.WriteLine("Gebruikers:");
 
-                if (selected == "areas")
+            if (_users.Count > 0)
+            {
+                Dictionary<string, string> options = _users.ToDictionary(x => x.Id.ToString(), x => $"{x.Id}. {x.Name} ({x.Email})");
+                options.Add("back", "Ga terug");
+                string selectedUser = Helpers.MenuSelect(options, false);
+                if (selectedUser == "back")
                 {
-                    AreaMenu areaMenu = new AreaMenu(this.authenticatedUser);
-                    areaMenu.Show();
-                }
-
-                if (selected == "logout")
-                {
-                    Console.Clear();
-                    Console.WriteLine("U bent uitgelogd");
-                    Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
-                    Console.ReadKey();
                     return;
                 }
+                else
+                {
+                    User user = _users.Find(x => x.Id == int.Parse(selectedUser));
+                    this.ViewUser(user);
+                }
             }
+            else
+            {
+                Console.WriteLine("Geen gebruikers gevonden");
+                Console.ReadKey();
+            }
+        }
+
+        private void ViewUser(User _user)
+        {
+            Console.Clear();
+            string userRoles = string.Join(", ", _user.Roles.Select(x => x.Name));
+            List<string> text = new List<string>();
+            text.Add("Gebruiker details:");
+            text.Add($"Naam: {_user.Name}");
+            text.Add($"Email: {_user.Email}");
+            text.Add($"Rollen: {userRoles}");
+
+            Dictionary<string, string> menu = new Dictionary<string, string>();
+            if (this.authenticatedUser.Permission.CanEditUser(_user)) menu.Add("edit", "Gebruiker bewerken");
+            if (this.authenticatedUser.Permission.CanEditUser(_user)) menu.Add("editRoles", "Rollen bewerken");
+            if (this.authenticatedUser.Permission.CanDeleteUser(_user)) menu.Add("delete", "Gebruiker verwijderen");
+            menu.Add("back", "Terug naar menu");
+            string selected = Helpers.MenuSelect(menu, true, text);
+
+            if (selected == "edit")
+            {
+                EditUser(_user);
+            }
+            else if (selected == "editRoles")
+            {
+                EditRoles(_user);
+            }
+            else if (selected == "delete")
+            {
+                DeleteUser(_user);
+            }
+        }
+
+        private void EditUser(User _user)
+        {
+            Console.Clear();
+            List<FormField> fields = new List<FormField>();
+            fields.Add(new FormField("name", "Voer een nieuwe naam in", "string", true, _user.Name));
+            fields.Add(new FormField("email", "Voer een nieuw e-mailadres in", "string", true, _user.Email));
+            fields.Add(new FormField("password", "Voer een nieuw wachtwoord in", "password", true, _user.PasswordHash));
+
+            Dictionary<string, object> values = new Form(fields).Prompt();
+            if (values == null)
+            {
+                ViewUser(_user);
+                return;
+            }
+
+            _user.Name = (string)values["name"];
+            _user.Email = (string)values["email"];
+            _user.PasswordHash = (string)values["password"];
+
+            _user.Update(this.authenticatedUser);
+
+            Console.WriteLine("Gebruiker bijgewerkt!");
+            Console.ReadKey();
+        }
+
+        private void EditRoles(User _user)
+        {
+            Console.Clear();
+            List<Role> roles = Role.GetAll();
+            Dictionary<string, string> options = roles.ToDictionary(x => x.Id.ToString(), x => x.Name);
+            
+            List<string> userRoles = _user.Roles.Select(x => x.Id.ToString()).ToList();
+
+            List<string> selectedRoleIds = Helpers.MultiSelect(options, false, userRoles, new List<string> { "Selecteer gebruikersrollen"});
+
+            List<Role> selectedRoles = roles.Where(x => selectedRoleIds.Contains(x.Id.ToString())).ToList();
+
+            _user.SyncRoles(selectedRoles, this.authenticatedUser);
+            ViewUser(_user);
+        }
+
+        private void DeleteUser(User _user)
+        {
+            Console.Clear();
+
+            Console.Write($"Weet u zeker dat u gebruiker {_user.Id} wilt verwijderen? [J/N]");
+            if (Helpers.ConfirmPrompt())
+            {
+                _user.Delete(this.authenticatedUser);
+                Console.WriteLine("Gebruiker verwijderd!");
+                Console.ReadKey();
+                return;
+            }
+            ViewUser(_user);
+        }
+
+        private void CreateUser()
+        {
+            Console.Clear();
+            List<FormField> fields = new List<FormField>();
+            fields.Add(new FormField("name", "Naam", "string", true));
+            fields.Add(new FormField("email", "Email", "string", true));
+            fields.Add(new FormField("password", "Wachtwoord", "password", true));
+
+            Dictionary<string, object> values = new Form(fields).Prompt();
+
+
+            User createdUser = User.Create((string)values["name"], (string)values["email"], (string)values["password"]);
+            
+            if (createdUser == null)
+            {
+                Console.WriteLine("Gebruiker kon niet worden aangemaakt");
+                Console.ReadKey();
+                return;
+            }
+            ViewUser(createdUser);
         }
     }
 }

@@ -39,7 +39,13 @@ namespace ExotischNederland.Models
         public static Role Find(string _name)
         {
             SQLDAL sql = SQLDAL.Instance;
-            return sql.Select<Role>(qb => qb.Where("RoleName", "=", _name)).First();
+            return sql.Find<Role>("RoleName", _name);
+        }
+
+        public static List<Role> GetAll()
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<Role>();
         }
     }
 }

@@ -120,6 +120,26 @@ namespace ExotischNederland.Models
             this.Roles = this.Roles.Where(r => r.Id != _role.Id).ToList();
         }
 
+        public void SyncRoles(List<Role> _roles, User _authenticatedUser)
+        {
+            if (!_authenticatedUser.Permission.CanEditUser(this)) return;
+
+            foreach (Role _role in this.Roles)
+            {
+                if (!_roles.Any(r => r.Id == _role.Id))
+                {
+                    this.RemoveRole(_role);
+                }
+            }
+            foreach (Role _role in _roles)
+            {
+                if (!this.Roles.Any(r => r.Id == _role.Id))
+                {
+                    this.AssignRole(_role);
+                }
+            }
+        }
+
         private List<Role> GetRoles()
         {
             SQLDAL sql = SQLDAL.Instance;
@@ -130,8 +150,39 @@ namespace ExotischNederland.Models
             );
         }
 
-        // TODO: Implement the following methods
-        // + Update(int id, string name, string email, string passwordHash)
-        // + Delete(int id)
+        public static List<User> GetAll()
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<User>();
+        }
+
+        public void Update(User _authenticatedUser)
+        {
+            if (!_authenticatedUser.Permission.CanEditUser(this)) return;
+
+            SQLDAL sql = SQLDAL.Instance;
+            Dictionary<string, object> values = new Dictionary<string, object>
+            {
+                { "Name", this.Name },
+                { "Email", this.Email },
+                { "PasswordHash", this.PasswordHash }
+            };
+
+            sql.Update("User", this.Id, values);
+        }
+
+        public void Delete(User _authenticatedUser)
+        {
+            if (!_authenticatedUser.Permission.CanDeleteUser(this)) return;
+
+            SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("User", this.Id);
+        }
+
+        public List<UserQuest> UserQuests()
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<UserQuest>(qb => qb.Where("UserId", "=", this.Id));
+        }
     }
 }
