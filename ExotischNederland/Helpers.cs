@@ -112,6 +112,7 @@ namespace ExotischNederland
                     Console.ForegroundColor = ConsoleColor.Gray;
                 }
                 ConsoleKey input = Console.ReadKey().Key;
+                if (input == ConsoleKey.Escape) return null;
                 if (input == ConsoleKey.UpArrow)
                 {
                     selected--;

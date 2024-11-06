@@ -171,6 +171,7 @@ namespace ExotischNederland.Menus
             fields.Add(new FormField("photoUrl", "Voer de foto-URL in", "string", true));
 
             Dictionary<string, object> values = new Form(fields).Prompt();
+            if (values is null) return;
             Specie specie = Specie.FindOrCreate((string)values["specieName"], (string)values["specieCategory"]);
 
             List<Observation> similarObservations = Observation.GetAll().Where(x => x.Specie.Name == specie.Name && x.Latitude == (float)values["latitude"] && x.Longitude == (float)values["longitude"]).ToList();

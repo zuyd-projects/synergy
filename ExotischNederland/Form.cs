@@ -108,7 +108,12 @@ namespace ExotischNederland
             if (this.Type == "single_select")
                 input = Helpers.MenuSelect(this.Options, false, promptText);
             else if (this.Type == "multi_select")
-                input = string.Join(",", Helpers.MultiSelect(this.Options, false, null, promptText));
+            {
+                List<string> selected = string.IsNullOrEmpty(this.Value) ? null : this.Value.Split(',').ToList();
+                List<string> result = Helpers.MultiSelect(this.Options, false, selected, promptText);
+                if (result is null) input = null;
+                else input = string.Join(",", result);
+            }
             else if (this.Type == "password")
                 // Add the hidden boolean
                 input = Helpers.ReadInputWithEsc(true);
