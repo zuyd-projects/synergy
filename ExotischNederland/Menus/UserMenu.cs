@@ -29,47 +29,39 @@ namespace ExotischNederland.Menus
 
         public void Show()
         {
-            menuItems = this.GetMenuItems();
-            string selected = Helpers.MenuSelect(this.menuItems, true);
+            while (true)
+            {
+                menuItems = this.GetMenuItems();
+                string selected = Helpers.MenuSelect(this.menuItems, true);
+                if (selected == "back" || selected is null) return;
 
-            if (selected == "viewAll")
-            {
-                ViewUsers(User.GetAll());
-                Show();
-            }
-            else if (selected == "create")
-            {
-                CreateUser();
-                Show();
+                if (selected == "viewAll") ViewUsers();
+                if (selected == "create") CreateUser();
             }
         }
 
-        private void ViewUsers(List<User> _users)
+        private void ViewUsers()
         {
+            List<User> users = User.GetAll();
             Console.Clear();
             Console.WriteLine("Gebruikers:");
 
-            if (_users.Count > 0)
+            if (users.Count > 0)
             {
-                Dictionary<string, string> options = _users.ToDictionary(x => x.Id.ToString(), x => $"{x.Id}. {x.Name} ({x.Email})");
+                Dictionary<string, string> options = users.ToDictionary(x => x.Id.ToString(), x => $"{x.Id}. {x.Name} ({x.Email})");
                 options.Add("back", "Ga terug");
                 string selectedUser = Helpers.MenuSelect(options, false);
-                if (selectedUser == "back" || selectedUser is null)
-                {
-                    return;
-                }
-                else
-                {
-                    User user = _users.Find(x => x.Id == int.Parse(selectedUser));
-                    this.ViewUser(user);
-                    ViewUsers(_users);
-                }
+                if (selectedUser == "back" || selectedUser is null) return;
+                
+                User user = users.Find(x => x.Id == int.Parse(selectedUser));
+                this.ViewUser(user);
             }
             else
             {
                 Console.WriteLine("Geen gebruikers gevonden");
                 Console.ReadKey();
             }
+            ViewUsers();
         }
 
         private void ViewUser(User _user)
@@ -81,6 +73,7 @@ namespace ExotischNederland.Menus
             text.Add($"Naam: {_user.Name}");
             text.Add($"Email: {_user.Email}");
             text.Add($"Rollen: {userRoles}");
+            text.Add($"Observaties: {_user.Observations.Count}");
 
             Dictionary<string, string> menu = new Dictionary<string, string>();
             if (this.authenticatedUser.Permission.CanEditUser(_user)) menu.Add("edit", "Gebruiker bewerken");
@@ -88,14 +81,8 @@ namespace ExotischNederland.Menus
             menu.Add("back", "Terug naar menu");
             string selected = Helpers.MenuSelect(menu, true, text);
 
-            if (selected == "edit")
-            {
-                EditUser(_user);
-            }
-            else if (selected == "delete")
-            {
-                DeleteUser(_user);
-            }
+            if (selected == "edit") EditUser(_user);
+            if (selected == "delete") DeleteUser(_user);
         }
 
         private void EditUser(User _user)
@@ -133,14 +120,16 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
 
-            Console.Write($"Weet u zeker dat u gebruiker {_user.Id} wilt verwijderen? [J/N]");
-            if (Helpers.ConfirmPrompt())
+            Console.WriteLine($"Weet u zeker dat u gebruiker {_user.Id} wilt verwijderen? [J/N]");
+            if (!Helpers.ConfirmPrompt()) return;
+            if (_user.Observations.Count > 0)
             {
-                _user.Delete(this.authenticatedUser);
-                Console.WriteLine("Gebruiker verwijderd!");
-                Console.ReadKey();
-                return;
+                Console.WriteLine("De gebruiker heeft observaties. Als u deze gebruiker verwijderd worden deze observaties aan u gekoppeld.");
+                Console.WriteLine("Wilt u doorgaan? [J/N]");
+                if (!Helpers.ConfirmPrompt()) return;
             }
+
+            _user.Delete(this.authenticatedUser);
         }
 
         private void CreateUser()

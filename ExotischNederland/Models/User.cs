@@ -20,10 +20,6 @@ namespace ExotischNederland.Models
             {
                 return this.GetObservations();
             }
-            set
-            {
-                this.Observations = value;
-            }
         }
         public List<Route> Routes { get; set; }
         public List<Role> Roles { get; set; }
@@ -175,6 +171,14 @@ namespace ExotischNederland.Models
             if (!_authenticatedUser.Permission.CanDeleteUser(this)) return;
 
             SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("UserQuest", qb => qb.Where("UserId", "=", this.Id));
+
+            foreach (Role role in this.Roles)
+                this.RemoveRole(role);
+
+            foreach (Observation o in this.Observations)
+                o.Transfer(_authenticatedUser);
+
             sql.Delete("User", this.Id);
         }
 
