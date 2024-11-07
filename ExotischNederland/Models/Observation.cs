@@ -22,29 +22,8 @@ namespace ExotischNederland.Models
         public Observation(Dictionary<string, object> _values)
         {
             this.Id = Convert.ToInt32(_values["Id"]);
-
-            // Handle User as an ID
-            if (_values.ContainsKey("UserId"))
-            {
-                // Load User object by UserId
-                this.User = User.Find(Convert.ToInt32(_values["UserId"]));
-            }
-            else
-            {
-                this.User = null;
-            }
-
-            // Handle Specie as an ID
-            if (_values.ContainsKey("SpecieId"))
-            {
-                // Load Specie object by SpecieId
-                this.Specie = Specie.Find(Convert.ToInt32(_values["SpecieId"]));
-            }
-            else
-            {
-                this.Specie = null;
-            }
-
+            this.User = User.Find((int)_values["UserId"]);
+            this.Specie = Specie.Find((int)_values["SpecieId"]);
             this.Longitude = Convert.ToSingle(_values["Longitude"]);
             this.Latitude = Convert.ToSingle(_values["Latitude"]);
             this.Description = _values["Description"]?.ToString();
@@ -72,7 +51,8 @@ namespace ExotischNederland.Models
 
             int id = sql.Insert("Observation", values);
             Console.WriteLine($"Observation created with ID: {id}");
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Observation(values);
         }
 
         // Method to update an observation

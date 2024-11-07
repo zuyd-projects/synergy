@@ -7,7 +7,7 @@ using ExotischNederland.DAL;
 
 namespace ExotischNederland.Models
 {
-    internal class Role: Model
+    internal class Role
     {
         public int Id { get; private set; }
         public string Name { get; set; }
@@ -27,13 +27,13 @@ namespace ExotischNederland.Models
             SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
-                { "RoleName", _name }
+                { "RoleName", _name },
+                { "Description", _description }
             };
-            if (_description != null) values.Add("Description", _description);
-            // NOTE: The insert cannot take null values, so the description is only added if it is not null
 
-            sql.Insert("Role", values);
-            return Find(_name);
+            int id = sql.Insert("Role", values);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Role(values);
         }
 
         public static Role Find(string _name)

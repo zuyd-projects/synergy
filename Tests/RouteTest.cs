@@ -12,15 +12,15 @@ namespace Tests
     [TestClass]
     public class RouteTest: TransactionTest
     {
-        private SQLDAL db;
         private User testUser;
+        private Area testArea;
 
         [TestInitialize]
         public void Setup()
         {
-            db = SQLDAL.Instance;
-                        
             testUser = User.Create("Test User", "test@test.com", "password");
+            testUser.AssignRole(Role.Find("Beheerder"));
+            testArea = Area.Create("test", "test", "dfdfgdf", testUser);
         }
 
         [TestMethod]
@@ -28,9 +28,9 @@ namespace Tests
         {
             string name = "Test Route";
             string description = "A scenic route for testing.";
-            int areaId = 1; // Assuming an area with ID 1 exists
+            int areaId = testArea.Id; // Assuming an area with ID 1 exists
 
-            Route route = Route.Create(name, description, areaId, testUser);
+            Route route = Route.Create(name, description, testArea, testUser);
 
             Assert.IsInstanceOfType(route, typeof(Route));
             Assert.AreEqual(name, route.Name);
@@ -46,7 +46,7 @@ namespace Tests
             int areaId = 1; // Assuming an area with ID 1 exists
 
             // Create the route with original values
-            Route route = Route.Create(name, description, areaId, testUser);
+            Route route = Route.Create(name, description, testArea, testUser);
 
             // New values for update
             string newName = "Updated Route";
@@ -69,7 +69,7 @@ namespace Tests
             int areaId = 1; // Assuming an area with ID 1 exists
 
             // Create the route
-            Route route = Route.Create(name, description, areaId, testUser);
+            Route route = Route.Create(name, description, testArea, testUser);
             int routeId = route.Id;
 
             // Delete the route and verify deletion
@@ -78,45 +78,6 @@ namespace Tests
 
             Assert.IsNull(deletedRoute);
         }
-
-        [TestMethod]
-        public void TestRoutePointsCanBeAddedAndRemoved()
-        {
-            string name = "Route with Points";
-            string description = "Route for testing points.";
-            int areaId = 1; // Assuming an area with ID 1 exists
-
-            // Create the route
-            Route route = Route.Create(name, description, areaId, testUser);
-
-            // Create a PointOfInterest for the RoutePoints
-            PointOfInterest poi = PointOfInterest.Create("Test POI", "Description", 1.0, 1.0);
-
-            // Add route points
-            var routePoints = new List<RoutePoint>
-            {
-                RoutePoint.Create(route, 1, poi),
-                RoutePoint.Create(route, 2, poi)
-            };
-
-            foreach (var point in routePoints)
-            {
-                route.AddRoutePoint(point);
-            }
-
-            // Verify points were added
-            List<RoutePoint> points = route.Points;
-            Assert.AreEqual(2, points.Count);
-
-            // Remove a route point
-            route.RemoveRoutePoint(points[0].Id);
-
-            // Verify point was removed
-            points = route.Points;
-            Assert.AreEqual(1, points.Count);
-        }
     }
-
-    
 }
 

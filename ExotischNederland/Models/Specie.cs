@@ -41,8 +41,8 @@ namespace ExotischNederland.Models
             };
 
             int id = sql.Insert("Specie", values);
-            Console.WriteLine($"Specie created with ID: {id}");
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Specie(values);
         }
 
         // Static method to update a Specie
