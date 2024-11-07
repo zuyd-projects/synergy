@@ -23,13 +23,14 @@ namespace ExotischNederland.Models
         {
             SQLDAL db = SQLDAL.Instance;
             var values = new Dictionary<string, object>
-            {
-                { "RouteId", route.Id },
-                { "Order", order },
-                { "PointOfInterestId", poi.Id }
-            };
+                {
+                    { "RouteId", route.Id },
+                    { "Order", order },
+                    { "PointOfInterestId", poi.Id }
+                };
             int id = db.Insert("RoutePoint", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new RoutePoint(values); // Create a new RoutePoint instance with the values dictionary
         }
 
         public static RoutePoint Find(int routePointId)
@@ -45,10 +46,10 @@ namespace ExotischNederland.Models
 
             SQLDAL db = SQLDAL.Instance;
             var values = new Dictionary<string, object>
-            {
-                { "Order", newOrder },
-                { "PointOfInterestId", newPoi.Id }
-            };
+                {
+                    { "Order", newOrder },
+                    { "PointOfInterestId", newPoi.Id }
+                };
             db.Update("RoutePoint", this.Id, values);
         }
 

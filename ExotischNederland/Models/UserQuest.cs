@@ -29,7 +29,8 @@ namespace ExotischNederland.Models
                 { "UserId", _user.Id }
             };
             int id = db.Insert("UserQuest", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new UserQuest(values);
         }
 
         public static UserQuest Find(int userQuestId)

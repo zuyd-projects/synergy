@@ -30,18 +30,19 @@ namespace ExotischNederland.Models
             this.Area = Area.Find((int)_values["AreaId"]);
         }
 
-        public static Route Create(string name, string description, int areaId, User user)
+        public static Route Create(string name, string description, Area _area, User user)
         {
             SQLDAL db = SQLDAL.Instance;
             var values = new Dictionary<string, object>
             {
                 { "Name", name },
                 { "Description", description },
-                { "AreaId", areaId },  
+                { "AreaId", _area.Id },  
                 { "UserId", user.Id }
             };
             int id = db.Insert("Route", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Route(values);
         }
 
         public static Route Find(int routeId)

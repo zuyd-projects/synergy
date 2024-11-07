@@ -34,9 +34,9 @@ namespace ExotischNederland.Models
                 { "Longitude", _longitude },
                 { "Latitude", _latitude }
             };
-            if (_description != null) values.Add("Description", _description);
             int id = sql.Insert("PointOfInterest", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new PointOfInterest(values);
         }
 
         public static PointOfInterest Find(int _id)

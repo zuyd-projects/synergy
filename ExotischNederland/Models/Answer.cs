@@ -36,7 +36,8 @@ namespace ExotischNederland.Models
                 { "Correct", correct }
             };
             int id = db.Insert("Answer", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Answer(values);
         }
 
         public static Answer Find(int answerId)

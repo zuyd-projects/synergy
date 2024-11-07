@@ -20,7 +20,11 @@ namespace ExotischNederland.Models
             set { PolygonPoints = SerializePolygonPoints(value); }
         }
 
-        public List<Route> Routes { get; set; }
+        public List<Route> Routes
+        {
+            get
+            { return this.GetRoutes(); }
+        }
 
         public Area(Dictionary<string, object> _values)
         {
@@ -28,7 +32,6 @@ namespace ExotischNederland.Models
             this.Name = (string)_values["Name"];
             this.Description = (string)_values["Description"];
             this.PolygonPoints = (string)_values["PolygonPoints"];
-            this.Routes = this.GetRoutes();
         }
 
         // Static method for creating an area
@@ -44,7 +47,8 @@ namespace ExotischNederland.Models
             };
 
             int id = sql.Insert("Area", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Area(values);
         }
 
         public static Area Find(int _id)
