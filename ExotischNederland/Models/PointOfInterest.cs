@@ -73,44 +73,10 @@ namespace ExotischNederland.Models
             SQLDAL sql = SQLDAL.Instance;
             sql.Delete("PointOfInterest", poiId);
         }
-
-        public double CalculateDistance(float _userLatitude, float _userLongitude)
-        {
-            double R = 6371e3; // Earth's radius in meters
-            double phi1 = Latitude * Math.PI / 180;
-            double phi2 = _userLatitude * Math.PI / 180;
-            double deltaPhi = (_userLatitude - Latitude) * Math.PI / 180;
-            double deltaLambda = (_userLongitude - Longitude) * Math.PI / 180;
-
-            double a = Math.Sin(deltaPhi / 2) * Math.Sin(deltaPhi / 2) +
-                       Math.Cos(phi1) * Math.Cos(phi2) *
-                       Math.Sin(deltaLambda / 2) * Math.Sin(deltaLambda / 2);
-            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-            return R * c; // Distance in meters
-        }
-
         public static List<PointOfInterest> GetAll()
         {
             SQLDAL sql = SQLDAL.Instance;
             return sql.Select<PointOfInterest>();
-        }
-
-        internal static List<string> CheckProximityForUser(User _user, double _radius)
-        {
-            List<string> notifications = new List<string>();
-            List<PointOfInterest> pointsOfInterest = GetAll();
-
-            foreach (var poi in pointsOfInterest)
-            {
-                double distance = poi.CalculateDistance(_user.CurrentLatitude, _user.CurrentLongitude);
-                if (distance <= _radius)
-                {
-                    notifications.Add($"Notification: {_user.Name}, you are within {_radius} meters of {poi.Name}!");
-                }
-            }
-
-            return notifications;
         }
     }
 }
