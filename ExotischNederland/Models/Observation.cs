@@ -22,7 +22,7 @@ namespace ExotischNederland.Models
         public Observation(Dictionary<string, object> _values)
         {
             this.Id = Convert.ToInt32(_values["Id"]);
-            
+
             // Handle User as an ID
             if (_values.ContainsKey("UserId"))
             {
@@ -126,6 +126,16 @@ namespace ExotischNederland.Models
             if (_end == null) _end = DateTime.MaxValue;
             return sql.Select<Observation>(qb => qb.Where("TimeStamp", ">=", _start)
                 .Where("TimeStamp", "<=", _end));
+        }
+
+        public void Transfer(User _newUser)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            Dictionary<string, object> values = new Dictionary<string, object>
+            {
+                { "UserId", _newUser.Id }
+            };
+            sql.Update("Observation", this.Id, values);
         }
     }
 }

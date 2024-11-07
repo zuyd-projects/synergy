@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ExotischNederland.Models;
 
 namespace ExotischNederland.Menus
@@ -47,28 +48,23 @@ namespace ExotischNederland.Menus
             List<Route> routes = Route.GetAll();
 
             Console.WriteLine("All Routes:");
-            if (routes.Count > 0)
-            {
-                var routeOptions = new Dictionary<string, string>();
-                foreach (var route in routes)
-                {
-                    routeOptions[route.Id.ToString()] = $"{route.Name} - {route.Description}";
-                }
-                routeOptions.Add("back", "Ga terug");
-
-                string selectedRouteId = Helpers.MenuSelect(routeOptions, false);
-                if (selectedRouteId != "back")
-                {
-                    int routeId = int.Parse(selectedRouteId);
-                    Route route = routes.Find(r => r.Id == routeId);
-                    ViewRouteDetails(route);
-                }
-            }
-            else
+            if (routes.Count == 0)
             {
                 Console.WriteLine("Geen routes beschikbaar");
                 Console.ReadKey();
+                return;
             }
+
+            var routeOptions = routes.ToDictionary(x => x.Id.ToString(), x => $"{x.Name} - {x.Description}");
+            routeOptions.Add("back", "Ga terug");
+
+            string selectedRouteId = Helpers.MenuSelect(routeOptions, false);
+            if (selectedRouteId == "back" || selectedRouteId is null) return;
+
+            int routeId = int.Parse(selectedRouteId);
+            Route route = routes.Find(r => r.Id == routeId);
+            ViewRouteDetails(route);
+            
         }
 
         private void ViewRouteDetails(Route route)
@@ -98,17 +94,17 @@ namespace ExotischNederland.Menus
 
         private void CreateRoute()
         {
+            Dictionary<string, string> areaOptions = Area.GetAll().ToDictionary(x => x.Id.ToString(), x => x.Name);
             var fields = new List<FormField>
             {
                 new FormField("name", "Enter route name", "string", true),
                 new FormField("description", "Enter route description", "string", true),
-                //TODO: @Rick, add select here please
-                new FormField("areaId", "Enter Area ID for the route", "number", true)  // Added area ID field
+                new FormField("area", "Kies een gebied", "single_select", true, null, areaOptions)
             };
             var values = new Form(fields).Prompt();
             if (values == null) return;
 
-            int areaId = (int)values["areaId"];  // Ensure areaId is provided and not null
+            int areaId = (int)values["area"];  // Ensure areaId is provided and not null
             Route route = Route.Create((string)values["name"], (string)values["description"], areaId, authenticatedUser);
             Console.WriteLine($"Route '{values["name"]}' created successfully with ID: {route.Id}");
             Console.ReadKey();
@@ -168,11 +164,11 @@ namespace ExotischNederland.Menus
 
         private void AddRoutePoint(Route route)
         {
+            Dictionary<string, string> poiOptions = PointOfInterest.GetAll().ToDictionary(x => x.Id.ToString(), x => x.Name);
             var fields = new List<FormField>
             {
                 new FormField("order", "Enter order for this point", "number", true),
-                //TODO: @Rick, add select here please
-                new FormField("poiId", "Enter Point of Interest ID", "number", true)
+                new FormField("poiId", "Choose a Point of Interest", "single_select", true, null, poiOptions)
             };
             var values = new Form(fields).Prompt();
             if (values == null) return;
