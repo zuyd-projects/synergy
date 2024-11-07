@@ -22,7 +22,7 @@ namespace ExotischNederland.Menus
             Dictionary<string, string> menuItems = new Dictionary<string, string>();
             if (this.authenticatedUser.Permission.CanViewAllAreas()) menuItems.Add("viewAll", "Bekijk alle gebieden");
             if (this.authenticatedUser.Permission.CanCreateArea()) menuItems.Add("create", "Nieuw gebied");
-            menuItems.Add("back", "Return to main menu");
+            menuItems.Add("back", "Keer terug naar het hoofdmenu");
             return menuItems;
         }
 
@@ -97,8 +97,8 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
             List<FormField> fields = new List<FormField>();
-            fields.Add(new FormField("name", "Enter the name of the area", "string", true));
-            fields.Add(new FormField("description", "Enter the description of the area", "string", false));
+            fields.Add(new FormField("name", "Voer de naam van het gebied in", "string", true));
+            fields.Add(new FormField("description", "Voer de beschrijving van het gebied in", "string", false));
             fields.Add(new FormField("polygonPoints", "Gebruik [URL_TO_VERCEL_APP] om de polygon te genereren en plak het resultaat hier", "polygonString", true));
             
             Dictionary<string, object> values = new Form(fields).Prompt();
@@ -106,8 +106,8 @@ namespace ExotischNederland.Menus
 
             Area.Create((string)values["name"], (string)values["description"], (string)values["polygonPoints"], this.authenticatedUser);
             
-            Console.WriteLine("Area created!");
-            Console.WriteLine("Press a key to return to the menu");
+            Console.WriteLine("Gebied gecreëerd!");
+            Console.WriteLine("Druk op een toets om terug te keren naar het menu");
             Console.ReadKey();
         }
 
@@ -115,8 +115,8 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
             List<FormField> fields = new List<FormField>();
-            fields.Add(new FormField("name", "Enter the name of the area", "string", true, _area.Name));
-            fields.Add(new FormField("description", "Enter the description of the area", "string", false, _area.Description));
+            fields.Add(new FormField("name", "Voer de naam van het gebied in", "string", true, _area.Name));
+            fields.Add(new FormField("description", "Voer de beschrijving van het gebied in", "string", false, _area.Description));
             fields.Add(new FormField("polygonPoints", "Gebruik [URL_TO_VERCEL_APP] om de polygon te genereren en plak het resultaat hier", "polygonString", true, _area.PolygonPoints));
 
             Dictionary<string, object> values = new Form(fields).Prompt();
@@ -131,22 +131,20 @@ namespace ExotischNederland.Menus
             _area.PolygonPoints = (string)values["polygonPoints"];
             _area.Update(this.authenticatedUser);
             
-            Console.WriteLine("Area updated!");
-            Console.WriteLine("Press a key to return to the menu");
+            Console.WriteLine("Gebied bijgewerkt!");
+            Console.WriteLine("Druk op een toets om terug te keren naar het menu");
             Console.ReadKey();
         }
 
         private void DeleteArea(Area _area)
         {
             Console.Clear();
-            Console.Write($"Weet u zeker dat u observatie {_area.Id} wilt verwijderen? ");
-            Console.WriteLine("J/N");
-            ConsoleKey key = Console.ReadKey().Key;
-            if (key == ConsoleKey.J)
+            Console.Write($"Weet u zeker dat u observatie {_area.Id} wilt verwijderen? [J/N]");
+            if (Helpers.ConfirmPrompt())
             {
                 _area.Delete(this.authenticatedUser);
-                Console.WriteLine("Area deleted!");
-                Console.WriteLine("Press a key to return to the menu");
+                Console.WriteLine("Gebied verwijderd!");
+                Console.WriteLine("Druk op een toets om terug te keren naar het menu");
                 Console.ReadKey();
                 return;
             }

@@ -1,5 +1,6 @@
 ﻿using ExotischNederland.DAL;
 using System.Collections.Generic;
+using System;
 
 namespace ExotischNederland.Models
 {
@@ -9,13 +10,20 @@ namespace ExotischNederland.Models
         public Question Question { get; private set; }
         public string Text { get; private set; }
         public bool Correct { get; private set; }
+        public List<UserQuest> UserQuests
+        {
+            get
+            {
+                return LoadUserQuests();
+            }
+        }
 
-        private Answer(Dictionary<string, object> _values)
+        public Answer(Dictionary<string, object> _values)
         {
             Id = (int)_values["Id"];
             Question = Question.Find((int)_values["QuestionId"]);
             Text = (string)_values["Text"];
-            Correct = (bool)_values["Correct"];
+            Correct = Convert.ToBoolean(_values["Correct"]);
         }
 
         public static Answer Create(Question question, string text, bool correct)
@@ -28,13 +36,14 @@ namespace ExotischNederland.Models
                 { "Correct", correct }
             };
             int id = db.Insert("Answer", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Answer(values);
         }
 
         public static Answer Find(int answerId)
         {
             SQLDAL db = SQLDAL.Instance;
-            return db.Find<Answer>("Answer", answerId.ToString());
+            return db.Find<Answer>("Id", answerId.ToString());
         }
 
         public void Update(string newText, bool isCorrect)
@@ -51,10 +60,18 @@ namespace ExotischNederland.Models
             db.Update("Answer", this.Id, values);
         }
 
-        public static void Delete(int answerId)
+        public void Delete(User _authenticatedUser)
+        {
+            if (!_authenticatedUser.Permission.CanManageAnswers()) return;
+            foreach (UserQuest uq in this.UserQuests) uq.Delete();
+            SQLDAL db = SQLDAL.Instance;
+            db.Delete("Answer", this.Id);
+        }
+
+        public List<UserQuest> LoadUserQuests()
         {
             SQLDAL db = SQLDAL.Instance;
-            db.Delete("Answer", answerId);
+            return db.Select<UserQuest>(qb => qb.Where("AnswerId", "=", this.Id));
         }
     }
 }

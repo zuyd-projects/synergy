@@ -24,22 +24,18 @@ namespace ExotischNederland.Menus
                 menuItems.Add("observations", "Observaties Beheren");
             // Areas menu
             if (authenticatedUser.Permission.CanViewAllAreas())
-                menuItems.Add("areas", "Natuurgebieden Beheren");
-            // Games menu
-            if (authenticatedUser.Permission.CanManageGames())
-                menuItems.Add("manage_games", "Spellen Beheren");
-            // Play game menu
-            if (authenticatedUser.Permission.CanPlayGames())
-                menuItems.Add("play_game", "Spel Spelen");
-            // Routes menu
+                menuItems.Add("areas", "Gebieden");
+
+            // Game-related options based on user role
+            if (authenticatedUser.Permission.CanManageGames() || authenticatedUser.Permission.CanPlayGames())
+                menuItems.Add("games", "Spellen");
+
             if (authenticatedUser.Permission.CanManageRoutes())
                 menuItems.Add("routes", "Routes Beheren");
-            // View routes menu
-            if (authenticatedUser.Permission.CanViewRoutes())
-                menuItems.Add("view_routes", "Routes Bekijken");
+
             // Points of Interest menu
             if (authenticatedUser.Permission.CanViewPointsOfInterest() || authenticatedUser.Permission.CanCreatePointOfInterest())
-                menuItems.Add("points_of_interest", "Points of Interest Beheren");
+                menuItems.Add("points_of_interest", "Points of Interests");
             // Users menu
             if (authenticatedUser.Permission.CanViewAllUsers())
                 menuItems.Add("users", "Gebruikers Beheren");
@@ -50,66 +46,51 @@ namespace ExotischNederland.Menus
 
         public void Show()
         {
-            menuItems = GetMenuItems();
+            this.menuItems = this.GetMenuItems();
             while (true)
             {
-                string selected = Helpers.MenuSelect(menuItems, true, new List<string> { "Database is online" });
+                List<string> text = new List<string> { "Database is online" };
+                string selected = Helpers.MenuSelect(this.menuItems, true, text);
 
-                // Invoke respective menu based on selection
-                switch (selected)
+                if (selected == "observations")
                 {
-                    case "observations":
-                        ShowMenu(new ObservationMenu(authenticatedUser));
-                        break;
-                    case "areas":
-                        ShowMenu(new AreaMenu(authenticatedUser));
-                        break;
-                    case "manage_games":
-                        ShowMenu(new GameMenu(authenticatedUser));
-                        break;
-                    case "play_game":
-                        ShowMenu(new GameMenu(authenticatedUser));
-                        break;
-                    case "routes":
-                        ShowMenu(new RouteMenu(authenticatedUser));
-                        break;
-                    case "view_routes":
-                        ShowMenu(new RouteMenu(authenticatedUser));
-                        break;
-                    case "points_of_interest":
-                        ShowMenu(new PointOfInterestMenu(authenticatedUser));
-                        break;
-                    case "users":
-                        ShowMenu(new UserMenu(authenticatedUser));
-                        break;
-                    case "logout":
-                        Logout();
-                        return;
-                    default:
-                        InvalidSelection();
-                        break;
+                    ObservationMenu observationMenu = new ObservationMenu(this.authenticatedUser);
+                    observationMenu.Show();
+                }
+                else if (selected == "areas")
+                {
+                    AreaMenu areaMenu = new AreaMenu(this.authenticatedUser);
+                    areaMenu.Show();
+                }
+                else if (selected == "routes")
+                {
+                    RouteMenu routeMenu = new RouteMenu(this.authenticatedUser);
+                    routeMenu.Show();
+                }
+                else if (selected == "points_of_interest")
+                {
+                    PointOfInterestMenu pointOfInterestMenu = new PointOfInterestMenu(this.authenticatedUser);
+                    pointOfInterestMenu.Show();
+                }
+                else if (selected == "games")
+                {
+                    GameMenu gameMenu = new GameMenu(this.authenticatedUser);
+                    gameMenu.Show(); 
+                }
+                else if (selected == "users")
+                {
+                    UserMenu userMenu = new UserMenu(this.authenticatedUser);
+                    userMenu.Show();
+                }
+                else if (selected == "logout")
+                {
+                    Console.Clear();
+                    Console.WriteLine("U bent uitgelogd");
+                    Console.WriteLine("Druk op een toets om terug te gaan naar het hoofdmenu");
+                    Console.ReadKey();
+                    return;
                 }
             }
-        }
-
-        private void ShowMenu(IMenu menu)
-        {
-            menu.Show();
-        }
-
-        private void Logout()
-        {
-            Console.Clear();
-            Console.WriteLine("You have logged out.");
-            Console.WriteLine("Press any key to return to the main menu.");
-            Console.ReadKey();
-        }
-
-        private void InvalidSelection()
-        {
-            Console.WriteLine("Invalid selection.");
-            Console.WriteLine("Press any key to return to the main menu.");
-            Console.ReadKey();
         }
     }
 }

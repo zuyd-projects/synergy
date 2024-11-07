@@ -21,11 +21,11 @@ namespace ExotischNederland.Menus
         public Dictionary<string, string> GetMenuItems()
         {
             Dictionary<string, string> menuItems = new Dictionary<string, string>();
-            if (this.authenticatedUser.Permission.CanViewAllObservations()) menuItems.Add("viewAll", "View all observations");
-            if (this.authenticatedUser.Observations.Count > 0) menuItems.Add("viewOwn", "View own observations");
-            if (this.authenticatedUser.Permission.CanCreateObservation()) menuItems.Add("create", "Create observation");
+            if (this.authenticatedUser.Permission.CanViewAllObservations()) menuItems.Add("viewAll", "Bekijk alle observaties");
+            if (this.authenticatedUser.Observations.Count > 0) menuItems.Add("viewOwn", "Bekijk eigen observaties");
+            if (this.authenticatedUser.Permission.CanCreateObservation()) menuItems.Add("create", "Observatie aanmaken");
             if (this.authenticatedUser.Permission.CanExportObservations()) menuItems.Add("export", "Observaties exporteren");
-            menuItems.Add("back", "Return to main menu");
+            menuItems.Add("back", "Keer terug naar het hoofdmenu");
             return menuItems;
         }
 
@@ -66,7 +66,7 @@ namespace ExotischNederland.Menus
                 Dictionary<string, string> options = _observations.ToDictionary(x => x.Id.ToString(), x => $"{x.Id}. Specie: {x.Specie.Name}, Description: {x.Description}");
                 options.Add("back", "Ga terug");
                 string selectedObservation = Helpers.MenuSelect(options, false);
-                if (selectedObservation == "back")
+                if (selectedObservation == "back" || selectedObservation is null)
                 {
                     return;
                 }
@@ -88,13 +88,13 @@ namespace ExotischNederland.Menus
             Console.Clear();
             List<string> text = new List<string>();
             text.Add("Observatie details:");
-            text.Add($"Specie: {_observation.Specie.Name}");
-            text.Add($"Description: {_observation.Description}");
-            text.Add($"Longitude: {_observation.Longitude}");
-            text.Add($"Latitude: {_observation.Latitude}");
-            text.Add($"Photo URL: {_observation.PhotoUrl}");
-            text.Add($"User: {_observation.User.Name}");
-            text.Add("Press a key to return to the observations");
+            text.Add($"Soort: {_observation.Specie.Name}");
+            text.Add($"Beschrijving: {_observation.Description}");
+            text.Add($"Lengtegraad : {_observation.Longitude}");
+            text.Add($"Breedtegraad: {_observation.Latitude}");
+            text.Add($"Foto-URL: {_observation.PhotoUrl}");
+            text.Add($"Gebruiker: {_observation.User.Name}");
+            text.Add("Druk op een toets om terug te keren naar de observaties");
 
             Dictionary<string, string> menu = new Dictionary<string, string>();
             if (this.authenticatedUser.Permission.CanEditObservation(_observation)) menu.Add("edit", "Observatie bewerken");
@@ -116,12 +116,12 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
             List<FormField> fields = new List<FormField>();
-            fields.Add(new FormField("specieName", "Enter new specie name", "string", true, _observation.Specie.Name));
-            fields.Add(new FormField("specieCategory", "Enter new specie category", "string", true, _observation.Specie.Category));
-            fields.Add(new FormField("longitude", "Enter new longitude", "float", true, _observation.Longitude.ToString()));
-            fields.Add(new FormField("latitude", "Enter new latitude", "float", true, _observation.Latitude.ToString()));
-            fields.Add(new FormField("description", "Enter new description", "string", true, _observation.Description));
-            fields.Add(new FormField("photoUrl", "Enter new photo URL", "string", true, _observation.PhotoUrl));
+            fields.Add(new FormField("specieName", "Voer een nieuwe soortnaam in", "string", true, _observation.Specie.Name));
+            fields.Add(new FormField("specieCategory", "Voer een nieuwe soortcategorie in", "string", true, _observation.Specie.Category));
+            fields.Add(new FormField("longitude", "Voer een nieuwe lengtegraad in", "float", true, _observation.Longitude.ToString()));
+            fields.Add(new FormField("latitude", "Voer een nieuwe breedtegraad in", "float", true, _observation.Latitude.ToString()));
+            fields.Add(new FormField("description", "Voer een nieuwe beschrijving in", "string", true, _observation.Description));
+            fields.Add(new FormField("photoUrl", "Voer een nieuwe foto-URL in", "string", true, _observation.PhotoUrl));
 
             Dictionary<string, object> values = new Form(fields).Prompt();
             if (values == null)
@@ -140,7 +140,7 @@ namespace ExotischNederland.Menus
 
             _observation.Update(this.authenticatedUser);
 
-            Console.WriteLine("Observation updated!");
+            Console.WriteLine("Observatie bijgewerkt!");
             Console.ReadKey();
         }
 
@@ -148,13 +148,11 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
 
-            Console.Write($"Weet u zeker dat u observatie {_observation.Id} wilt verwijderen? ");
-            Console.WriteLine("J/N");
-            ConsoleKey key = Console.ReadKey().Key;
-            if (key == ConsoleKey.J)
+            Console.Write($"Weet u zeker dat u observatie {_observation.Id} wilt verwijderen? [J/N]");
+            if (Helpers.ConfirmPrompt())
             {
                 _observation.Delete(this.authenticatedUser);
-                Console.WriteLine("Observation deleted!");
+                Console.WriteLine("Observatie verwijderd!");
                 Console.ReadKey();
                 return;
             }
@@ -165,14 +163,15 @@ namespace ExotischNederland.Menus
         {
             Console.Clear();
             List<FormField> fields = new List<FormField>();
-            fields.Add(new FormField("specieName", "Enter specie name", "string", true));
-            fields.Add(new FormField("specieCategory", "Enter specie category", "string", true));
-            fields.Add(new FormField("longitude", "Enter longitude", "float", true));
-            fields.Add(new FormField("latitude", "Enter latitude", "float", true));
-            fields.Add(new FormField("description", "Enter description", "string", true));
-            fields.Add(new FormField("photoUrl", "Enter photo URL", "string", true));
+            fields.Add(new FormField("specieName", "Voer de soortnaam in", "string", true));
+            fields.Add(new FormField("specieCategory", "Voer de soortcategorie in", "string", true));
+            fields.Add(new FormField("longitude", "Voer de lengtegraad in", "float", true));
+            fields.Add(new FormField("latitude", "Voer de breedtegraad in", "float", true));
+            fields.Add(new FormField("description", "Voer een beschrijving in", "string", true));
+            fields.Add(new FormField("photoUrl", "Voer de foto-URL in", "string", true));
 
             Dictionary<string, object> values = new Form(fields).Prompt();
+            if (values is null) return;
             Specie specie = Specie.FindOrCreate((string)values["specieName"], (string)values["specieCategory"]);
 
             List<Observation> similarObservations = Observation.GetAll().Where(x => x.Specie.Name == specie.Name && x.Latitude == (float)values["latitude"] && x.Longitude == (float)values["longitude"]).ToList();
@@ -186,42 +185,46 @@ namespace ExotischNederland.Menus
                     Console.WriteLine($"Observatie ID: {observation.Id}, Specie: {observation.Specie.Name}, Beschrijving: {observation.Description}");
                 }
                 Console.WriteLine("Weet u zeker dat u nog een observatie wilt vastleggen? [J/N]");
-                ConsoleKey key = ConsoleKey.NoName;
-                while (key != ConsoleKey.N && key != ConsoleKey.J)
-                {
-                    key = Console.ReadKey().Key;
-                    // If user presses N, return to menu
-                    if (key == ConsoleKey.N) return;
-                    // If user presses J, continue to create observation
-                    if (key == ConsoleKey.J) break;
-                }
+                if (!Helpers.ConfirmPrompt()) return;
             }
 
             Observation.Create(specie, (float)values["longitude"], (float)values["latitude"], (string)values["description"], (string)values["photoUrl"], this.authenticatedUser);
-            Console.WriteLine("Observation created!");
+            Console.WriteLine("Observatie aangemaakt!");
             Console.ReadKey();
         }
 
         private void ExportObservations()
         {
             Console.Clear();
-            List<Observation> observations = Observation.GetAll();
-            Console.WriteLine("Voer het pad in naar het exportbestand:");
-            string filePath = Console.ReadLine();
-
-            using (StreamWriter writer = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(), "../../../ExotischNederland/", filePath)))
+            List<FormField> fields = new List<FormField>
             {
-                // Schrijf de header
-                writer.WriteLine("Id,Specie,Longitude,Latitude,Description,PhotoUrl,UserId");
+                new FormField("fileName", "Voer de naam in van het exportbestand", "string", true),
+                new FormField("from", "Start (dd-mm-yyyy HH:MM)", "datetime", false),
+                new FormField("to", "Eind (dd-mm-yyyy HH:MM)", "datetime", false)
+            };
+            Dictionary<string, object> values = new Form(fields).Prompt();
+            if (values == null) return;
+            
+            string path = Helpers.GetSafeFilePath((string)values["fileName"], "csv", "ObservatieExports");
 
-                // Schrijf elke observatie
+            DateTime? fromDate = !string.IsNullOrEmpty((string)values["from"]) ? (DateTime?)DateTime.Parse((string)values["from"]) : null;
+            DateTime? toDate = !string.IsNullOrEmpty((string)values["to"]) ? (DateTime?)DateTime.Parse((string)values["to"]) : null;
+
+            using (StreamWriter writer = new StreamWriter(path))
+            {
+                // Write the header
+                writer.WriteLine("Id,Specie,Longitude,Latitude,Description,PhotoUrl,UserId,TimeStamp");
+                List<Observation> observations = Observation.GetRange(fromDate, toDate);
+                // Write each observation
                 foreach (var observation in observations)
                 {
-                    writer.WriteLine($"{observation.Id},{observation.Specie.Name},{observation.Longitude},{observation.Latitude},{observation.Description},{observation.PhotoUrl},{observation.User.Id}");
+                    writer.WriteLine($"{observation.Id},{observation.Specie.Name},{observation.Longitude},{observation.Latitude},{observation.Description},{observation.PhotoUrl},{observation.User.Id},{observation.TimeStamp}");
                 }
             }
 
-            Console.WriteLine($"Observations have been exported to {filePath}");
+            Console.WriteLine($"Waarnemingen zijn geëxporteerd naar {path}");
+           
+            
             Console.ReadKey();
         }
     }

@@ -12,7 +12,6 @@ namespace ExotischNederland.Models
 {
     internal class User
     {
-        readonly string tablename = "User";
         public int Id { get; private set; }  // Add the User ID property with a private setter
         public string Name { get; set; }
         public string Email { get; set; }
@@ -20,10 +19,6 @@ namespace ExotischNederland.Models
         public List<Observation> Observations { get
             {
                 return this.GetObservations();
-            }
-            set
-            {
-                this.Observations = value;
             }
         }
         public List<Route> Routes { get; set; }
@@ -75,7 +70,8 @@ namespace ExotischNederland.Models
             };
 
             int id = sql.Insert("User", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new User(values);
         }
 
         public List<Observation> GetObservations()
@@ -176,7 +172,21 @@ namespace ExotischNederland.Models
             if (!_authenticatedUser.Permission.CanDeleteUser(this)) return;
 
             SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("UserQuest", qb => qb.Where("UserId", "=", this.Id));
+
+            foreach (Role role in this.Roles)
+                this.RemoveRole(role);
+
+            foreach (Observation o in this.Observations)
+                o.Transfer(_authenticatedUser);
+
             sql.Delete("User", this.Id);
+        }
+
+        public List<UserQuest> UserQuests()
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            return sql.Select<UserQuest>(qb => qb.Where("UserId", "=", this.Id));
         }
     }
 }

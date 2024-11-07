@@ -8,7 +8,6 @@ namespace ExotischNederland.Models
 {
     internal class Area
     {
-        readonly string tablename = "Area";
         public int Id { get; private set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -21,7 +20,11 @@ namespace ExotischNederland.Models
             set { PolygonPoints = SerializePolygonPoints(value); }
         }
 
-        public List<Route> Routes { get; set; }
+        public List<Route> Routes
+        {
+            get
+            { return this.GetRoutes(); }
+        }
 
         public Area(Dictionary<string, object> _values)
         {
@@ -29,7 +32,6 @@ namespace ExotischNederland.Models
             this.Name = (string)_values["Name"];
             this.Description = (string)_values["Description"];
             this.PolygonPoints = (string)_values["PolygonPoints"];
-            this.Routes = this.GetRoutes();
         }
 
         // Static method for creating an area
@@ -45,7 +47,8 @@ namespace ExotischNederland.Models
             };
 
             int id = sql.Insert("Area", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Area(values);
         }
 
         public static Area Find(int _id)
@@ -115,7 +118,7 @@ namespace ExotischNederland.Models
                     .Select(coords => (lat: double.Parse(coords[0]), lng: double.Parse(coords[1])))
                     .ToList();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine("Error parsing PolygonPoints");
                 return new List<(double lat, double lng)>();

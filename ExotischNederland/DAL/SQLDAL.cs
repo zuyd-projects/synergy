@@ -83,6 +83,7 @@ namespace ExotischNederland.DAL
         /// <returns>The value of the identity column of the newly created row. 0 if no identity column was found</returns>
         public int Insert(string _table, Dictionary<string, object> _values)
         {
+            _values = _values.Where(kvp => kvp.Value != null).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             using (SqlConnection connection = new SqlConnection(this.connectionString))
             {
                 var query = new QueryBuilder(_table).Insert(_values).Build();
@@ -101,7 +102,7 @@ namespace ExotischNederland.DAL
                         object result = (int)command.ExecuteScalar();
                         return (int)result;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return 0;
                     }

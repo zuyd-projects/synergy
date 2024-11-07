@@ -1,5 +1,6 @@
 ﻿using ExotischNederland.DAL;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,37 +17,19 @@ namespace ExotischNederland.Models
         public float Latitude { get; set; }
         public string Description { get; set; }
         public string PhotoUrl { get; set; }
+        public DateTime TimeStamp { get; private set; }
 
         public Observation(Dictionary<string, object> _values)
         {
             this.Id = Convert.ToInt32(_values["Id"]);
-            
-            // Handle User as an ID
-            if (_values.ContainsKey("UserId"))
-            {
-                // Load User object by UserId
-                this.User = User.Find(Convert.ToInt32(_values["UserId"]));
-            }
-            else
-            {
-                this.User = null;
-            }
-
-            // Handle Specie as an ID
-            if (_values.ContainsKey("SpecieId"))
-            {
-                // Load Specie object by SpecieId
-                this.Specie = Specie.Find(Convert.ToInt32(_values["SpecieId"]));
-            }
-            else
-            {
-                this.Specie = null;
-            }
-
+            this.User = User.Find((int)_values["UserId"]);
+            this.Specie = Specie.Find((int)_values["SpecieId"]);
             this.Longitude = Convert.ToSingle(_values["Longitude"]);
             this.Latitude = Convert.ToSingle(_values["Latitude"]);
             this.Description = _values["Description"]?.ToString();
             this.PhotoUrl = _values["PhotoUrl"]?.ToString();
+            if (_values["TimeStamp"] != DBNull.Value)
+                this.TimeStamp = Convert.ToDateTime(_values["TimeStamp"]);
         }
 
         // Method to create a new observation
@@ -62,12 +45,14 @@ namespace ExotischNederland.Models
                 { "Latitude", _latitude },
                 { "Description", _description },
                 { "PhotoUrl", _photoUrl },
-                { "UserId", _user.Id }  // Store the User's ID in the database
+                { "UserId", _user.Id },  // Store the User's ID in the database
+                { "TimeStamp", DateTime.Now }
             };
 
             int id = sql.Insert("Observation", values);
             Console.WriteLine($"Observation created with ID: {id}");
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Observation(values);
         }
 
         // Method to update an observation
@@ -83,7 +68,8 @@ namespace ExotischNederland.Models
             { "Latitude", this.Latitude },
             { "Description", this.Description },
             { "PhotoUrl", this.PhotoUrl },
-            { "UserId", this.User.Id }  // Store the User's ID
+            { "UserId", this.User.Id },  // Store the User's ID
+            { "TimeStamp", this.TimeStamp }
             };
 
             sql.Update("Observation", this.Id, values);
@@ -110,6 +96,26 @@ namespace ExotischNederland.Models
             List<Observation> observations = sql.Select<Observation>();
 
             return observations;
+        }
+
+        public static List<Observation> GetRange(object _start = null, object _end = null)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            // If no start or end date is provided, set them to the minimum and maximum value to include everything
+            if (_start == null) _start = new DateTime(1753, 1, 1); // DateTime.MinValue is too low for SQL Server
+            if (_end == null) _end = DateTime.MaxValue;
+            return sql.Select<Observation>(qb => qb.Where("TimeStamp", ">=", _start)
+                .Where("TimeStamp", "<=", _end));
+        }
+
+        public void Transfer(User _newUser)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            Dictionary<string, object> values = new Dictionary<string, object>
+            {
+                { "UserId", _newUser.Id }
+            };
+            sql.Update("Observation", this.Id, values);
         }
     }
 }
