@@ -30,7 +30,7 @@ namespace ExotischNederland.DAL
         public QueryBuilder Insert(Dictionary<string, object> _values)
         {
             // Get the columns and parameters from the values and join them into a comma separated string
-            var columns = string.Join(", ", _values.Keys);
+            var columns = string.Join(", ", _values.Keys.Select(k => $"[{k}]")); // Wrap each key in square brackets
             // Set the base SQL query to the INSERT statement and return the QueryBuilder instance
             var parameters = string.Join(", ", _values.Keys.Select(k => "@" + k));
             this.baseSQL = $"INSERT INTO [{this.table}] ({columns}) VALUES ({parameters})";
@@ -57,8 +57,9 @@ namespace ExotischNederland.DAL
         // Method for building the base Update query
         public QueryBuilder Update(Dictionary<string, object> _values)
         {
-            // Get the set values from the values and join them into a comma separated string
-            var setValues = string.Join(", ", _values.Select(kvp => $"{kvp.Key} = @{kvp.Key}"));
+            // Wrap each key in square brackets to avoid issues with reserved keywords
+            var setValues = string.Join(", ", _values.Select(kvp => $"[{kvp.Key}] = @{kvp.Key}"));
+    
             // Set the base SQL query to the UPDATE statement and return the QueryBuilder instance
             this.baseSQL = $"UPDATE [{this.table}] SET {setValues}";
             return this;
@@ -75,6 +76,7 @@ namespace ExotischNederland.DAL
         // Add WHERE clause using parameters to avoid SQL injection
         public QueryBuilder Where(string _column, string _operator, object _value)
         {
+            if (_value is DateTime) _value = ((DateTime)_value).ToString("yyyy-MM-dd HH:mm:ss");
             string parameterValue = _value is string ? $"'{_value}'" : _value.ToString();
             // If the value contains a . it contains the table name, so we need to split it (e.g. "User.Id" -> [User].[Id])
             this.whereClauses.Add($"[{string.Join("].[", _column.Split('.'))}] {_operator} {parameterValue}");

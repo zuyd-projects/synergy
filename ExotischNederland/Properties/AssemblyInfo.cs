@@ -32,4 +32,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: InternalsVisibleTo("Tests")]
+[assembly: InternalsVisibleTo("Tests")] // This is the assembly that will use the internal classes of ExotischNederland
+[assembly: InternalsVisibleTo("NaturePathfinder")] // This is the assembly that will use the internal classes of ExotischNederland

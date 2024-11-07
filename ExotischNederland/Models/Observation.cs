@@ -1,5 +1,6 @@
 ﻿using ExotischNederland.DAL;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,11 +17,12 @@ namespace ExotischNederland.Models
         public float Latitude { get; set; }
         public string Description { get; set; }
         public string PhotoUrl { get; set; }
+        public DateTime TimeStamp { get; private set; }
 
         public Observation(Dictionary<string, object> _values)
         {
             this.Id = Convert.ToInt32(_values["Id"]);
-            
+
             // Handle User as an ID
             if (_values.ContainsKey("UserId"))
             {
@@ -47,12 +49,16 @@ namespace ExotischNederland.Models
             this.Latitude = Convert.ToSingle(_values["Latitude"]);
             this.Description = _values["Description"]?.ToString();
             this.PhotoUrl = _values["PhotoUrl"]?.ToString();
+            if (_values["TimeStamp"] != DBNull.Value)
+                this.TimeStamp = Convert.ToDateTime(_values["TimeStamp"]);
         }
 
         // Method to create a new observation
         public static Observation Create(Specie _specie, double _longitude, double _latitude, string _description, string _photoUrl, User _user)
         {
-            SQLDAL sql = new SQLDAL();
+            if (!_user.Permission.CanCreateObservation()) return null;
+
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
                 { "SpecieId", _specie.Id },  // Store the Specie's ID in the database
@@ -60,7 +66,8 @@ namespace ExotischNederland.Models
                 { "Latitude", _latitude },
                 { "Description", _description },
                 { "PhotoUrl", _photoUrl },
-                { "UserId", _user.Id }  // Store the User's ID in the database
+                { "UserId", _user.Id },  // Store the User's ID in the database
+                { "TimeStamp", DateTime.Now }
             };
 
             int id = sql.Insert("Observation", values);
@@ -69,9 +76,11 @@ namespace ExotischNederland.Models
         }
 
         // Method to update an observation
-        public void Update()
+        public void Update(User _authenticatedUser)
         {
-            SQLDAL sql = new SQLDAL();
+            if (!_authenticatedUser.Permission.CanEditObservation(this)) return;
+
+            SQLDAL sql = SQLDAL.Instance;
             Dictionary<string, object> values = new Dictionary<string, object>
             {
             { "SpecieId", this.Specie.Id },  // Store the Specie's ID
@@ -79,7 +88,8 @@ namespace ExotischNederland.Models
             { "Latitude", this.Latitude },
             { "Description", this.Description },
             { "PhotoUrl", this.PhotoUrl },
-            { "UserId", this.User.Id }  // Store the User's ID
+            { "UserId", this.User.Id },  // Store the User's ID
+            { "TimeStamp", this.TimeStamp }
             };
 
             sql.Update("Observation", this.Id, values);
@@ -87,25 +97,45 @@ namespace ExotischNederland.Models
         }
 
         // Method to delete an observation
-        public void Delete()
+        public void Delete(User _authenticatedUser)
         {
-            SQLDAL sql = new SQLDAL();
-            sql.Delete("Observation", this.Id);
-            Console.WriteLine($"Observation with ID: {this.Id} deleted.");
-        }
+            if (!_authenticatedUser.Permission.CanDeleteObservation(this)) return;
 
+            SQLDAL sql = SQLDAL.Instance;
+            sql.Delete("Observation", this.Id);
+        }
         public static Observation Find(int _id)
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             return sql.Find<Observation>("Id", _id.ToString());
         }
         // Method to get all observations
         public static List<Observation> GetAll()
         {
-            SQLDAL sql = new SQLDAL();
+            SQLDAL sql = SQLDAL.Instance;
             List<Observation> observations = sql.Select<Observation>();
 
             return observations;
+        }
+
+        public static List<Observation> GetRange(object _start = null, object _end = null)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            // If no start or end date is provided, set them to the minimum and maximum value to include everything
+            if (_start == null) _start = new DateTime(1753, 1, 1); // DateTime.MinValue is too low for SQL Server
+            if (_end == null) _end = DateTime.MaxValue;
+            return sql.Select<Observation>(qb => qb.Where("TimeStamp", ">=", _start)
+                .Where("TimeStamp", "<=", _end));
+        }
+
+        public void Transfer(User _newUser)
+        {
+            SQLDAL sql = SQLDAL.Instance;
+            Dictionary<string, object> values = new Dictionary<string, object>
+            {
+                { "UserId", _newUser.Id }
+            };
+            sql.Update("Observation", this.Id, values);
         }
     }
 }

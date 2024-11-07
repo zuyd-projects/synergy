@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
-    Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -47,6 +46,16 @@
     <Compile Include="DAL\QueryBuilder.cs" />
     <Compile Include="DAL\SQLDAL.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="Menus\AreaMenu.cs" />
+    <Compile Include="Menus\GameMenu.cs" />
+    <Compile Include="Menus\IMenu.cs" />
+    <Compile Include="Menus\AuthenticationMenu.cs" />
+    <Compile Include="Menus\ObservationMenu.cs" />
+    <Compile Include="Menus\QuestionMenu.cs" />
+    <Compile Include="Menus\PointOfInterestMenu.cs" />
+    <Compile Include="Menus\UserMenu.cs" />
+    <Compile Include="Menus\RouteMenu.cs" />
+    <Compile Include="Menus\MainMenu.cs" />
     <Compile Include="Models\Answer.cs" />
     <Compile Include="Models\Area.cs" />
     <Compile Include="Models\Game.cs" />
@@ -60,8 +69,12 @@
     <Compile Include="Models\Specie.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserQuest.cs" />
+    <Compile Include="Permission.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Form.cs" />
+    <Compile Include="Tools\Search.cs" />
+    <Compile Include="Tools\Sorter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".env" />
@@ -74,6 +87,9 @@
     <Folder Include="bin\Debug\" />
     <Folder Include="bin\Release\" />
     <Folder Include="obj\Debug\TempPE\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ExotischNederland.sln" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

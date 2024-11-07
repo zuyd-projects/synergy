@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExotischNederland", "Exotis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturePathfinder", "NaturePathfinder\NaturePathfinder.csproj", "{61234F13-5365-4313-A3CC-EC5686686E3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F47F992-AE9B-427B-8FFD-2F7A58C915FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61234F13-5365-4313-A3CC-EC5686686E3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61234F13-5365-4313-A3CC-EC5686686E3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61234F13-5365-4313-A3CC-EC5686686E3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61234F13-5365-4313-A3CC-EC5686686E3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

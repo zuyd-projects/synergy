@@ -13,11 +13,31 @@ namespace ExotischNederland.DAL
 
         private SqlConnection connection;
 
-        public SQLDAL()
+        private static SQLDAL instance;
+
+        private static readonly object lockObject = new object();
+
+        private SQLDAL()
         {
             Dictionary<string, string> settings = Helpers.LoadSettings();
             this.connectionString = $"Server={settings["DB_HOST"]},{settings["DB_PORT"]};Database={settings["DB_DATABASE"]};User ID={settings["DB_USERNAME"]};Password={settings["DB_PASSWORD"]}";
             this.connection = new SqlConnection(this.connectionString);
+        }
+
+        //
+        public static SQLDAL Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (lockObject)
+                    {
+                        instance = new SQLDAL();
+                    }
+                }
+                return instance;
+            }
         }
 
         /// <summary>
@@ -81,7 +101,7 @@ namespace ExotischNederland.DAL
                         object result = (int)command.ExecuteScalar();
                         return (int)result;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return 0;
                     }
