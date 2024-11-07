@@ -34,7 +34,7 @@ namespace ExotischNederland.Models
                 { "Longitude", _longitude },
                 { "Latitude", _latitude }
             };
-            if (_description != null) values.Add("Description", _description);
+            
             int id = sql.Insert("PointOfInterest", values);
             return Find(id);
         }
@@ -76,7 +76,7 @@ namespace ExotischNederland.Models
 
         public double CalculateDistance(float _userLatitude, float _userLongitude)
         {
-            double R = 6371e3; // Earth's radius in meters
+            double R = 6371000; // Earth's radius in meters
             double phi1 = Latitude * Math.PI / 180;
             double phi2 = _userLatitude * Math.PI / 180;
             double deltaPhi = (_userLatitude - Latitude) * Math.PI / 180;
@@ -104,12 +104,13 @@ namespace ExotischNederland.Models
             foreach (var poi in pointsOfInterest)
             {
                 double distance = poi.CalculateDistance(_user.CurrentLatitude, _user.CurrentLongitude);
+                Console.WriteLine($"Distance to {poi.Name}: {distance} meters");
+
                 if (distance <= _radius)
                 {
                     notifications.Add($"Notification: {_user.Name}, you are within {_radius} meters of {poi.Name}!");
                 }
             }
-
             return notifications;
         }
     }

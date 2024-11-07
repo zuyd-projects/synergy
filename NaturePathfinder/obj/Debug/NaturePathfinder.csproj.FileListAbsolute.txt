@@ -8,3 +8,13 @@
 /Users/noaheutz/Developer/synergy/NaturePathfinder/obj/Debug/NaturePathfinder.csproj.CopyComplete
 /Users/noaheutz/Developer/synergy/NaturePathfinder/obj/Debug/NaturePathfinder.exe
 /Users/noaheutz/Developer/synergy/NaturePathfinder/obj/Debug/NaturePathfinder.pdb
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\bin\Debug\NaturePathfinder.exe
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\bin\Debug\NaturePathfinder.pdb
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\bin\Debug\ExotischNederland.exe
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\bin\Debug\ExotischNederland.pdb
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\bin\Debug\ExotischNederland.exe.config
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\obj\Debug\NaturePathfinder.csproj.AssemblyReference.cache
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\obj\Debug\NaturePathfinder.csproj.CoreCompileInputs.cache
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\obj\Debug\NaturePa.5C19D1D1.Up2Date
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\obj\Debug\NaturePathfinder.exe
+C:\Users\Broertje\source\repos\synergy\NaturePathfinder\obj\Debug\NaturePathfinder.pdb
