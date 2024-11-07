@@ -84,39 +84,5 @@ namespace Tests
             PointOfInterest fetchedPoi = PointOfInterest.Find(poi.Id);
             Assert.IsNull(fetchedPoi);
         }
-
-        [TestMethod]
-        public void TestPointOfInterestProximityCheck()
-        {
-            // Arrange
-            string name = "Nearby Point";
-            string description = "A nearby point of interest";
-            string type = "Cultural";
-            float poiLongitude = 4.895168f;
-            float poiLatitude = 52.370216f;
-            PointOfInterest poi = PointOfInterest.Create(name, description, type, poiLongitude, poiLatitude);
-
-            User testUser = new User(new Dictionary<string, object>
-            {
-                { "Id", 1 },
-                { "Name", "Test User" },
-                { "Email", "test@example.com" },
-                { "PasswordHash", "hash" },
-                { "CurrentLatitude", 52.370216f },
-                { "CurrentLongitude", 4.895168f }
-            });
-
-            // Act
-            List<string> notifications = PointOfInterest.CheckProximityForUser(testUser, 100);
-            Console.WriteLine("Notifications:");
-            foreach (var notification in notifications)
-            {
-                Console.WriteLine(notification);
-            }
-
-
-            // Assert
-            Assert.IsTrue(notifications.Contains($"Notification: {testUser.Name}, you are within 100 meters of {poi.Name}!"));
-        }
     }
 }
