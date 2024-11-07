@@ -40,6 +40,25 @@ NaturePathfinder
 	•	Complexity: O(N), where N is the number of nodes in the path.
 	•	Explanation: This method backtracks through the previous nodes to reconstruct the shortest path, visiting each node in the path once.
 
+📍Topology Setup in Nature Pathfinder
+
+	1.	Identification of Closest Areas: For each area in areas:
+	•	The code iterates through each area to determine the five closest neighboring areas based on precomputed distances.
+	•	distances is a dictionary storing distances between all pairs of areas.
+	•	For each area, the code filters distances to find entries where d.Key.Item1 matches the current area (indicating that area is one endpoint of each distance pair).
+	•	It then sorts these distances in ascending order and selects the top five shortest distances.
+	2.	Selection of Connections:
+	•	For the selected five closest areas, the code creates a Route object for each, which represents a weighted edge in the graph with the target area and distance (weight) specified.
+	•	These routes form the edges of the graph and define each area’s immediate neighborhood.
+	3.	Bidirectional Connectivity:
+	•	Each route is added in both directions to the graph object by using graph.AddRoute(area, route) and graph.AddRoute(route.TargetArea, new Route(area, route.Weight)).
+	•	This setup ensures the graph remains undirected, allowing travel from one area to another and back with the same distance cost.
+	4.	Sparse Connection Structure:
+	•	By limiting each area to only five connections, the graph avoids excessive complexity and unnecessary edges, creating a sparse graph structure.
+	•	This sparse connectivity helps Dijkstra’s algorithm function efficiently by minimizing the number of edges it must evaluate for shortest path calculations.
+	5.	Output Verification:
+	•	For each added route, the code outputs a line to the console confirming the connection between two areas and the distance, allowing for verification of the topology setup.
+
 📝 Requirements
 
 	•	.NET Core SDK (version 4.7.2)
