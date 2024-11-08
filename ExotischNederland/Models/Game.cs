@@ -42,7 +42,8 @@ namespace ExotischNederland.Models
                 { "Description", description }
             };
             int id = db.Insert("Game", values);
-            return Find(id); // Return the created game by finding it with its new ID
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Game(values);
         }
 
         public static Game Find(int gameId)

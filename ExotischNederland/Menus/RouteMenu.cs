@@ -104,8 +104,9 @@ namespace ExotischNederland.Menus
             var values = new Form(fields).Prompt();
             if (values == null) return;
 
-            int areaId = (int)values["area"];  // Ensure areaId is provided and not null
-            Route route = Route.Create((string)values["name"], (string)values["description"], areaId, authenticatedUser);
+            int areaId = int.Parse((string)values["area"]);
+            Area area = Area.Find(areaId);  // Ensure areaId is provided and not null
+            Route route = Route.Create((string)values["name"], (string)values["description"], area, authenticatedUser);
             Console.WriteLine($"Route '{values["name"]}' created successfully with ID: {route.Id}");
             Console.ReadKey();
         }
@@ -174,7 +175,7 @@ namespace ExotischNederland.Menus
             if (values == null) return;
 
             int order = (int)values["order"];
-            int poiId = (int)values["poiId"];
+            int poiId = int.Parse((string)values["poiId"]);
             PointOfInterest poi = PointOfInterest.Find(poiId);
 
             if (poi != null)

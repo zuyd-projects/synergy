@@ -39,7 +39,8 @@ namespace ExotischNederland.Models
                 { "Type", type }
             };
             int id = db.Insert("Question", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new Question(values);
         }
 
         public static Question Find(int questionId)

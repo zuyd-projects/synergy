@@ -70,7 +70,8 @@ namespace ExotischNederland.Models
             };
 
             int id = sql.Insert("User", values);
-            return Find(id);
+            values["Id"] = id; // Add the generated Id to the values dictionary
+            return new User(values);
         }
 
         public List<Observation> GetObservations()

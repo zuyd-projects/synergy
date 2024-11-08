@@ -59,7 +59,6 @@
     <Compile Include="Models\Answer.cs" />
     <Compile Include="Models\Area.cs" />
     <Compile Include="Models\Game.cs" />
-    <Compile Include="Models\Model.cs" />
     <Compile Include="Models\Observation.cs" />
     <Compile Include="Models\PointOfInterest.cs" />
     <Compile Include="Models\Question.cs" />
