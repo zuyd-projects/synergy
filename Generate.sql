@@ -1,0 +1,315 @@
+USE [synergy]
+GO
+/****** Object:  Table [dbo].[Answer]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Answer](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[QuestionId] [int] NOT NULL,
+	[Text] [varchar](255) NOT NULL,
+	[Correct] [int] NOT NULL,
+ CONSTRAINT [Answer_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Area]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Area](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](255) NOT NULL,
+	[Description] [text] NULL,
+	[PolygonPoints] [text] NULL,
+ CONSTRAINT [Area_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AreaObservation]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AreaObservation](
+	[AreaId] [int] NOT NULL,
+	[ObservationId] [int] NOT NULL,
+ CONSTRAINT [AreaObservation_PK] PRIMARY KEY CLUSTERED 
+(
+	[AreaId] ASC,
+	[ObservationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Game]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Game](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RouteId] [int] NOT NULL,
+	[Title] [varchar](255) NOT NULL,
+	[Description] [text] NULL,
+ CONSTRAINT [Game_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Observation]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Observation](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[SpecieId] [int] NOT NULL,
+	[Longitude] [float] NOT NULL,
+	[Latitude] [float] NOT NULL,
+	[Description] [text] NULL,
+	[PhotoUrl] [varchar](255) NULL,
+	[UserId] [int] NOT NULL,
+	[TimeStamp] [datetime] NULL,
+ CONSTRAINT [Observation_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PointOfInterest]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PointOfInterest](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](255) NOT NULL,
+	[Description] [text] NULL,
+	[Type] [varchar](255) NOT NULL,
+	[Longitude] [float] NOT NULL,
+	[Latitude] [float] NOT NULL,
+ CONSTRAINT [PointOfInterest_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Question]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Question](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[GameId] [int] NOT NULL,
+	[Text] [varchar](255) NOT NULL,
+	[Type] [varchar](255) NOT NULL,
+ CONSTRAINT [Question_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Role]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Role](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RoleName] [varchar](255) NOT NULL,
+	[Description] [varchar](255) NULL,
+ CONSTRAINT [Role_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Route]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Route](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](255) NOT NULL,
+	[Description] [text] NULL,
+	[UserId] [int] NULL,
+	[AreaId] [int] NOT NULL,
+ CONSTRAINT [Route_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[RoutePoint]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[RoutePoint](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RouteId] [int] NOT NULL,
+	[Order] [int] NOT NULL,
+	[PointOfInterestId] [int] NULL,
+ CONSTRAINT [RoutePoint_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Specie]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Specie](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](255) NOT NULL,
+	[Category] [varchar](255) NOT NULL,
+ CONSTRAINT [Specie_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[User]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[User](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](255) NOT NULL,
+	[Email] [varchar](255) NOT NULL,
+	[PasswordHash] [varchar](255) NOT NULL,
+ CONSTRAINT [User_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [User_UNIQUE_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserQuest]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserQuest](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[QuestionId] [int] NOT NULL,
+	[AnswerId] [int] NOT NULL,
+	[UserId] [int] NOT NULL,
+ CONSTRAINT [UserQuest_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserRole]    Script Date: 08/11/2024 17:11:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserRole](
+	[UserId] [int] NOT NULL,
+	[RoleId] [int] NOT NULL,
+ CONSTRAINT [UserRole_PK] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC,
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[Answer] ADD  DEFAULT ((0)) FOR [Correct]
+GO
+ALTER TABLE [dbo].[Answer]  WITH CHECK ADD  CONSTRAINT [Answer_Question_FK] FOREIGN KEY([QuestionId])
+REFERENCES [dbo].[Question] ([Id])
+GO
+ALTER TABLE [dbo].[Answer] CHECK CONSTRAINT [Answer_Question_FK]
+GO
+ALTER TABLE [dbo].[AreaObservation]  WITH CHECK ADD  CONSTRAINT [AreaObservation_Area_FK] FOREIGN KEY([AreaId])
+REFERENCES [dbo].[Area] ([Id])
+GO
+ALTER TABLE [dbo].[AreaObservation] CHECK CONSTRAINT [AreaObservation_Area_FK]
+GO
+ALTER TABLE [dbo].[AreaObservation]  WITH CHECK ADD  CONSTRAINT [AreaObservation_Observation_FK] FOREIGN KEY([ObservationId])
+REFERENCES [dbo].[Observation] ([Id])
+GO
+ALTER TABLE [dbo].[AreaObservation] CHECK CONSTRAINT [AreaObservation_Observation_FK]
+GO
+ALTER TABLE [dbo].[Game]  WITH CHECK ADD  CONSTRAINT [Game_Route_FK] FOREIGN KEY([RouteId])
+REFERENCES [dbo].[Route] ([Id])
+GO
+ALTER TABLE [dbo].[Game] CHECK CONSTRAINT [Game_Route_FK]
+GO
+ALTER TABLE [dbo].[Observation]  WITH CHECK ADD  CONSTRAINT [Observation_Specie_FK] FOREIGN KEY([SpecieId])
+REFERENCES [dbo].[Specie] ([Id])
+GO
+ALTER TABLE [dbo].[Observation] CHECK CONSTRAINT [Observation_Specie_FK]
+GO
+ALTER TABLE [dbo].[Observation]  WITH CHECK ADD  CONSTRAINT [Observation_User_FK] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[Observation] CHECK CONSTRAINT [Observation_User_FK]
+GO
+ALTER TABLE [dbo].[Question]  WITH CHECK ADD  CONSTRAINT [Question_Game_FK] FOREIGN KEY([GameId])
+REFERENCES [dbo].[Game] ([Id])
+GO
+ALTER TABLE [dbo].[Question] CHECK CONSTRAINT [Question_Game_FK]
+GO
+ALTER TABLE [dbo].[Route]  WITH CHECK ADD  CONSTRAINT [Route_Area_FK] FOREIGN KEY([AreaId])
+REFERENCES [dbo].[Area] ([Id])
+GO
+ALTER TABLE [dbo].[Route] CHECK CONSTRAINT [Route_Area_FK]
+GO
+ALTER TABLE [dbo].[Route]  WITH CHECK ADD  CONSTRAINT [Route_User_FK] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[Route] CHECK CONSTRAINT [Route_User_FK]
+GO
+ALTER TABLE [dbo].[RoutePoint]  WITH CHECK ADD  CONSTRAINT [RoutePoint_PointOfInterest_FK] FOREIGN KEY([PointOfInterestId])
+REFERENCES [dbo].[PointOfInterest] ([Id])
+GO
+ALTER TABLE [dbo].[RoutePoint] CHECK CONSTRAINT [RoutePoint_PointOfInterest_FK]
+GO
+ALTER TABLE [dbo].[RoutePoint]  WITH CHECK ADD  CONSTRAINT [RoutePoint_Route_FK] FOREIGN KEY([RouteId])
+REFERENCES [dbo].[Route] ([Id])
+GO
+ALTER TABLE [dbo].[RoutePoint] CHECK CONSTRAINT [RoutePoint_Route_FK]
+GO
+ALTER TABLE [dbo].[UserQuest]  WITH CHECK ADD  CONSTRAINT [UserQuest_Answer_FK] FOREIGN KEY([AnswerId])
+REFERENCES [dbo].[Answer] ([Id])
+GO
+ALTER TABLE [dbo].[UserQuest] CHECK CONSTRAINT [UserQuest_Answer_FK]
+GO
+ALTER TABLE [dbo].[UserQuest]  WITH CHECK ADD  CONSTRAINT [UserQuest_Question_FK] FOREIGN KEY([QuestionId])
+REFERENCES [dbo].[Question] ([Id])
+GO
+ALTER TABLE [dbo].[UserQuest] CHECK CONSTRAINT [UserQuest_Question_FK]
+GO
+ALTER TABLE [dbo].[UserQuest]  WITH CHECK ADD  CONSTRAINT [UserQuest_User_FK] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[UserQuest] CHECK CONSTRAINT [UserQuest_User_FK]
+GO
+ALTER TABLE [dbo].[UserRole]  WITH CHECK ADD  CONSTRAINT [UserRole_Role_FK] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[Role] ([Id])
+GO
+ALTER TABLE [dbo].[UserRole] CHECK CONSTRAINT [UserRole_Role_FK]
+GO
+ALTER TABLE [dbo].[UserRole]  WITH CHECK ADD  CONSTRAINT [UserRole_User_FK] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[UserRole] CHECK CONSTRAINT [UserRole_User_FK]
+GO

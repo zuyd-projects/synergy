@@ -116,16 +116,10 @@ public static Dictionary<string, string> LoadSettings()
 Loads the settings in the .env file located in the ExotischNederland folder. This function is needed for the DB connection string.
 
 ```cs
-public static string ReadPassword()
+public static string ReadInputWithEsc(bool _hidden = false)
 ```
 
-Create an input field to enter a password
-
-```cs
-public static string ReadInputWithEsc()
-```
-
-Read an input from the user or return null if ESC is pressed (used primarily in the Form class)
+Read an input from the user or return null if ESC is pressed (used primarily in the Form class). If hidden is set to true then the input will show as asterisks to the user
 
 ```cs
 public static bool ConfirmPrompt()
@@ -145,26 +139,11 @@ if (Helpers.ConfirmPrompt())
 }
 ```
 
-### Tools
-
-The tools are available in the Tools folder.
-
-#### Sorter.cs
-
-Sorter class takes in a List of a model and can chain multiple Sort() methods to order this list based on a property.
-
 ```cs
-public Sorter<T> Sort(string _property, bool _ascending = true)
+public static string GetSafeFilePath(string _name, string _extension, string _subFolder = null)
 ```
 
-- _property is a string equal to the name of the property on the model
-- _ascending is a boolean to switch between ascending and descending
-
-```cs
-public List<T> ToList()
-```
-
-Returns the sorted list
+Returns a path to the AppData/Roaming/ExotischNederland folder with an optional subFolder and filename + extension included. Will make sure the file ends in this extension and will block path traversal and illegal characters.
 
 ### Menus
 
